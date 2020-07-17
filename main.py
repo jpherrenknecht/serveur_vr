@@ -38,20 +38,7 @@ def resultat():
                                                               # resultat = request.args dans le cas d'une requete 'GET'
   lat                 = resultat1['lat']
   long                = resultat1['long']
-  #session["user"]   = n                                          # stockage du nom en session
-  #session["prenom"] = pr
-
-  # sauvegarde nom et prenom dans la base de donnees
-
-  #nouveau = user2(nom=n, prenom=pr)
-  # db.session.add(nouveau)
-  # db.session.commit()
-
-  # la fonction add est importée de calcul.py
-  if lat=="admin" :
-      return render_template( "resultat.html", nom=lat , result=request.form)     # transmission des donnees recuperees par le post au travers de resuest.form
-  else :
-      return render_template("resultat.html", total=add(lat,long) , result=request.form)
+  return render_template("map.html", total=add(lat,long) , result=request.form)
 
 
 

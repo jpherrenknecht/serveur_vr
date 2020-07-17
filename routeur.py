@@ -453,7 +453,7 @@ folium.PolyLine(chemin_folium, color="blue", weight=2.5, opacity=0.8).add_to(m)
 
 filecarte='map.html'
 
-filepath = filecarte
+filepath = 'templates/'+filecarte
 m.save(filepath)
 webbrowser.open( filepath)
 
