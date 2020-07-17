@@ -249,6 +249,14 @@ def f_isochrone(pt_init_cplx, temps_initial_iso):
     return ptn_cplx, nouveau_temps, but, indice,trace_iso
 
 
+
+
+
+
+
+
+
+
 # ************************************   Initialisations      **********************************************************
 
 # with open("afrique.txt", "rb") as fp:   # chargement du contour afrique
@@ -283,7 +291,10 @@ latitude_a = '049-15-00-N'
 longitude_a = '005-10-00-W'
 
 d = chaine_to_dec(latitude_d, longitude_d)  # conversion des latitudes et longitudes en tuple
+print ('depart',d)
 ar = chaine_to_dec(latitude_a, longitude_a)
+print ('arrivee : ',ar)
+
 
 D = cplx(d)  # transformation des tuples des points en complexes
 A = cplx(ar)
@@ -325,6 +336,11 @@ folium.LatLngPopup().add_to(m)   # popup lat long
 pt1_cpx = np.array([[D]])
 # todo il faudrait stoper si l'on sort des limites de temps du grib
 # tant que le but n'est pas atteint on calcule des isochrones
+
+
+
+
+
 but = False
 while but == False:
     # i=0
@@ -462,3 +478,6 @@ webbrowser.open( filepath)
 tac = time.time()
 print('\nDuree d\'execution:  {:4.2f} s'.format(tac - tic))
 
+
+
+#if __name__ == '__main__':

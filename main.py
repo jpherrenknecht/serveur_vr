@@ -1,8 +1,30 @@
-from flask import Flask, redirect, url_for,render_template, request , session , flash
-from datetime import timedelta
-from flask_sqlalchemy import SQLAlchemy
-from calcul import add
 
+import os
+import time
+from datetime import timedelta
+import math
+import numpy as np
+import matplotlib.pyplot as plt
+import xarray as xr
+import pandas as pd
+import folium
+import webbrowser
+from uploadgrib import *
+
+
+from operator import itemgetter
+import pickle
+from shapely.geometry import Point,Polygon
+from shapely import speedups
+
+from flask import Flask, redirect, url_for,render_template, request , session , flash
+from flask_sqlalchemy import SQLAlchemy
+
+
+from calcul import add
+from frouteur import frouteur
+
+from polaires.polaires_imoca import *
 # commentaire ajoute pour test
 
 
@@ -22,8 +44,13 @@ class user(db.Model):                                              # creation du
     prenom = db.Column(db.String(100))
 
 
+#Depart : Latitude -43.6450  Longitude -59.4267
+#Arrivee: Latitude -49.25  Longitude -5.17
 
+latar=49.25
+longar=-5.16666666
 
+##partie serveur web
 
 
 @app.route('/')
@@ -36,9 +63,13 @@ def index():
 def resultat():
   resultat1 = request.form                                    # dictionnaire avec les resultats de la requete
                                                               # resultat = request.args dans le cas d'une requete 'GET'
-  lat                 = resultat1['lat']
-  long                = resultat1['long']
-  return render_template("map.html", total=add(lat,long) , result=request.form)
+  latdep                 = resultat1['lat']
+  longdep                = resultat1['long']
+
+  frouteur (latdep,longdep,latar,longar)
+
+ 
+  return render_template("map.html", total=add(latdep,longdep) , result=request.form)
 
 
 
