@@ -19,7 +19,7 @@ from pathlib import Path
 # renvoie le chemin absolu du repertoire courant ici /home/jphe/PycharmProjects/VR_version2
 basedir = os.path.abspath(os.path.dirname(__file__))
 
-
+# test poutr commit
 
 ix = np.arange(129)  # temps
 iy = np.arange(181)  # latitudes

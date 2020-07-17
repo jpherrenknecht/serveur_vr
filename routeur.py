@@ -24,9 +24,14 @@ import pickle
 from shapely.geometry import Point,Polygon
 from shapely import speedups
 
+#test 7
+
 
 tic = time.time()
 basedir = os.path.abspath(os.path.dirname(__file__))
+
+
+#autre test
 
 # *****************************************   Donnees   ****************************************************************
 '''
