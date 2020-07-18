@@ -1,5 +1,5 @@
 
-#!/bin/env python3
+#!/bin/env_vr python3.7.5
 # coding: utf-8
 import os
 import time
@@ -8,6 +8,7 @@ import numpy as np
 from urllib.request import urlretrieve
 import xarray as xr
 import h5py
+from datetime import datetime
 from scipy.interpolate import RegularGridInterpolator
 from pathlib import Path
 
@@ -19,7 +20,6 @@ from pathlib import Path
 # renvoie le chemin absolu du repertoire courant ici /home/jphe/PycharmProjects/VR_version2
 basedir = os.path.abspath(os.path.dirname(__file__))
 
-# test poutr commit
 
 ix = np.arange(129)  # temps
 iy = np.arange(181)  # latitudes
@@ -38,6 +38,9 @@ def chainetemps_to_int(chainetemps):
     strhour = chainetemps[11:13]
     date = chainetemps[6:10] + chainetemps[3:5] + chainetemps[0:2]
 
+    print('strhour : ',strhour)
+    print('date : ',date)
+
     t = time.localtime()
     utc = time.gmtime()
     decalage_s = (t[3] - utc[3]) * 3600
@@ -49,22 +52,6 @@ def chainetemps_to_int(chainetemps):
     return t_s_local, day, month, year, hour, mins, secs, date, strhour, formate_local, t_s_utc
 
 
-def chaine_to_dec_old(latitude, longitude):
-    ''' Transforme les chaines latitude et longitude en un tuple (x,y) '''
-    degre = int(latitude[0:2])
-    minutes = int(latitude[3:5])
-    secondes = int(latitude[6:8])
-    lat = degre + minutes / 60 + secondes / 3600
-    if latitude[9] == 'N':
-        lat = -lat
-    degre = int(longitude[0:2])
-    minutes = int(longitude[3:5])
-    secondes = int(longitude[6:8])
-    long = degre + minutes / 60 + secondes / 3600
-    if longitude[9] == 'W':
-        long = -long
-
-    return (long, lat)
 def chaine_to_dec(latitude, longitude):
     ''' Transforme les chaines latitude et longitude en un tuple (x,y) '''
     degre = int(latitude[0:3])
@@ -79,47 +66,77 @@ def chaine_to_dec(latitude, longitude):
     long = degre + minutes / 60 + secondes / 3600
     if longitude[10] == 'W':
         long = -long
-
     return (long, lat)
+
+
+# def filename_old():
+#     ''' retourne le nom du fichier du dernier grib sous lequel le grib chargé sera sauvé ou du derenier grib disponible '''
+#     heures = ['00', '06', '12', '18']
+#     t = time.localtime()
+#     utc = time.gmtime()
+#     decalage_h = t[3] - utc[3]
+#     decalage_s = decalage_h * 3600
+
+#     #on bloque l'heure du grib
+#     heure_grib = heures[((utc[3] + 19) // 6) % 4]  #
+#     #si utc inferieur à 5 la date doit etre celle de la veille
+#     if utc[3]<5:
+#         utc = time.gmtime(time.time() -18000)
+#     dategrib = str(utc[2] // 10) + str(utc[2] % 10) + '-' + str(utc[1] // 10) + str(utc[1] % 10) + '-' + str(
+#         utc[0]) + ' ' + heure_grib + '-00-00'
+#     filename="gribs/grib_gfs_" + dategrib + ".hdf5"
+#     filenamehdf5 = os.path.join(basedir,filename)
+
+#     return filenamehdf5,dategrib
+
+
+
+def filename():
+    ''' retourne le nom du fichier du dernier grib sous lequel le grib chargé sera sauvé ou du dernier grib disponible
+       la date du grib et le tig en secondes locales '''
+    t = time.localtime()
+    utc = time.gmtime()
+    decalage_h = t[3] - utc[3]
+    heures = [0,6,12,18]
+        #on bloque l'heure du grib
+    heure_grib = heures[((utc[3] + 19) // 6) % 4]  #
+    #si utc inferieur à 5 la date doit etre celle de la veille
+    if utc[3]<5:
+        utc = time.gmtime(time.time() -18000)
+    dategrib =datetime(utc[0] , utc[1] , utc[2] , int(heure_grib),0, 0)
+    tig=time.mktime(dategrib.timetuple())+decalage_h*3600
+
+    date= str(dategrib)
+    filename="gribs/grib_gfs_" + date + ".hdf5"
+    filenamehdf5 = os.path.join(basedir,filename)
+    
+    #time.time()- tig correspond bien à l'ecart de temps avec le grib
+    return filenamehdf5,date,tig
+
+
+
+
 
 def chargement_grib():
     '''Charge le grib a la date indiquée et le sauve en type tableau de complexes sous format hd5'''
 
-
-
-    heures = ['00', '06', '12', '18']
-    t = time.localtime()
-    utc = time.gmtime()
-    decalage_h = t[3] - utc[3]
-    decalage_s = decalage_h * 3600
-
-
-
-    #on bloque l(heure du grib
-    heure_grib = heures[((utc[3] + 19) // 6) % 4]  #
-    #si utc inferieur à 5 la date doit etre celle de la veille
-
-    if utc[3]<5:
-        utc = time.gmtime(time.time() -18000)
-
-
-    dategrib = str(utc[2] // 10) + str(utc[2] % 10) + '-' + str(utc[1] // 10) + str(utc[1] % 10) + '-' + str(
-        utc[0]) + ' ' + heure_grib + '-00-00'
-
-    #print ('dategrib',dategrib)
-
-    filename="gribs/grib_gfs_" + dategrib + ".hdf5"
-    filenamehdf5 = os.path.join(basedir,filename)
-   # filenamehd5 = "~/PycharmProjects/VR_version2/gribs/grib_gfs_" + dategrib + ".hdf5"
-    print('Emplacement fichier hdf5 : ', filenamehdf5)
-    # print('heure grib utc ', int(heure_grib))
+    (filenamehdf5,dategrib,tig )= filename()
+    print ('dategrib',dategrib) 
+   
+    #tlocal, day, month, year, hour, mins, secs, date, strhour, formate, t_s_utc = chainetemps_to_int(dategrib)
+   
+    date=dategrib[0:10].replace("-","")
+    print('date : ',date)
+    strhour=dategrib[11:13]
+    print('strhour : ',strhour)
 
     if os.path.exists(filenamehdf5) == False:
-        tlocal, day, month, year, hour, mins, secs, date, strhour, formate, t_s_utc = chainetemps_to_int(dategrib)
+        
 
-        print('valeur de tlocal', tlocal)
-        # print('tig au debut chargement grib',tig)
-        print('tlocal au debut chargement grib', tlocal)
+         
+
+
+       
 
         leftlon, rightlon, toplat, bottomlat = 0, 360, 90, -90
         iprev = ()
@@ -139,8 +156,7 @@ def chargement_grib():
 
             urlretrieve(url, nom_fichier)  # recuperation des fichiers
 
-            print(' Enregistrement prévision {} + {} heures effectué: '.format(dategrib,
-                                                                               prev))  # destine a suivre le chargement des previsions
+            print(' Enregistrement prévision {} + {} heures effectué: '.format(dategrib,prev))  # destine a suivre le chargement des previsions
 
             # exploitation du fichier et mise en memoire dans GR
             ds = xr.open_dataset(nom_fichier, engine='cfgrib')
@@ -155,14 +171,14 @@ def chargement_grib():
         f1 = h5py.File(filenamehdf5, "w")
         dset1 = f1.create_dataset("dataset_01", GR.shape, dtype='complex', data=GR)
 
-        dset1.attrs['time_grib'] = tlocal  # transmet le temps local en s pour pouvoir faire les comparaisons
+        dset1.attrs['time_grib'] = tig  # transmet le temps initial du grib en temps local en s pour pouvoir faire les comparaisons
         f1.close()
 
     return filenamehdf5
 
 
 def ouverture_fichier(filename):
-    # ouverture du fichier
+    # ouverture du fichier hdf5
     f2 = h5py.File(filename, 'r')
     list(f2.keys())
     dset1 = f2['dataset_01']
@@ -222,8 +238,13 @@ def prevision_tableau2 (GR,temp,point):
     #print (angle_vent)
 
     return vitesse, angle_vent
+    
 
 if __name__ == '__main__':
+
+    print ('Nom du fichier Grib et date du grib ',filename())
+
+
     filename = chargement_grib()
     tig, GR = ouverture_fichier(filename)
     # Depart
@@ -237,7 +258,7 @@ if __name__ == '__main__':
     longitude_a = '65-00-00-W'
 
 
-    dateprev = ('04-04-2020 12-21-00')  # a indiquer en local
+    dateprev = ('18-07-2020 17-48-00')  # a indiquer en local
 
     dateprev_s = chainetemps_to_int(dateprev)[10]
     dateprev_formate = chainetemps_to_int(dateprev)[9]

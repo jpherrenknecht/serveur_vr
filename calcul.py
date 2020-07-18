@@ -4,8 +4,8 @@ def add(a,b):
 def show  ():
     filecarte='map.html'
     filepath = filecarte
-    m.save(filepath)
-    webbrowser.open( filepath)
+   # m.save(filepath)
+    #webbrowser.open( filepath)
     return None
 
 if __name__=="__main__":
