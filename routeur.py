@@ -46,7 +46,6 @@ Pour le bateau on parle de cap HDG et de vitesse polaire Vt
 '''
 
 
-
 def f_isochrone(pt_init_cplx, temps_initial_iso):
     ''' Calcule le nouvel isochrone a partir d'un tableau de points pt2cplx tableau numpy de cplx'''
     ''' deltatemps, tig , U, V sont supposees etre des variables globales'''
@@ -147,14 +146,6 @@ def f_isochrone(pt_init_cplx, temps_initial_iso):
     return ptn_cplx, nouveau_temps, but, indice,trace_iso
 
 
-
-
-
-
-
-
-
-
 # ************************************   Initialisations      **********************************************************
 
 # with open("afrique.txt", "rb") as fp:   # chargement du contour afrique
@@ -167,7 +158,7 @@ def f_isochrone(pt_init_cplx, temps_initial_iso):
 # for i in range (len(contour)):
 #     cont_xy.append([contour[i][1],contour[i][0]])
 
-
+global isochrone, intervalles, t_v_ar_h,dico
 angle_objectif = 90
 dico = {}
 indice = 0
@@ -200,7 +191,11 @@ A = cplx(ar)
 # Initialisation du tableau des points d'isochrones
 # 0: x du point (longitude), 1: y du point (latitude) , 2: N° isochrone , 3: N° du pt mere ,
 # 4: N° du pt , 5: Distance a l'arrivee , 6: Cap vers l'arrivee
+ 
+
 isochrone = [[D.real, D.imag, 0, 0, 0, dist_cap(D, A)[0], dist_cap(D, A)[1]]]
+
+print('isochrone  ',isochrone)
 
 dt1 = np.ones(36) * 3600  # intervalles de temps toutes les 10mn pendant une heure puis toutes les heures
 dt2 = np.ones(378) * 3600
@@ -244,6 +239,8 @@ while but == False:
     # i=0
     # while i<1:  pour test
     #todo *********************************************************************
+   
+   
     pt1_cpx, temps, but, indice,trace_iso = f_isochrone(pt1_cpx, temps)
     # trace des isochrones
     if isochrone[-1,2]%6==0:

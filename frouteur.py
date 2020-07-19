@@ -4,14 +4,14 @@ from uploadgrib import *
 from fonctions_vr import *
 
 
-def frouteur(d,ar,tig,GR,t=time.time()):
+def frouteur(d,ar,t=time.time()):
 
     '''d et ar depart et arrivee sous forme de tupple ,
      tig instant initial du grib , GR valeurs du grib '''
     import folium
     import webbrowser
    
-
+    filenamehdf5,date,tig=filename()
 
     
 

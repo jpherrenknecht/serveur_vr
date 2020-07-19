@@ -1,6 +1,7 @@
 
 import numpy as np
 import math
+import time
 # **************************************   Fonctions   ******************************************************************
 
 def chaine_to_dec(latitude, longitude):
@@ -119,10 +120,14 @@ def filename():
     dategrib =datetime(utc[0] , utc[1] , utc[2] , int(heure_grib),0, 0)
     tig=time.mktime(dategrib.timetuple())+decalage_h*3600
 
-    date= str(dategrib)
+    date= str(dategrib)  #dategrib est un tuple date est un str
     filename="gribs/grib_gfs_" + date + ".hdf5"
     filenamehdf5 = os.path.join(basedir,filename)
     
     #time.time()- tig correspond bien à l'ecart de temps avec le grib
     return filenamehdf5,date,tig
+    
+
+
+
 
