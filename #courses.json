@@ -1,8 +1,10 @@
 // courses
 
-{"nom":"dreamh",
-"bateau":"imoca",
-"depart":{"lat":10 ,"lon":25},
-"bouee1":{"lat":10 ,"lon":25},
-
+{"numero"  : 457 ,
+ "features":    {
+                "nom":"DREAMH CUP",
+                "bateau":"imoca",
+                "depart":{"lat":10 ,"lon":25},
+                "bouee1":{"lat":10 ,"lon":25},
+                }
 }
