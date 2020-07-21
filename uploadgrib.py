@@ -38,8 +38,8 @@ def chainetemps_to_int(chainetemps):
     strhour = chainetemps[11:13]
     date = chainetemps[6:10] + chainetemps[3:5] + chainetemps[0:2]
 
-    print('strhour : ',strhour)
-    print('date : ',date)
+    #print('strhour : ',strhour)
+    #print('date : ',date)
 
     t = time.localtime()
     utc = time.gmtime()
@@ -117,64 +117,53 @@ def filename():
 
 
 
-def chargement_grib():
-    '''Charge le grib a la date indiquée et le sauve en type tableau de complexes sous format hd5'''
 
-    (filenamehdf5,dategrib,tig )= filename()
-    print ('dategrib',dategrib) 
+
+# def chargement_grib_old():
+#     '''Charge le grib a la date indiquée et le sauve en type tableau de complexes sous format hd5'''
+
+#     (filenamehdf5,dategrib,tig )= filename()
+#     date=dategrib[0:10].replace("-","")
+#     strhour=dategrib[11:13]
    
-    #tlocal, day, month, year, hour, mins, secs, date, strhour, formate, t_s_utc = chainetemps_to_int(dategrib)
-   
-    date=dategrib[0:10].replace("-","")
-    print('date : ',date)
-    strhour=dategrib[11:13]
-    print('strhour : ',strhour)
+#     if os.path.exists(filenamehdf5) == False:
+#         leftlon, rightlon, toplat, bottomlat = 0, 360, 90, -90
+#         iprev = ()
+#         for a in range(0, 387, 3):  # Construit le tuple des indexs des fichiers maxi 387
+#             iprev += (str(int(a / 100)) + str(int((a % 100) / 10)) + str(a % 10),)
+#         GR = np.zeros((len(iprev), 181, 360),
+#                       dtype=complex)  # initialise le np array de complexes qui recoit les donnees
 
-    if os.path.exists(filenamehdf5) == False:
-        
+#         for indexprev in range(len(iprev)):  # recuperation des fichiers
+#             prev = iprev[indexprev]
 
-         
+#             url = "https://nomads.ncep.noaa.gov/cgi-bin/filter_gfs_1p00.pl?file=gfs.t" + strhour + "z.pgrb2.1p00.f" + \
+#                   prev + "&lev_10_m_above_ground=on&all_var=on&leftlon=" \
+#                   + str(leftlon) + "&rightlon=" + str(rightlon) + "&toplat=" + str(toplat) + "&bottomlat=" + str(
+#                 bottomlat) + "&dir=%2Fgfs." + date + "%2F" + strhour
+#             nom_fichier = "grib_" + date + "_" + strhour + "_" + prev
 
+#             urlretrieve(url, nom_fichier)  # recuperation des fichiers
 
-       
+#             print(' Enregistrement prévision {} + {} heures effectué: '.format(dategrib,prev))  # destine a suivre le chargement des previsions
 
-        leftlon, rightlon, toplat, bottomlat = 0, 360, 90, -90
-        iprev = ()
-        for a in range(0, 387, 3):  # Construit le tuple des indexs des fichiers maxi 387
-            iprev += (str(int(a / 100)) + str(int((a % 100) / 10)) + str(a % 10),)
-        GR = np.zeros((len(iprev), 181, 360),
-                      dtype=complex)  # initialise le np array de complexes qui recoit les donnees
+#             # exploitation du fichier et mise en memoire dans GR
+#             ds = xr.open_dataset(nom_fichier, engine='cfgrib')
 
-        for indexprev in range(len(iprev)):  # recuperation des fichiers
-            prev = iprev[indexprev]
+#             GR[indexprev] = ds.variables['u10'].data + ds.variables['v10'].data * 1j
 
-            url = "https://nomads.ncep.noaa.gov/cgi-bin/filter_gfs_1p00.pl?file=gfs.t" + strhour + "z.pgrb2.1p00.f" + \
-                  prev + "&lev_10_m_above_ground=on&all_var=on&leftlon=" \
-                  + str(leftlon) + "&rightlon=" + str(rightlon) + "&toplat=" + str(toplat) + "&bottomlat=" + str(
-                bottomlat) + "&dir=%2Fgfs." + date + "%2F" + strhour
-            nom_fichier = "grib_" + date + "_" + strhour + "_" + prev
+#             os.remove(nom_fichier)  # On efface le fichier pour ne pas encombrer
+#             os.remove(nom_fichier + '.4cc40.idx')
 
-            urlretrieve(url, nom_fichier)  # recuperation des fichiers
+#         # sauvegarde dans fichier hdf5 du tableau GR
+#         #filename = "~/PycharmProjects/VR_version2/gribs/grib_gfs_" + dategrib + ".hdf5"
+#         f1 = h5py.File(filenamehdf5, "w")
+#         dset1 = f1.create_dataset("dataset_01", GR.shape, dtype='complex', data=GR)
 
-            print(' Enregistrement prévision {} + {} heures effectué: '.format(dategrib,prev))  # destine a suivre le chargement des previsions
+#         dset1.attrs['time_grib'] = tig  # transmet le temps initial du grib en temps local en s pour pouvoir faire les comparaisons
+#         f1.close()
 
-            # exploitation du fichier et mise en memoire dans GR
-            ds = xr.open_dataset(nom_fichier, engine='cfgrib')
-
-            GR[indexprev] = ds.variables['u10'].data + ds.variables['v10'].data * 1j
-
-            os.remove(nom_fichier)  # On efface le fichier pour ne pas encombrer
-            os.remove(nom_fichier + '.4cc40.idx')
-
-        # sauvegarde dans fichier hdf5 du tableau GR
-        #filename = "~/PycharmProjects/VR_version2/gribs/grib_gfs_" + dategrib + ".hdf5"
-        f1 = h5py.File(filenamehdf5, "w")
-        dset1 = f1.create_dataset("dataset_01", GR.shape, dtype='complex', data=GR)
-
-        dset1.attrs['time_grib'] = tig  # transmet le temps initial du grib en temps local en s pour pouvoir faire les comparaisons
-        f1.close()
-
-    return filenamehdf5
+#     return filenamehdf5
 
 
 def ouverture_fichier(filename):
@@ -186,6 +175,87 @@ def ouverture_fichier(filename):
     tig = dset1.attrs['time_grib']
     f2.close()
     return tig, GR
+
+
+
+
+def chargement_grib():
+    '''reconstitue le nom du dernier grib disponible
+      le charge sur nmea au besoin 
+      et le charge pour la simulation s'il existe deja '''
+    t = time.localtime()
+    utc = time.gmtime()
+    decalage_h = t[3] - utc[3]
+    heures = [0,6,12,18]
+    heure_grib = heures[((utc[3] + 19) // 6) % 4]  # heure du grib
+    #si utc inferieur à 5 la date doit etre celle de la veille l'heure est inchangée
+    if utc[3]<5:
+        utc = time.gmtime(time.time() -18000)
+    dategrib_tpl=datetime(utc[0] , utc[1] , utc[2] , int(heure_grib),0, 0)
+    tig=time.mktime(dategrib_tpl.timetuple())+decalage_h*3600    #temps initial du grib en sec locales 
+    dategrib= str(dategrib_tpl) 
+    date=dategrib[0:10].replace("-","")
+    strhour=dategrib[11:13]
+    filename="gribs/grib_gfs_" + date +"-"+strhour+".hdf5"
+    filenamehdf5 = os.path.join(basedir,filename)
+
+    if os.path.exists(filenamehdf5) == False:        #si ce fichier n'existe pas deja
+        leftlon, rightlon, toplat, bottomlat = 0, 360, 90, -90
+        iprev = ()
+        for a in range(0, 387, 3):  # Construit le tuple des indexs des fichiers maxi 387
+            iprev += (str(int(a / 100)) + str(int((a % 100) / 10)) + str(a % 10),)
+        GR = np.zeros((len(iprev), 181, 360),
+                      dtype=complex)  # initialise le np array de complexes qui recoit les donnees
+        for indexprev in range(len(iprev)):  # recuperation des fichiers de 0 a 384 h
+            prev = iprev[indexprev]
+            url = "https://nomads.ncep.noaa.gov/cgi-bin/filter_gfs_1p00.pl?file=gfs.t" + strhour + "z.pgrb2.1p00.f" + \
+                  prev + "&lev_10_m_above_ground=on&all_var=on&leftlon=" \
+                  + str(leftlon) + "&rightlon=" + str(rightlon) + "&toplat=" + str(toplat) + "&bottomlat=" + str(
+                bottomlat) + "&dir=%2Fgfs." + date + "%2F" + strhour
+            nom_fichier = "grib_" + date + "_" + strhour + "_" + prev
+            urlretrieve(url, nom_fichier)  # recuperation des fichiers provisoires
+            print(' Enregistrement prévision {} + {} heures effectué: '.format(dategrib,prev))  # destine a suivre le chargement des previsions
+
+            # exploitation du fichier et mise en memoire dans GR
+            ds = xr.open_dataset(nom_fichier, engine='cfgrib')
+            GR[indexprev] = ds.variables['u10'].data + ds.variables['v10'].data * 1j
+            os.remove(nom_fichier)  # On efface le fichier pour ne pas encombrer
+            os.remove(nom_fichier + '.4cc40.idx')
+
+        # sauvegarde dans fichier hdf5 du tableau GR
+        #filename = "~/PycharmProjects/VR_version2/gribs/grib_gfs_" + dategrib + ".hdf5"
+        f1 = h5py.File(filenamehdf5, "w")
+        dset1 = f1.create_dataset("dataset_01", GR.shape, dtype='complex', data=GR)
+        dset1.attrs['time_grib'] = tig  # transmet le temps initial du grib en temps local en s pour pouvoir faire les comparaisons
+        f1.close()
+
+    # ouverture du fichier hdf5
+    f2 = h5py.File(filenamehdf5, 'r')
+    list(f2.keys())
+    dset1 = f2['dataset_01']
+    GR = dset1[:]
+    tig = dset1.attrs['time_grib']
+    f2.close()
+    return tig, GR
+
+
+
+def prevision0(tig, GR, tp, latitude, longitude):
+    #fn3 = RegularGridInterpolator((ix, iy, iz), GR)
+    itemp = int((tp - tig) / 3600 / 3)
+    ilati = int((latitude + 90))
+    ilong = int((longitude) % 360)
+
+    print (GR(0,0,0))
+
+    print ('indices',itemp,ilati,ilong )
+
+    #vcplx = fn3((itemp, ilati, ilong))
+    #print('vcplx',vcplx)
+    vit_vent_n = np.abs(vcplx) * 1.94384
+    angle_vent = (270 - np.angle(vcplx, deg=True)) % 360
+    return vit_vent_n, angle_vent
+
 
 
 def prevision(tig, GR, tp, latitude, longitude):
@@ -242,50 +312,71 @@ def prevision_tableau2 (GR,temp,point):
 
 if __name__ == '__main__':
 
-    print ('Nom du fichier Grib et date du grib ',filename())
+    #chargement_grib()
+    tig, GR = chargement_grib()
+    tic = time.time()
+
+    print()
+    print ('tig en s ',tig)
+    print ('tic en s ',tic)
+    print ('Ecart', (tic-tig)/3600,'h')
+
+    tig_formate_utc = time.strftime(" %d %b %Y %H:%M:%S ", time.gmtime(tig))
+    tic_formate_local = time.strftime(" %d %b %Y %H:%M:%S ", time.localtime(tic))
+    print('\n Date et Heure UTC du dernier Grib             ',tig_formate_utc) 
+    print(' Date et Heure locales                         ',tic_formate_local) 
+    
 
 
-    filename = chargement_grib()
-    tig, GR = ouverture_fichier(filename)
     # Depart
-    latitude_d = '021-44-19-N'
-    longitude_d = '160-23-01-W'
-    # # Depart
-    # latitude_d = '39-00-00-N'
-    # longitude_d = '67-00-00-W'
-    # Arrivee
-    latitude_a = '12-10-00-N'
-    longitude_a = '65-00-00-W'
-
-
-    dateprev = ('18-07-2020 17-48-00')  # a indiquer en local
-
-    dateprev_s = chainetemps_to_int(dateprev)[10]
-    dateprev_formate = chainetemps_to_int(dateprev)[9]
-
+    latitude_d = '051-38-17-N'
+    longitude_d = '005-46-19-W'
     d = chaine_to_dec(latitude_d, longitude_d)  # co
-    print ('d :',d)
+    
+    
 
 
-# version avec temps instantane
+# prevision avec date donnee    
+
+    print ('\nPrévision à date et heure données \
+            \n---------------------------------')
+    print('\nLatitude {:6.2f} et Longitude{:6.2f} '.format( d[1], d[0]))
+    dateprev=datetime(2020 , 7 , 21 , 18, 0 ,  0)
+    print ('\nDateprev : ',dateprev , ' local')
+    # je peux la transformer en secondes mais ce sont des secondes locales
+    
+    dateprev_s=time.mktime(dateprev.timetuple())
+    print ('dateprev_s en local ',dateprev_s )
+    dateprev_formate_local = time.strftime(" %d %b %Y %H:%M:%S ", time.localtime(dateprev_s))
+    print('dateprev_formate_local',dateprev_formate_local)
+
+# prevision proprement dite
+    vit_vent_n, angle_vent = prevision(tig, GR,dateprev_s, d[1], d[0])
+  #  print('\nLe {} heure Locale Pour latitude {:6.2f} et longitude{:6.2f} '.format(dateprev_formate_local, d[1], d[0]))
+    print('\tAngle du vent   {:6.1f} °'.format(angle_vent))
+    print('\tVitesse du vent {:6.3f} Noeuds'.format(vit_vent_n))
 
 
-    t = time.localtime()
-    instant = time.time()+3600
 
-    print ('t1',t[3])
+# prevision avec temps instantane
+    print ("\nPrévision à l'instant de l'heure locale\
+            \n---------------------------------")
+    print()
+    print('Heure Locale ',tic_formate_local)
+    vit_vent_n, angle_vent = prevision(tig, GR,tic, d[1], d[0])
+  #  print('\nLe {} heure Locale Pour latitude {:6.2f} et longitude{:6.2f} '.format(dateprev_formate_local, d[1], d[0]))
+    print('\tAngle du vent   {:6.1f} °'.format(angle_vent))
+    print('\tVitesse du vent {:6.3f} Noeuds'.format(vit_vent_n))
 
-    instant_formate = time.strftime(" %d %b %Y %H:%M:%S  ", time.gmtime(instant))
 
-    print('tig', tig)
-    print ('instant en secondes' ,instant)
-    print('dateprev en s ', dateprev_s)
-    print('instant formate', instant_formate)
-
-    print('\n VERSION AVEC INSTANT------------------------------------- ')
-
-    vit_vent_n, angle_vent = prevision(tig, GR, instant, d[1], d[0])
-    print('\nLe {} heure UTC Pour latitude {:6.2f} et longitude{:6.2f} '.format(instant_formate, d[1], d[0]))
+# prevision avec temps instantane
+    print ("\nPrévision corrigee proche VR\
+            \n---------------------------------")
+    print()
+    print('Heure Locale ',tic_formate_local)
+    ticvr=tic+6500
+    vit_vent_n, angle_vent = prevision(tig, GR,ticvr, d[1], d[0])
+  #  print('\nLe {} heure Locale Pour latitude {:6.2f} et longitude{:6.2f} '.format(dateprev_formate_local, d[1], d[0]))
     print('\tAngle du vent   {:6.1f} °'.format(angle_vent))
     print('\tVitesse du vent {:6.3f} Noeuds'.format(vit_vent_n))
 
@@ -296,11 +387,10 @@ if __name__ == '__main__':
 
     #points=np.array([[-67-39*1j, -65-40*1j]])
     #points = np.array([[d[0] + d[1] * 1j]])
-    points = np.array([[-10 - 2 * 1j, -15 + 3 * 1j, 50 + 10 * 1j]])
-
-
-    prevs=prevision_tableau(tig, GR, instant, points)
-    print(prevs)
+    #points = np.array([[-10 - 2 * 1j, -15 + 3 * 1j, 50 + 10 * 1j]])
+    #prevs=prevision_tableau(tig, GR, tic, points)
+    #print()
+    #print(prevs)
 
     # print ('\nVERSION AVEC DATE EN DUR------------------------------------ ')
     #

@@ -17,14 +17,12 @@ import pandas as pd
 import folium
 import webbrowser
 from uploadgrib import *
-from polaires.polaires_imoca import *
+from polaires.polaires_class40 import *
 from fonctions_vr import *
 from operator import itemgetter
 import pickle
 from shapely.geometry import Point,Polygon
 from shapely import speedups
-
-#test 7
 
 
 tic = time.time()
@@ -101,7 +99,7 @@ def f_isochrone(pt_init_cplx, temps_initial_iso):
         if (pointsx[i][6]) == (pointsx[i - 1][6]):
             pointsx = np.delete(pointsx, i, 0)
 
-#todo c'est ici qu'il faut supprimer les point a terre
+    # todo c'est ici qu'il faut supprimer les point a terre
 
     #print (pointsx)
     #
@@ -147,14 +145,6 @@ def f_isochrone(pt_init_cplx, temps_initial_iso):
     return ptn_cplx, nouveau_temps, but, indice,trace_iso
 
 
-
-
-
-
-
-
-
-
 # ************************************   Initialisations      **********************************************************
 
 # with open("afrique.txt", "rb") as fp:   # chargement du contour afrique
@@ -176,17 +166,19 @@ nouveau_temps = 0
 
 t = time.localtime()
 instant = time.time()
-filename = chargement_grib()
-tig, GR = ouverture_fichier(filename)
+
+tig, GR =chargement_grib()
+
+
 temps = instant
 #todo ###############################################################"
 # Depart ou position actuelle ###########################################################"
-latitude_d = '043-38-42-N'
-longitude_d = '059-25-36-W'
+latitude_d = '049-42-43-N'
+longitude_d = '001-37-15-W'
 
 #todo Arrivee cap Lizard
-latitude_a = '049-15-00-N'
-longitude_a = '005-10-00-W'
+latitude_a = '050-28-00-N'
+longitude_a = '001-59-00-W'
 
 d = chaine_to_dec(latitude_d, longitude_d)  # conversion des latitudes et longitudes en tuple
 print ('depart',d)
@@ -202,7 +194,7 @@ A = cplx(ar)
 # 4: N° du pt , 5: Distance a l'arrivee , 6: Cap vers l'arrivee
 isochrone = [[D.real, D.imag, 0, 0, 0, dist_cap(D, A)[0], dist_cap(D, A)[1]]]
 
-dt1 = np.ones(36) * 3600  # intervalles de temps toutes les 10mn pendant une heure puis toutes les heures
+dt1 = np.ones(60) * 600  # intervalles de temps toutes les 10mn pendant une heure puis toutes les heures
 dt2 = np.ones(378) * 3600
 intervalles = np.concatenate(([instant - tig], dt1, dt2))
 temps_cumules = np.cumsum(intervalles)
@@ -226,7 +218,7 @@ print()
 
 
 # Initialisation carte folium **************************************************************
-m = folium.Map( location=[lat1,long1],  zoom_start=5)
+m = folium.Map( location=[lat1,long1],  zoom_start=9)
 folium.LatLngPopup().add_to(m)   # popup lat long
 #*******************************************************************************************
 

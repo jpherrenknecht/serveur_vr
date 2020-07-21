@@ -1,6 +1,11 @@
 
 import numpy as np
 import math
+import time
+import datetime
+import os
+tic = time.time()
+basedir = os.path.abspath(os.path.dirname(__file__))
 # **************************************   Fonctions   ******************************************************************
 
 def chaine_to_dec(latitude, longitude):
@@ -116,7 +121,8 @@ def filename():
     #si utc inferieur à 5 la date doit etre celle de la veille
     if utc[3]<5:
         utc = time.gmtime(time.time() -18000)
-    dategrib =datetime(utc[0] , utc[1] , utc[2] , int(heure_grib),0, 0)
+
+    dategrib =datetime.datetime(utc[0] , utc[1] , utc[2] , int(heure_grib),0, 0)
     tig=time.mktime(dategrib.timetuple())+decalage_h*3600
 
     date= str(dategrib)

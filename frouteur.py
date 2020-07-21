@@ -2,14 +2,19 @@
 import time
 from uploadgrib import *
 from fonctions_vr import *
+import folium
+import webbrowser
+
+filenamehd5 = chargement_grib()
+tig, GR = ouverture_fichier(filenamehd5)
 
 
-def frouteur(d,ar,tig,GR,t=time.time()):
+def frouteur(d,ar,tig,GR,tic=time.time()):
 
     '''d et ar depart et arrivee sous forme de tupple ,
-     tig instant initial du grib , GR valeurs du grib '''
-    import folium
-    import webbrowser
+     tig instant initial du grib , GR valeurs du grib 
+     tic instant de depart de la prevision par defaut instant actuel'''
+    
    
 
 
@@ -47,14 +52,9 @@ if __name__ == '__main__':
     t_v_ar_h = 0
     nouveau_temps = 0
     tic = time.time()
-    # t = time.localtime()
-    # print('t',t)
-    # 
-    # print('instant',instant)
+   
 
-    # filename = chargement_grib()
-    # tig, GR = ouverture_fichier(filename)
-    # temps = instant
+
     (filenamehdf5,dategrib,tig )= filename()
     # Depart ou position actuelle 
     latitude_d = '043-38-42-N'
@@ -82,14 +82,16 @@ if __name__ == '__main__':
     intervalles = np.concatenate(([tic - tig], dt1, dt2))
     temps_cumules = np.cumsum(intervalles)
 
-    
-    print('Depart : Latitude {:6.4f}  Longitude {:6.4f}'.format(d[1], d[0]))
-    print('Arrivee: Latitude {:4.2f}  Longitude {:4.2f}'.format(ar[1], ar[0]))
+    print()
+    print('Depart :      Latitude {:6.4f}     \tLongitude {:6.4f}'.format(d[1], d[0]))
+    print('Arrivee:      Latitude {:6.4f}     \tLongitude {:6.4f}'.format(ar[1], ar[0]))
     tig_formate_utc = time.strftime(" %d %b %Y %H:%M:%S ", time.gmtime(tig))
-    print('tig_formate_utc',tig_formate_utc)
-    print('temps instantane',time.time())
+    tic_formate_local = time.strftime(" %d %b %Y %H:%M:%S ", time.localtime(tic))
+    print('Heure UTC du dernier Grib             ',tig_formate_utc)
+    print('Heure Locale de depart de la prevision',tic_formate_local)
 
-    print ('ecart', (tic-tig)/3600)
+    print ('Ecart en heures ( = ecart - ecartUTC ) ', (tic-tig)/3600)
+    print() 
 
 
 
