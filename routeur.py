@@ -453,7 +453,8 @@ folium.PolyLine(chemin_folium, color="blue", weight=2.5, opacity=0.8).add_to(m)
 filecarte='map.html'
 filepath = 'templates/'+filecarte
 m.save(filepath)
-webbrowser.open( filepath)
+chrome_path='C:/Program Files (x86)/Google/Chrome/Application/chrome.exe %s'
+.webbrowser.get(chrome_path).open( filepath)
 
 
 #   ****************************************Controle du temps d'execution **********************************
