@@ -213,7 +213,7 @@ temps = instant
 latitude_d = '047-39-09-N'
 longitude_d = '003-53-09-W'
 #Point Arrivee 
-latitude_a = '049-00-00-N'
+latitude_a = '049-10-00-N'
 longitude_a = '006-30-00-W'
 
 

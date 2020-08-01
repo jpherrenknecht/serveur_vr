@@ -254,7 +254,7 @@ temps          = instant
 latitude_d     = '047-39-09-N'
 longitude_d    = '003-53-09-W'
 #Point Arrivee 
-latitude_a     = '049-00-00-N'
+latitude_a     = '049-10-00-N'
 longitude_a    = '006-30-00-W'
 
 
@@ -311,13 +311,15 @@ pt1_cpx = np.array([[D]])
 
 but = False
 while but == False:
-    pt1_cpx, temps, but, indice,trace_iso = f_isochrone(pt1_cpx, temps)
-   
+    pt1_cpx, temps, but, indice,trace_iso = f_isochrone(pt1_cpx, temps)   
     # trace des isochrones
     if isochrone[-1,2]%6==0:
         folium.PolyLine(trace_iso, color="black", weight=2, opacity=0.8).add_to(m)
     else :
         folium.PolyLine(trace_iso, color="red", weight=1, opacity=0.8).add_to(m)
+
+
+
 
 # route à suivre
 # Retracage chemin à l'envers
@@ -325,11 +327,14 @@ a = int(indice)                 # indice du point de la route la plus courte
 n = int(isochrone[-1][2])       # nombre d'isochrones
 
 # on reconstitue la route à suivre en remontant le chemin
-route = []
+
+
+route = [a]
 for i in range(n):
     a = int(dico[a])
     route.append(a)  # route contient les indices successifs des points a emprunter a l'envers
 route.reverse()
+
 
 # on stocke les valeurs des points dans chemin
 chemin = np.zeros(len(route) + 1, dtype=complex)  # on initialise le np array de complexes qui va recevoir les donnees
@@ -375,7 +380,9 @@ pol =       POL_ch.reshape((1, -1))
 
 
 # tabchemin : x,y,vit vent ,TWD,cap vers point suivant twa vers point suivant
+
 chem = np.concatenate((chx.T, chy.T, temps_pts.T, vitesse.T, TWD.T, cap.T, twa.T, pol.T), axis=1)
+
 # print ('tabchemin \n',chem)
 
 print()
@@ -393,6 +400,8 @@ df.to_csv('fichier_route.csv')
 #print('\t n \t\t\t Date \t\t\t\t  X \t\t\tY  \tV_vent \tA_Vent \t Cap  \t TWA\t Polaire')
 chemin_folium=[]
 np.around(chem, decimals=2)
+
+
 for i in range(len(chem)):
     chemin_folium.append((-chem[i, 1],chem[i, 0]))
     #print('\t {}  \t{} \t{:6.3f} \t{:6.3f}\t{:6.2f} \t{:6.1f} \t{:6.2f} \t{:6.1f} \t{:6.3f}'
@@ -436,7 +445,10 @@ for i in range(1, len(chem), 1):
 
 folium.Marker([-d[1], d[0]], popup=popup[0], tooltip=tooltip[0]).add_to(m)
 folium.Marker([-ar[1], ar[0]], popup='<i>Arrivee</i>', tooltip=tooltip[len(chem)-1]).add_to(m)
+
 folium.PolyLine(chemin_folium, color="blue", weight=2.5, opacity=0.8).add_to(m)
+
+
 
 filecarte='map.html'
 filepath = 'templates/'+filecarte
