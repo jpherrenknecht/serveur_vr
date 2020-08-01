@@ -4,6 +4,7 @@ import math
 import time
 import datetime
 import os
+import folium
 tic = time.time()
 basedir = os.path.abspath(os.path.dirname(__file__))
 # **************************************   Fonctions   ******************************************************************
@@ -60,6 +61,14 @@ def deplacement2(D, d_t, HDG, VT):
     A = D + (d_t / 3600 / 60 * VT * (np.sin(HDG_R) / math.cos(D.imag * math.pi / 180) - np.cos(HDG_R) * 1j))
     return A
 
+def deplacement_x_y(x0,y0,d_t,HDG,VT):
+    ''' fonction donnalnt le tuple point d arrivée en fonction des coordonnées du point de depart ''' 
+    HDG_R = HDG * math.pi / 180     # cap en radians
+    x= x0+ d_t / 3600 / 60 * VT * (np.sin(HDG_R) / math.cos(y0 * math.pi / 180)) 
+    y= y0- d_t / 3600 / 60 * VT * np.cos(HDG_R)
+    return x,y
+
+
 def calcul_points(D, tp, d_t, TWD, vit_vent, ranged, polaires):
     '''tp temps au point D; d_t duree du deplacement en s ; angle du vent au point ; Vitesse du vent au point ; caps a simuler  ; polaires du bateau  '''
     '''retourne un tableau points sous forme de valeurs complexes'''
@@ -77,6 +86,22 @@ def calcul_points(D, tp, d_t, TWD, vit_vent, ranged, polaires):
 def dist_cap(D, A):
     '''retourne la distance et l'angle du deplacement entre le depart et l'arrivee'''
     C = A - D
+    return np.abs(C), (450 + np.angle(C, deg=True)) % 360
+
+
+def dist_cap2(x0,y0,x1,y1):
+
+    '''retourne la distance et l'angle du deplacement entre le depart et l'arrivee
+    en tenant compte de la courbure et du racourcissement des distances sur l'axe x'''
+    coslat= math.cos(y0 * math.pi / 180)
+    C=(x-x0)*coslat +(y-y0)*1j
+    return np.abs(C), (450 + np.angle(C, deg=True)) % 360
+
+def dist_cap3(D,A):
+    ''' retourne la distance et l'angle du deplacement entre le depart et l'arrivee 
+    les points de depart et arrivee sont sous forme complexe'''
+    coslat= np.cos(D.imag * math.pi / 180)
+    C=(A.real-D.real)*coslat +(A.imag-D.imag)*1j
     return np.abs(C), (450 + np.angle(C, deg=True)) % 360
 
 
@@ -132,3 +157,40 @@ def filename():
     #time.time()- tig correspond bien à l'ecart de temps avec le grib
     return filenamehdf5,date,tig
 
+def trace_points_folium (points_cpx):
+#on extrait les coordonnes pour tracer
+    X=points_cpx.real.reshape(-1,1)
+    Y=points_cpx.imag.reshape(-1,1)
+    points=np.concatenate((-Y,X),axis=1)
+    for point in points :
+        folium.CircleMarker(point,color='black', radius=1,fill_color='black',fill_opacity=0.3).add_to(carte)
+
+    return None
+
+if __name__ == '__main__':
+    print ('test')
+
+    # test de distance et cap tableau de complexes pour les point de de part et complexe pour l'arrivee
+
+
+
+
+
+    # # test deplacement_x_y
+    # res=range_cap( 291,3,90,40,20)
+    # print (res)
+    # res=range_cap( 291,359,90,40,20)
+    # print (res)
+
+
+    # x0=-5.811
+    # y0=-46.0594
+    # d_t=300
+    # HDG=254.9
+    # VT=6.87
+
+
+    # deplacement_x_y(x0,y0, d_t, HDG, VT)
+    # print()
+    # print (x,y)
+    # print()

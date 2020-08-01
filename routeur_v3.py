@@ -16,7 +16,6 @@ import xarray as xr
 import pandas as pd
 import folium
 import webbrowser
-import copy
 from global_land_mask import globe
 
 from uploadgrib import *
@@ -45,10 +44,7 @@ Les angles sont des angles trigo
 Pour le vent on parle de vitesses TWS  et angles TWD et TWA 
 Pour le bateau on parle de cap HDG et de vitesse polaire Vt
 '''
-#******************************************************************************************************************************************
-#******************************************************************************************************************************************
-#******************************************************************************************************************************************
-#******************************************************************************************************************************************
+
 
 
 def f_isochrone(pt_init_cplx, temps_initial_iso):
@@ -70,7 +66,7 @@ def f_isochrone(pt_init_cplx, temps_initial_iso):
     tab_t                = []  # tableau des temps vers l arrivee en ligne directe
     trace_iso            = []
     nbhdg=0
-  
+    print(' Isochrone N° {}  {}'.format(numero_iso, t_iso_formate))
     
     # on recupere toutes les previsions meteo d'un coup pour l'ensemble des points de depart
     TWS, TWD = prevision_tableau(tig, GR, temps_initial_iso, pt_init_cplx)
@@ -82,94 +78,38 @@ def f_isochrone(pt_init_cplx, temps_initial_iso):
         HDG = range_cap(dist_cap(pt_init_cplx[0][i], A)[1], TWD[i], angle_objectif, angle_twa_pres, angle_twa_ar)  # Calcul des caps a etudier
         VT = polaire2_vect(polaires, TWS[i], TWD[i], HDG)
         
+        # nbhdg= len(HDG)
+        # tableau=np.ones((nbhdg,7))  # on reserve un tableau pour stocker
+        
+              
+       
+        #TWA = twa(HDG, TWD[i])
         VT = polaire2_vect(polaires, TWS[i], TWD[i], HDG)
         n_pts_x = deplacement2(pt_init_cplx[0][i], delta_temps, HDG, VT)   #coordonnees des nouveaux points calcules
        
 
        
-        # if numero_iso ==79 :
+        # if numero_iso ==77 :
         #     print ('nb de points etudies', len (n_pts_x))
 
         for j in range(len(n_pts_x)):
             cap_arrivee = dist_cap(n_pts_x[j], A)[1]
             distance_arrivee = dist_cap(n_pts_x[j], A)[0]
             points_calcul.append(
-            [n_pts_x[j].real, n_pts_x[j].imag, numero_iso, numero_premier_point+i+1 , 1, distance_arrivee,cap_arrivee])
+                [n_pts_x[j].real, n_pts_x[j].imag, numero_iso, numero_premier_point + i + 1, 1, distance_arrivee,
+                 cap_arrivee])
 
-            #caps_x.append(cap_arrivee)
-
-    #tri de la liste des points
-    #         
-        points_calcul=sorted(points_calcul,key=lambda colonnes :colonnes[6])
-   
-   
-
-    # if numero_iso ==80 :
-    #     i=numero_iso
-    #     print()
-       
-    #     print()
-    #     #print('points calculs ( tout) ',points_calcul)
-    #     print()
-    #     print('nb total de points',len(points_calcul))
-    #     print('points calculs cap min ',points_calcul[0][6])
-    #     print('points calculs cap max',points_calcul[-1][6])
-    #     print()
-    #     print('points calculs2 cap min ',points_calcul2[0][6])
-    #     print('points calculs2 cap max',points_calcul2[-1][6])
-    
-    #     for i in range (50):
-    #         print(' i', i, ' ', points_calcul[i][6]) 
-    #     print()
-
-        i=0
-        while (points_calcul[i][6]-points_calcul[i-1][6])<-357 :
-            #print(' i', i, ' ', points_calcul[i][6])    
-            points_calcul[i][6]+=360
-            i+=1
-
-    #     for i in range (50):
-    #         print(' i', i, ' ', points_calcul[i][6]) 
-    #     print()
+            caps_x.append(cap_arrivee)
 
 
-        points_calcul=sorted(points_calcul,key=lambda colonnes :colonnes[6])
-
-        # for i in range (50):
-        #     print(' i', i, ' ', points_calcul[i][6]) 
-        # print()
-        # print(' i', i, ' ', points_calcul[-1][6]) 
-        # print()
-       
-        # print()
-       
-        # print('points calculs nouveau cap min ',points_calcul[0][6])
-        # print('points calculs nouveau cap max',points_calcul[-1][6])
-
-        capmini=points_calcul[0][6]
-        capmaxi=points_calcul[-1][6]
-
-    #max des caps
-    # maxi=(max(points_calcul,key=lambda colonnes :colonnes[6])[6])
-    # mini=(min(points_calcul,key=lambda colonnes :colonnes[6])[6])
-
-    # maxi2=(max(points_calcul2,key=lambda colonnes :colonnes[6])[6])
-    # mini2=(min(points_calcul2,key=lambda colonnes :colonnes[6])[6])
-
-    #print(type(points_calcul))
 
     # la tous les nouveaux points sont calcules maintenant on expurge et on stocke
 
 
-    #coeff2 = 50 / (max(caps_x) - min(caps_x))  # coefficient pour ecremer et garder 50 points
-        coeff2 = 50 / (capmaxi-capmini)  # coefficient pour ecremer et garder 50 points
-
-    #if numero_iso ==79 :
+    coeff2 = 50 / (max(caps_x) - min(caps_x))  # coefficient pour ecremer et garder 50 points
+    
+    #if numero_iso ==77 :
     #    print('nb total de points',len(points_calcul))
-
-
-
-
 
     for j in range(len(points_calcul)):  # partie ecremage
         points_calcul[j][6] = int(coeff2 * points_calcul[j][6])
@@ -232,37 +172,58 @@ def f_isochrone(pt_init_cplx, temps_initial_iso):
     t_v_ar_h = min(tab_t)
     isochrone = np.concatenate((isochrone, pointsx))  # On rajoute ces points a la fin du tableau isochrone
     ptn_cplx = np.array([pointsx[:, 0] + pointsx[:, 1] * 1j])  # on reforme un tableau numpy de complexes pour la sortie
-    print(' Isochrone calculé N° {}  {}  {} points cap mini  {:4.2f}  cap maxi {:4.2f}  '.format(numero_iso, t_iso_formate,longueur,capmini ,  capmaxi  ))
 
     return ptn_cplx, nouveau_temps, but, indice,trace_iso
-#******************************************************************************************************************************************
-#******************************************************************************************************************************************
-#******************************************************************************************************************************************
+
 
 # ************************************   Initialisations      **********************************************************
 
+# with open("afrique.txt", "rb") as fp:   # chargement du contour afrique
+#     contour = pickle.load(fp)
+
+# a=Polygon(contour)                      # creation objet shapely
+
+#creation d'un polyligne uniquement pour graphisme'
+# cont_xy=[]
+# for i in range (len(contour)):
+#     cont_xy.append([contour[i][1],contour[i][0]])
+
+
 angle_objectif = 90
-dico           = {}
-indice         = 0
-t_v_ar_h       = 0
-nouveau_temps  = 0
-t              = time.localtime()
-instant        = time.time()
-tig, GR        = chargement_grib()
-temps          = instant
-#Depart
-latitude_d     = '047-39-09-N'
-longitude_d    = '003-53-09-W'
+dico = {}
+indice = 0
+t_v_ar_h = 0
+nouveau_temps = 0
+
+t = time.localtime()
+instant = time.time()
+
+tig, GR =chargement_grib()
+
+
+temps = instant
+#todo ###############################################################"
+# Depart ou position actuelle ###########################################################"
+# latitude_d = '052-04-00-N'
+# longitude_d = '006-28-00-W'
+
+# #Point Arrivee 
+# latitude_a = '051-50-00-N'
+# longitude_a = '006-44-00-W'
+
+latitude_d = '047-39-09-N'
+longitude_d = '003-53-09-W'
 #Point Arrivee 
-latitude_a     = '049-00-00-N'
-longitude_a    = '006-30-00-W'
+latitude_a = '049-00-00-N'
+longitude_a = '006-30-00-W'
 
 
 
 
-d  = chaine_to_dec(latitude_d, longitude_d)  # conversion des latitudes et longitudes en tuple
+d = chaine_to_dec(latitude_d, longitude_d)  # conversion des latitudes et longitudes en tuple
+print ('depart',d)
 ar = chaine_to_dec(latitude_a, longitude_a)
-
+print ('arrivee : ',ar)
 
 
 D = cplx(d)  # transformation des tuples des points en complexes
@@ -271,16 +232,17 @@ A = cplx(ar)
 # Initialisation du tableau des points d'isochrones
 # 0: x du point (longitude), 1: y du point (latitude) , 2: N° isochrone , 3: N° du pt mere ,
 # 4: N° du pt , 5: Distance a l'arrivee , 6: Cap vers l'arrivee
-isochrone     = [[D.real, D.imag, 0, 0, 0, dist_cap(D, A)[0], dist_cap(D, A)[1]]]
+isochrone = [[D.real, D.imag, 0, 0, 0, dist_cap(D, A)[0], dist_cap(D, A)[1]]]
 
-dt1           = np.ones(72) * 600  # intervalles de temps toutes les 10mn pendant une heure puis toutes les heures
-dt2           = np.ones(370) * 3600
-intervalles   = np.concatenate(([instant - tig], dt1, dt2))
+dt1 = np.ones(72) * 600  # intervalles de temps toutes les 10mn pendant une heure puis toutes les heures
+dt2 = np.ones(370) * 3600
+intervalles = np.concatenate(([instant - tig], dt1, dt2))
 temps_cumules = np.cumsum(intervalles)
-lat1          = -(d[1]+ar[1])/2                    # Point pour centrer la carte folium
-long1         = (d[0]+ ar[0])/2
-print('\n\nDepart :  {:6.4f}   {:6.4f}                Arrivee: {:4.2f}   {:4.2f} '.format(d[1], d[0],ar[1], ar[0] ))
 
+lat1=-(d[1]+ar[1])/2                    # Point pour centrer la carte folium
+long1= (d[0]+ ar[0])/2
+print('Depart : Latitude {:6.4f}  Longitude {:6.4f}'.format(d[1], d[0]))
+print('Arrivee: Latitude {:4.2f}  Longitude {:4.2f}'.format(ar[1], ar[0]))
 
 # ************************************* Grib   *************************************************************************
 instant_formate = time.strftime(" %d %b %Y %H:%M:%S ", time.localtime(instant))
@@ -311,15 +273,17 @@ pt1_cpx = np.array([[D]])
 
 but = False
 while but == False:
+    # i=0
+    # while i<1:  pour test
+    #todo *********************************************************************
     pt1_cpx, temps, but, indice,trace_iso = f_isochrone(pt1_cpx, temps)
-   
     # trace des isochrones
     if isochrone[-1,2]%6==0:
         folium.PolyLine(trace_iso, color="black", weight=2, opacity=0.8).add_to(m)
     else :
         folium.PolyLine(trace_iso, color="red", weight=1, opacity=0.8).add_to(m)
 
-# route à suivre
+
 # Retracage chemin à l'envers
 a = int(indice)                 # indice du point de la route la plus courte
 n = int(isochrone[-1][2])       # nombre d'isochrones
@@ -343,8 +307,6 @@ chemin[i] = A
 l = len(chemin)
 temps_cum = temps_cumules[:l]
 temps_cum[-1] = temps_cum[-2] + t_v_ar_h * 3600  # le dernier terme est le temps entre le dernier isochrone et l'arrivee
-
-
 
 # previsions meteo aux differents points
 TWS_ch, TWD_ch = prevision_tableau2(GR, temps_cum, chemin)
@@ -377,15 +339,10 @@ pol =       POL_ch.reshape((1, -1))
 # tabchemin : x,y,vit vent ,TWD,cap vers point suivant twa vers point suivant
 chem = np.concatenate((chx.T, chy.T, temps_pts.T, vitesse.T, TWD.T, cap.T, twa.T, pol.T), axis=1)
 # print ('tabchemin \n',chem)
-
-print()
-print ('*****************************************Route à suivre ***************************************************')
-print('Depart :  {:6.4f}  {:6.4f}       Le {}    Arrivee: {:4.2f}  {:4.2f} '.format(d[1], d[0],instant_formate, ar[1], ar[0] ))
-print ('-----------------------------------------------------------------------------------------------------------')
-
 # Exportation en pandas
 indexiso=np.arange(l)
 df = pd.DataFrame(chem, index = indexiso, columns = ['x', 'y', 't', 'vit_vent','angle_vent','cap','twa', 'polaire'])
+print()
 print(df.head(12))
 print()
 df.to_csv('fichier_route.csv')
@@ -433,12 +390,17 @@ for i in range(1, len(chem), 1):
     folium.Circle([-chem[i,1],chem[i,0]],color='black', radius=200,tooltip=tooltip[i], popup=popup[i],fill=True).add_to(m)
 
 #tooltip[0]='<b>'+temps+' <br> Lat :'+lat+'° - Long :'+long+'°<br>TWD :' + twd + '°  TWS :' + tws + 'N<br> Cap ' + cap + '°<br>TWA ' +twa +'°</b>'
+# test = folium.Html(tooltip[0], script=True)
+# popupdepart = folium.Popup(test, max_width=200,min_width=150)
+
+
 
 folium.Marker([-d[1], d[0]], popup=popup[0], tooltip=tooltip[0]).add_to(m)
 folium.Marker([-ar[1], ar[0]], popup='<i>Arrivee</i>', tooltip=tooltip[len(chem)-1]).add_to(m)
 folium.PolyLine(chemin_folium, color="blue", weight=2.5, opacity=0.8).add_to(m)
 
 filecarte='map.html'
+
 filepath = 'templates/'+filecarte
 m.save(filepath)
 webbrowser.open( filepath)
