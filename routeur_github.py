@@ -20,7 +20,7 @@ import copy
 from global_land_mask import globe
 
 from uploadgrib import *
-from polaires.polaires_ultime import *
+from polaires.polaires_class40 import *
 from fonctions_vr import *
 from operator import itemgetter
 import pickle
@@ -32,6 +32,7 @@ tic = time.time()
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 
+#autre test
 
 # *****************************************   Donnees   ****************************************************************
 '''
@@ -48,14 +49,7 @@ Pour le bateau on parle de cap HDG et de vitesse polaire Vt
 #******************************************************************************************************************************************
 #******************************************************************************************************************************************
 #******************************************************************************************************************************************
-def trace_points_folium (points_cpx):
-#on extrait les coordonnes pour tracer
-    X=points_cpx.real.reshape(-1,1)
-    Y=points_cpx.imag.reshape(-1,1)
-    points=np.concatenate((-Y,X),axis=1)
-    for point in points :
-        folium.CircleMarker(point,color='black', radius=1,fill_color='black',fill_opacity=0.3).add_to(m)
-    return None
+
 
 def f_isochrone(pt_init_cplx, temps_initial_iso):
     ''' Calcule le nouvel isochrone a partir d'un tableau de points pt2cplx tableau numpy de cplx'''
@@ -75,7 +69,7 @@ def f_isochrone(pt_init_cplx, temps_initial_iso):
     caps_x               = []
     tab_t                = []  # tableau des temps vers l arrivee en ligne directe
     trace_iso            = []
-    trace_iso_cap            = []
+    nbhdg=0
   
     
     # on recupere toutes les previsions meteo d'un coup pour l'ensemble des points de depart
@@ -87,6 +81,8 @@ def f_isochrone(pt_init_cplx, temps_initial_iso):
        
         HDG = range_cap(dist_cap(pt_init_cplx[0][i], A)[1], TWD[i], angle_objectif, angle_twa_pres, angle_twa_ar)  # Calcul des caps a etudier
         VT = polaire2_vect(polaires, TWS[i], TWD[i], HDG)
+        
+        VT = polaire2_vect(polaires, TWS[i], TWD[i], HDG)
         n_pts_x = deplacement2(pt_init_cplx[0][i], delta_temps, HDG, VT)   #coordonnees des nouveaux points calcules
        
 
@@ -94,91 +90,130 @@ def f_isochrone(pt_init_cplx, temps_initial_iso):
         # if numero_iso ==79 :
         #     print ('nb de points etudies', len (n_pts_x))
 
-        for j in range(len(n_pts_x)):                     # pour chaque point initial i on a j points finaux 
-            cap_arrivee = dist_cap(A,n_pts_x[j])[1]
+        for j in range(len(n_pts_x)):
+            cap_arrivee = dist_cap(n_pts_x[j], A)[1]
             distance_arrivee = dist_cap(n_pts_x[j], A)[0]
             points_calcul.append(
             [n_pts_x[j].real, n_pts_x[j].imag, numero_iso, numero_premier_point+i+1 , 1, distance_arrivee,cap_arrivee])
 
             #caps_x.append(cap_arrivee)
 
-    #tri de la liste de tous les  points obtenus
+    #tri de la liste des points
+    #         
         points_calcul=sorted(points_calcul,key=lambda colonnes :colonnes[6])
    
+   
 
+    # if numero_iso ==80 :
+    #     i=numero_iso
+    #     print()
+       
+    #     print()
+    #     #print('points calculs ( tout) ',points_calcul)
+    #     print()
+    #     print('nb total de points',len(points_calcul))
+    #     print('points calculs cap min ',points_calcul[0][6])
+    #     print('points calculs cap max',points_calcul[-1][6])
+    #     print()
+    #     print('points calculs2 cap min ',points_calcul2[0][6])
+    #     print('points calculs2 cap max',points_calcul2[-1][6])
+    
+    #     for i in range (50):
+    #         print(' i', i, ' ', points_calcul[i][6]) 
+    #     print()
 
-        k=0
-        while (points_calcul[k][6]-points_calcul[k-1][6])<-357 :
+        i=0
+        while (points_calcul[i][6]-points_calcul[i-1][6])<-357 :
             #print(' i', i, ' ', points_calcul[i][6])    
-            points_calcul[k][6]+=360
-            k+=1
+            points_calcul[i][6]+=360
+            i+=1
+
+    #     for i in range (50):
+    #         print(' i', i, ' ', points_calcul[i][6]) 
+    #     print()
+
+
         points_calcul=sorted(points_calcul,key=lambda colonnes :colonnes[6])
+
+        # for i in range (50):
+        #     print(' i', i, ' ', points_calcul[i][6]) 
+        # print()
+        # print(' i', i, ' ', points_calcul[-1][6]) 
+        # print()
+       
+        # print()
+       
+        # print('points calculs nouveau cap min ',points_calcul[0][6])
+        # print('points calculs nouveau cap max',points_calcul[-1][6])
+
         capmini=points_calcul[0][6]
         capmaxi=points_calcul[-1][6]
-    
-    # test=89   # numero iso teste
 
-    # if numero_iso ==test :
-    #     print ('Test 1 isochrone {} \n capmini {} capmaxi {} '.format( numero_iso, capmini,capmaxi ))     
-    
-    coeff2 = 49/ (capmaxi-capmini)  # coefficient pour ecremer et garder 50 points
-   
-    # if numero_iso ==test :
-    #     print ('Test 1 isochrone {} \n coeff2 {}  '.format( numero_iso, coeff2 ))  
+    #max des caps
+    # maxi=(max(points_calcul,key=lambda colonnes :colonnes[6])[6])
+    # mini=(min(points_calcul,key=lambda colonnes :colonnes[6])[6])
+
+    # maxi2=(max(points_calcul2,key=lambda colonnes :colonnes[6])[6])
+    # mini2=(min(points_calcul2,key=lambda colonnes :colonnes[6])[6])
+
+    #print(type(points_calcul))
+
+    # la tous les nouveaux points sont calcules maintenant on expurge et on stocke
+
+
+    #coeff2 = 50 / (max(caps_x) - min(caps_x))  # coefficient pour ecremer et garder 50 points
+        coeff2 = 50 / (capmaxi-capmini)  # coefficient pour ecremer et garder 50 points
+
+    #if numero_iso ==79 :
+    #    print('nb total de points',len(points_calcul))
+
+
+
 
 
     for j in range(len(points_calcul)):  # partie ecremage
         points_calcul[j][6] = int(coeff2 * points_calcul[j][6])
+
     pointsx = sorted(points_calcul, key=itemgetter(6, 5))  # tri de la liste de points suivant la direction (indice  " \
     pointsx = np.asarray(pointsx)
-
     for i in range(len(pointsx) - 1, 0, -1):  # ecremage
         if (pointsx[i][6]) == (pointsx[i - 1][6]):
             pointsx = np.delete(pointsx, i, 0)
 
-    longueur=len(pointsx)
-    # if numero_iso ==test :        
-    #     print ('Test 1 isochrone {} \n nb de points conserves {}  '.format( numero_iso, longueur ))  
+    # todo c'est ici qu'il faut supprimer les point a terre
 
-        # else :
-        #     pointsx[i][6] = int(pointsx[i][6] / coeff2)%360  # on retablit le cap en valeur   
-   
     # verification points terre ou mer
-    
+    longueur=len(pointsx)
 
     for i in range(len(pointsx)-1, -1, -1):  # ecremage proprement dit 
         is_on_land = globe.is_land(-pointsx[i][1], pointsx[i][0])
         if (is_on_land==True):
             pointsx = np.delete(pointsx, i, 0)
 
-    # on peut restituer les caps initiaux et retrier par cap
-    for i in range(len(pointsx)):
-         pointsx[i][6] = int(pointsx[i][6] / coeff2)  # on retablit le cap en valeur
-    #pointsx=sorted(pointsx,key=lambda colonnes :colonnes[6])
-    
-    # if numero_iso ==test : 
-    #     print('type du tableau et longueur ', type(pointsx), len (pointsx))        
-    #     print ('Test 1 isochrone {} \n nouveau cap mini {} et cap maxi {}  '.format( numero_iso,points_calcul[0][6],points_calcul[-1][6] ))      
-    # maintenant on trie comme un np.array
-    pointsx= pointsx[pointsx[:,6].argsort(kind='mergesort')]
 
 
-    # if numero_iso ==test : 
-    #     print('cap minimum et maximum  pour tracage ', pointsx[0][6],pointsx[-1][6])  
-    #     #print ('Liste des points',pointsx)
-
-
+    #print (pointsx)
+    #
+    # for i in range(len(pointsx) - 1, 0, -1):  # ecremage point a terre
+    #     point=Point(pointsx[i][0],-pointsx[i][1])
+    #     if point.within(a):
+    #         #print("le point est a terre")
+    #         pointsx = np.delete(pointsx, i, 0)
+    #     # else:
+    #     #     print("le point est en mer")
 
 
     for i in range(len(pointsx)):  # renumerotation
         pointsx[i][4] = i + numero_dernier_point + 1
-    #    pointsx[i][6] = int(pointsx[i][6] / coeff2)%360  # on retablit le cap en valeur
+        pointsx[i][6] = int(pointsx[i][6] / coeff2)  # on retablit le cap en valeur
         dico[pointsx[i][4]] = pointsx[i][3]
         trace_iso.append((-pointsx[i][1], pointsx[i][0]))
-        trace_iso_cap.append((-pointsx[i][1], pointsx[i][0],pointsx[i][6]))
-    
-      
-     
+
+
+
+
+        # a ce moment la on a le catalogue de tous les nouveaux points
+        # todo la partie a suivre pourrait etre traitee en vectoriel hors de la boucle
 
         # on cherche les temps vers l'arrivee des nouveaux points
         vit_vent, TWD = prevision(tig, GR, nouveau_temps, pointsx[i][1], pointsx[i][0])
@@ -191,14 +226,8 @@ def f_isochrone(pt_init_cplx, temps_initial_iso):
         # print('temps',t_a)
         if t_a < delta_temps / 3600:
             but = True
-    
+        # indice du temps minimum
 
-    # # if numero_iso ==test : 
-    #         print('trace iso et cap ' ) 
-    #         for i in range(len(trace_iso_cap)):
-    #             print (trace_iso_cap[i][2])
-
-    # indice du temps minimum
     indice = tab_t.index(min(tab_t)) + numero_dernier_point + 1
     t_v_ar_h = min(tab_t)
     isochrone = np.concatenate((isochrone, pointsx))  # On rajoute ces points a la fin du tableau isochrone
@@ -206,9 +235,10 @@ def f_isochrone(pt_init_cplx, temps_initial_iso):
     print(' Isochrone calculé N° {}  {}  {} points cap mini  {:4.2f}  cap maxi {:4.2f}  '.format(numero_iso, t_iso_formate,longueur,capmini ,  capmaxi  ))
 
     return ptn_cplx, nouveau_temps, but, indice,trace_iso
-#***********************************************************************************************************************
-#***********************************************************************************************************************
-#***********************************************************************************************************************
+#******************************************************************************************************************************************
+#******************************************************************************************************************************************
+#******************************************************************************************************************************************
+
 # ************************************   Initialisations      **********************************************************
 
 angle_objectif = 90
@@ -224,17 +254,17 @@ temps          = instant
 latitude_d     = '047-39-09-N'
 longitude_d    = '003-53-09-W'
 #Point Arrivee 
-latitude_a     = '049-30-00-N'
-longitude_a    = '005-06-00-W'
+latitude_a     = '049-10-00-N'
+longitude_a    = '006-30-00-W'
 
 
 
 
 d  = chaine_to_dec(latitude_d, longitude_d)  # conversion des latitudes et longitudes en tuple
 ar = chaine_to_dec(latitude_a, longitude_a)
-ar=d
-d=(-73.62,-40.46)
-print(d)
+
+
+
 D = cplx(d)  # transformation des tuples des points en complexes
 A = cplx(ar)
 
@@ -273,23 +303,16 @@ folium.LatLngPopup().add_to(m)   # popup lat long
 # on initialise l'isochrone de depart avec le depart
 pt1_cpx = np.array([[D]])
 # todo il faudrait stoper si l'on sort des limites de temps du grib
-
-
-
 # tant que le but n'est pas atteint on calcule des isochrones
+
+
+
+
+
 but = False
 while but == False:
     pt1_cpx, temps, but, indice,trace_iso = f_isochrone(pt1_cpx, temps)   
     # trace des isochrones
-    if isochrone[-1,2]==120:
-        X=pt1_cpx.real.reshape(-1,1)
-        Y=pt1_cpx.imag.reshape(-1,1)
-        points=np.concatenate((-Y,X),axis=1)
-        for point in points :
-            folium.CircleMarker(point,color='black', radius=1,fill_color='black',fill_opacity=0.3).add_to(m)
-
-
-        trace_points_folium (pt1_cpx)
     if isochrone[-1,2]%6==0:
         folium.PolyLine(trace_iso, color="black", weight=2, opacity=0.8).add_to(m)
     else :
@@ -381,7 +404,7 @@ np.around(chem, decimals=2)
 
 for i in range(len(chem)):
     chemin_folium.append((-chem[i, 1],chem[i, 0]))
-    #print('\t {}  \t{} \t{:6.3f} \t{:6.3f}\t{:6.2f} \t{:6.1f} \t{:6.2f} \t{:6.1f} \t{:6.3f}'
+    #print('\t {}  \t{} \t{:6.3f} \t{:6.3f}\t{:6.2f} \t{:6.1f} \t{:6.2f} \t{:6.1f} \t{:6.3f}'
     #      .format(i,time.strftime(" %d %b %Y %H:%M:%S ", time.localtime(chem[i, 2])),
     #    chem[i, 0],chem[i, 1],chem[i, 3],chem[i, 4],chem[i, 5],chem[i, 6],chem[i, 7]))
 
@@ -420,8 +443,9 @@ for i in range(1, len(chem), 1):
 
 #tooltip[0]='<b>'+temps+' <br> Lat :'+lat+'° - Long :'+long+'°<br>TWD :' + twd + '°  TWS :' + tws + 'N<br> Cap ' + cap + '°<br>TWA ' +twa +'°</b>'
 
-folium.Marker([  -d[1], d[0]   ], icon= folium.Icon(color='green', icon='info-sign'), popup=popup[0], tooltip=tooltip[0]).add_to(m)
-folium.Marker([ -ar[1], ar[0]  ], icon=folium.Icon(color='red', icon='info-sign'), popup='<i>Arrivee</i>', tooltip=tooltip[len(chem)-1] ).add_to(m)
+folium.Marker([-d[1], d[0]], popup=popup[0], tooltip=tooltip[0]).add_to(m)
+folium.Marker([-ar[1], ar[0]], popup='<i>Arrivee</i>', tooltip=tooltip[len(chem)-1]).add_to(m)
+
 folium.PolyLine(chemin_folium, color="blue", weight=2.5, opacity=0.8).add_to(m)
 
 

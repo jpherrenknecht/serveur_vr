@@ -17,7 +17,6 @@ import pandas as pd
 import folium
 import webbrowser
 from global_land_mask import globe
-
 from uploadgrib import *
 from polaires.polaires_class40 import *
 from fonctions_vr import *
@@ -31,9 +30,9 @@ tic = time.time()
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 
-#autre test
 
-# *****************************************   Donnees   ****************************************************************
+
+# ****************************************   Donnees   ****************************************************************
 '''
 Dans tous les calculs la longitude correspondant à l'axe des x est prise en premier
 Les points sont définis en longitude (x) latitude (y)
@@ -44,14 +43,6 @@ Les angles sont des angles trigo
 Pour le vent on parle de vitesses TWS  et angles TWD et TWA 
 Pour le bateau on parle de cap HDG et de vitesse polaire Vt
 '''
-def trace_points_folium (points_cpx):
-#on extrait les coordonnes pour tracer
-    X=points_cpx.real.reshape(-1,1)
-    Y=points_cpx.imag.reshape(-1,1)
-    points=np.concatenate((-Y,X),axis=1)
-    for point in points :
-        folium.CircleMarker(point,color='black', radius=1,fill_color='black',fill_opacity=0.3).add_to(carte)
-    return None
 
 
 
@@ -66,44 +57,54 @@ def f_isochrone(pt_init_cplx, temps_initial_iso):
     global isochrone, intervalles, t_v_ar_h,dico
     numero_iso           = int(isochrone[-1][2] + 1)
     delta_temps          = intervalles[numero_iso]  # Ecart de temps entre anciens points et nouveaux en s
-    temps_final          = temps_initial_iso + delta_temps
+    nouveau_temps       = temps_initial_iso + delta_temps
     t_iso_formate        = time.strftime(" %d %b %Y %H: %M: %S ", time.localtime(temps_initial_iso + delta_temps))
     numero_dernier_point = (isochrone[-1][4])                    # dernier point isochrone precedent
     numero_premier_point = isochrone[-1][4] - pt_init_cplx.size  # premier point isochrone precedent
-    tableau=np.array([[0,0,0,0,0,0,0]])
+   
+    but                  = False
+    points_calcul        = []
+    caps_x               = []
+    tab_t                = []  # tableau des temps vers l arrivee en ligne directe
+    trace_iso            = []
+   
+   
+   
     # on recupere toutes les previsions meteo d'un coup pour l'ensemble des points de depart
-
-
     TWS, TWD = prevision_tableau(tig, GR, temps_initial_iso, pt_init_cplx)
+   
+    #tableau=np.array([[0,0,0,0,0,0,0]])
     # pour chaque point de l'isochrone precedent  donnés en entrée (isochrone précédent)
     for i in range(pt_init_cplx.size): # on parcourt les points de l'isochrone precedent
-
-
-       
+        n=0
         HDG = range_cap(dist_cap(pt_init_cplx[0][i], A)[1], TWD[i], angle_objectif, angle_twa_pres, angle_twa_ar)  # Calcul des caps a etudier
         VT = polaire2_vect(polaires, TWS[i], TWD[i], HDG)               # calcul des vitesses polaires suivant ces caps
-        tableau_point=np.ones((len(HDG),7))                                   # on reserve un tableau numpy pour stocker
         n_pts = deplacement2(pt_init_cplx[0][i], delta_temps, HDG, VT)  #coordonnees des nouveaux points calcules
-
-        print('******************point : ',i, '   ',pt_init_cplx[0][i])
+        
+        
+        tableau=np.ones((len(HDG),7))                                   # on reserve un tableau numpy pour stocker
+       
        
 
        # on stocke les nouveaux points dans le np.array réservé pour ce point en particulier
-        tableau_point[:,0]=n_pts.real
-        tableau_point[:,1]=n_pts.imag
-        tableau_point[:,2]=numero_iso
-        tableau_point[:,3]=numero_premier_point+i                         # numero du point mere
-        tableau_point[:,4]=1                                              # numero du point 1 pour l'instant , sera renumeroté après purge
-        tableau_point[:,5]=dist_cap3(pt_init_cplx[0][i],A)[0]             # distance a l'arrivee
-        tableau_point[:,6]=dist_cap3(pt_init_cplx[0][i],A)[1]             # cap vers l'arrivee
-   
-       
-        tableau=np.concatenate((tableau,tableau_point),axis=0)
+        tableau[:,0]=n_pts.real
+        tableau[:,1]=n_pts.imag
+        tableau[:,2]=numero_iso
+        tableau[:,3]=numero_premier_point+i                         # numero du point mere
+        tableau[:,4]=i                                             # numero du point  , sera renumeroté après purge
+        tableau[:,5]=dist_cap3(pt_init_cplx[0][i],A)[0]             # distance a l'arrivee
+        tableau[:,6]=dist_cap3(pt_init_cplx[0][i],A)[1]             # cap vers l'arrivee
+        if n>0: 
+            tableau=np.concatenate((tableau,tableau),axis=0)
 
-    print(' Isochrone N° {}  {}'.format(numero_iso, t_iso_formate))
+   
+    for i in range (tableau.shape[0]):
+        print ('\t{:6.4f} \t {:6.4f} \t {} \t {} \t {:4.2f} \t {:4.2f} \t {:4.2f}' .format(tableau[i][0],tableau[i][1],tableau[i][2],tableau[i][3],tableau[i][4],tableau[i][5],tableau[i][6]))
+
+    #print(' Isochrone N° {}  {}'.format(numero_iso, t_iso_formate))
     #isochrone = np.concatenate((isochrone, tableau))  # On rajoute ces points a la fin du tableau isochrone
     ptn_cplx = np.array([tableau[:, 0] + tableau[:, 1] * 1j])  # on reforme un tableau numpy de complexes pour la sortie
-    return ptn_cplx,temps_final
+    return ptn_cplx,nouveau_temps
 
 
 
@@ -118,13 +119,9 @@ dico = {}
 indice = 0
 t_v_ar_h = 0
 nouveau_temps = 0
-
 t = time.localtime()
 instant = time.time()
-
 tig, GR =chargement_grib()
-
-
 temps = instant
 #todo ###############################################################"
 # Depart ou position actuelle ###########################################################"
@@ -145,9 +142,8 @@ longitude_a = '006-30-00-W'
 
 
 d = chaine_to_dec(latitude_d, longitude_d)  # conversion des latitudes et longitudes en tuple
-print ('depart',d)
 ar = chaine_to_dec(latitude_a, longitude_a)
-print ('arrivee : ',ar)
+
 ar=(-4.09,-47.64)
 d=(-3.89,-47.65)
 D = cplx(d)  # transformation des tuples des points en complexes
@@ -165,14 +161,16 @@ temps_cumules = np.cumsum(intervalles)
 
 lat1=-(d[1]+ar[1])/2                    # Point pour centrer la carte folium
 long1= (d[0]+ ar[0])/2
-print('Depart : Latitude {:6.4f}  Longitude {:6.4f}'.format(d[1], d[0]))
-print('Arrivee: Latitude {:4.2f}  Longitude {:4.2f}'.format(ar[1], ar[0]))
+
 
 # ************************************* Grib   *************************************************************************
 instant_formate = time.strftime(" %d %b %Y %H:%M:%S ", time.localtime(instant))
 vit_vent_n, TWD = prevision(tig, GR, instant, D.imag, D.real)
 
 # Impression des resultats au depart
+
+print('Depart : Latitude {:6.4f}  Longitude {:6.4f}'.format(d[1], d[0]))
+print('Arrivee: Latitude {:4.2f}  Longitude {:4.2f}'.format(ar[1], ar[0]))
 print('Date et Heure du grib  en UTC  :', time.strftime(" %d %b %Y %H:%M:%S ", time.gmtime(tig)))
 print('\nLe {} heure locale Pour latitude {:6.2f} et longitude{:6.2f} '.format(instant_formate, D.real, D.imag))
 print('\tVitesse du vent {:6.3f} Noeuds'.format(vit_vent_n))
@@ -325,6 +323,14 @@ pt1_cpx = np.array([[D]])
 # m.save(filepath)
 # webbrowser.open( filepath)
 
+def trace_points_folium (points_cpx):
+#on extrait les coordonnes pour tracer
+    X=points_cpx.real.reshape(-1,1)
+    Y=points_cpx.imag.reshape(-1,1)
+    points=np.concatenate((-Y,X),axis=1)
+    for point in points :
+        folium.CircleMarker(point,color='black', radius=1,fill_color='black',fill_opacity=0.3).add_to(carte)
+    return None
 
 
 
@@ -366,18 +372,18 @@ if __name__ == '__main__':
     
     points_cpx = np.array([[D]])
     points_cpx, temps= f_isochrone(points_cpx, temps)
-    print ('Tableau de points', points_cpx)
-    i=0
-    print ('premier point',points_cpx[0][i])
+    # print ('Tableau de points', points_cpx)
+    # i=0
+    # print ('premier point',points_cpx[0][i])
 
-    trace_points_folium (points_cpx)
+    #trace_points_folium (points_cpx)
 
 
 
 
     # on fait une deuxime fois
     points_cpx, temps= f_isochrone(points_cpx, temps)
-    trace_points_folium (points_cpx)
+    #trace_points_folium (points_cpx)
     # #on extrait les coordonness pour tracer
     # X=points_cpx.real.reshape(-1,1)
     # Y=points_cpx.imag.reshape(-1,1)
