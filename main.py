@@ -22,15 +22,13 @@ from flask_sqlalchemy import SQLAlchemy
 
 
 from calcul import add
-from frouteur import frouteur
+#from frouteur import frouteur
 
 from polaires.polaires_imoca import *
 # commentaire ajoute pour test
 
 
 app = Flask(__name__)
-
-
 app.secret_key="Hello"
 app.permanent_session_lifetime = timedelta(days=1)     # minutes=10
 
@@ -57,6 +55,10 @@ longar=-5.16666666
 def index():
   return render_template('index.html')
 
+@app.route('/map2')
+def map2():
+  return render_template("map2.html")
+
 
 
 @app.route('/resultat',methods = ['POST'])
@@ -65,8 +67,7 @@ def resultat():
                                                               # resultat = request.args dans le cas d'une requete 'GET'
   latdep                 = resultat1['lat']
   longdep                = resultat1['long']
-
-  frouteur (latdep,longdep,latar,longar)
+  #frouteur (latdep,longdep,latar,longar)
 
  
   return render_template("map.html", total=add(latdep,longdep) , result=request.form)

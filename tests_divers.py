@@ -1,5 +1,8 @@
 import numpy as np
 import math
+import os
+import sys
+
 
 # maximum sur une colonne np decommenter pour tester
 # a = np.random .random_integers(10,50,size=(3,4))
@@ -45,7 +48,12 @@ def dist_cap3(D,A):
 
 
 if __name__ == '__main__':
+    from sys import platform as _platform
+    print ('\n platform',_platform)    
+    
+    print('\nos.name',os.name)
 
+    #print(platform.system())
     # test deplacement_x_y
 
     x0=-5.811
