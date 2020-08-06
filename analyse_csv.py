@@ -7,6 +7,8 @@ import csv
 import json
 import time
 
+PI=math.pi
+
 #from polaires.polaires_class40 import *
 from polaires.polaires_ultime import *
 from uploadgrib import *
@@ -28,15 +30,11 @@ tic =time.time()
 
 #chargement du grib
 tig, GR        = chargement_grib2()
-
-#print  (data["features"])
-#print  (data["features"]["bateau"])
+# Extraction de donnees du fichier json
 print()
 bateau=(data["DREAMH CUP"]["bateau"])
 print('\nBateau : ',bateau)
 print()
-#polaires='polaires.polaires_'+bateau+'.py'
-#from polaires import*
 
 
 def deplacement2(D, d_t, HDG, VT):
@@ -47,29 +45,53 @@ def deplacement2(D, d_t, HDG, VT):
     return A
 
 
-
-
-
-def dist_cap2(x0,y0,x1,y1):
-
+def dist_cap(x0,y0,x1,y1):
     '''retourne la distance et l'angle du deplacement entre le depart et l'arrivee
     en tenant compte de la courbure et du racourcissement des distances sur l'axe x'''
     coslat= math.cos(y0 * math.pi / 180)
     C=(x-x0)*coslat +(y-y0)*1j
     return np.abs(C), (450 + np.angle(C, deg=True)) % 360
 
+def dist_cap_r(x0,y0,x1,y1):
+    '''retourne la distance et l'angle du deplacement entre le depart et l'arrivee
+    en tenant compte de la courbure et du racourcissement des distances sur l'axe x
+    la fonction est identique à la precedente mais le retour est en radian '''
+    coslat= math.cos(y0 * PI / 180)
+    C=(x-x0)*coslat +(y-y0)*1j
+    return np.abs(C), (5*PI/2 + np.angle(C)) % (2*PI)
+
 
 def temps_depl (x0,y0,x1,y1,polar):
+    dist,cap_r=dist_cap_r(x0,y0,x1,y1)
+    dt=(( ((x1-x0)+(y1-y0)*1j)  /  ((math.sin(cap_r)/math.cos(y0*math.pi/180))- math.cos(cap_r)*1j)   ) *(60*3600/polar)).real
+    return dt
+
+def temps_depl2 (x0,y0,t0,x1,y1):
+    dist,cap=dist_cap(x0,y0,x1,y1)
+    print('cap dans fonction',cap)
+    vitesse2=v_polaire(x0,y0,t0,cap)
+    print('polaire dans fonction',vitesse2)
+    print ('Dans fonction polaire en {:6.4f} {:6.4f} à {:9.4f}s cap{:8.6f} est {:6.4f}'.format(x0,y0,t0,cap,vitesse2))
+    cap_r=cap*math.pi/180    
     dt=(( ((x1-x0)+(y1-y0)*1j)  /  ((math.sin(cap_r)/math.cos(y0*math.pi/180))- math.cos(cap_r)*1j)   ) *(60*3600/polar)).real
     return dt
 
 
+def v_polaire(x0,y0,t0,cap):
+    ''' recherche de la polaire connaissant le point et l'instant de depart et le cap suivi '''
+    '''tig et GR sont les variables globales '''
+    vit_vent, angle_vent=prevision(tig, GR,   t, y, x)
+    tw =twa(cap, angle_vent)
+    polar= polaire(polaires, vit_vent, tw)[0]
+    return polar
 
+# Recuperation du fichier csv et transformation en pandas
 fichier='fichier_route.csv'
 df=pd.read_csv(fichier)
-print('taille pandas',df.shape)
-print(df.head(5))
+print('Taille pandas',df.shape)
+print (df.head(17))
 print (df.tail())
+# Transformation du fichier pandas en tableau Numpy
 route=df.to_numpy()
 
 # reconstitution du chemin
@@ -82,7 +104,7 @@ cap0=route[0,6]
 tw =twa(cap0, angle_vent)
 polar= polaire(polaires, vit_vent, tw)[0]
 print('\n')
-print (' {:6.4f} {:6.4f} {} {:4.2f} {:4.2f} {:4.2f} {:4.2f} {:4.2f}'.format(x0,y0,t,vit_vent,angle_vent,cap0,tw,polar))
+#print (' {:6.4f} {:6.4f} {} {:4.2f} {:4.2f} {:4.2f} {:4.2f} {:4.2f}'.format(x0,y0,t,vit_vent,angle_vent,cap0,tw,polar))
 
 A=deplacement2(x0+y0*1j, route[1,3]-route[0,3], cap0, polar)
 x1=A.real
@@ -95,25 +117,26 @@ y1=A.imag
 x=x0
 y=y0
 
-print ('  {} x {:6.4f}, y {:6.4f}'.format(0, x,y))
+print ('  Depart  {:6.4f}, y {:6.4f}'.format(x,y))
 
-for i in range (df.shape[0]-1):
-    dt=route[i+1,3]-route[i,3]
-    cap=route[i,6]
-    t=route[i,3] 
-    vit_vent, angle_vent=prevision(tig, GR,   t, y, x)
-    tw =twa(cap, angle_vent)
-    polar= polaire(polaires, vit_vent, tw)[0]
-    x=deplacement2(x+y*1j, dt, cap, polar).real
-    y=deplacement2(x+y*1j, dt, cap, polar).imag
+#" reconstititution pour voir "
+# for i in range (df.shape[0]-1):
+#     dt=route[i+1,3]-route[i,3]
+#     cap=route[i,6]
+#     t=route[i,3] 
+#     vit_vent, angle_vent=prevision(tig, GR,   t, y, x)
+#     tw =twa(cap, angle_vent)
+#     polar= polaire(polaires, vit_vent, tw)[0]
+#     x=deplacement2(x+y*1j, dt, cap, polar).real
+#     y=deplacement2(x+y*1j, dt, cap, polar).imag
 
-    print ('  {}  {:6.4f},  {:6.4f}  dt {:6.2f}  dx {:6.4f}   dy {:6.4f}'.format(i+1, x,y, dt  ,route[i+1,1] - x, route[i,2] - y))
+#    print ('  {}  {:6.4f},  {:6.4f}  dt {:6.2f}  dx {:6.4f}   dy {:6.4f}'.format(i+1, x,y, dt  ,route[i+1,1] - x, route[i,2] - y))
 
 # Recalcul du dernier temps
 
 
 print('Liste des caps suivis')
-print(df['cap'][0:15],df['twa'][0:15])
+print(df['cap'][0:15])
 print()
 
 # calcul sur premier point pour test tempspour passer a l'isochrone suivant
@@ -122,53 +145,82 @@ cap=route[i,6]  # cap suivi
 t=route[i,3] 
 vit_vent, angle_vent=prevision(tig, GR,   t, y0, x0)
 tw =twa(cap, angle_vent)
-polar= polaire(polaires, vit_vent, tw)[0]                   # polaire en ce point
-print ('Polaire au point de depart',polar, 'Noeuds')
-print ('Cap suivi',cap)
-print('Coordonnees ddu depart',x0,y0)
-print()
-#verification du deplacemant
-dt=600
-y1=y0-polar*dt/3600/60*math.cos(cap*math.pi/180)
-print('y1 apres deplacement',y1)
+polar= polaire(polaires, vit_vent, tw)[0] # polaire en ce point
+print('Calcul de déplacement connaissant le depart le cap la polaire et le temps')
+dt =500                  
+print ('Au Point de depart {:6.4f}  {:6.4f} Polaire {:6.2f} Noeuds cap {}° dt {:5.2f}s'.format(x0,y0,polar,cap,dt ))
 x1=x0+polar*dt/3600/60*math.sin(cap*math.pi/180)/math.cos(y0*math.pi/180)
-print('x1 apres deplacement',x1)
+y1=y0-polar*dt/3600/60*math.cos(cap*math.pi/180)
+print ('Après deplacement  {:6.4f}  {:6.4f}  '.format(x1,y1))
 print()
+# #verification du deplacemant
+# dt=600
+# y1=y0-polar*dt/3600/60*math.cos(cap*math.pi/180)
+# print('y1 apres deplacement',y1)
 
-D=x0+y0*1j
-A=x1+y1*1j
-coslat=math.cos(y0*math.pi/180)
-cap_r=cap*math.pi/180
-print(' A-D',A-D)
+# print('x1 apres deplacement',x1)
+# print()
 
-dt3=temps_depl (x0,y0,x1,y1,polar)
-print ('resultat dt3',dt3)
+# D=x0+y0*1j
+# A=x1+y1*1j
+# coslat=math.cos(y0*math.pi/180)
 
-#Calcul du temps de deplacement pour le dernier isochrone
-#impression des valeurs pour le dernier point 
-print(' Derniere ligne du panda',df.iloc[-1])
 
+
+# cap_r=cap*math.pi/180
+
+
+# print(' A-D',A-D)
+
+
+
+#test de vpolaire
+
+x0=route[0,1]
+y0=route[0,2]
+t0=route[0,3]
+cap=route[0,6]
+vitesse=v_polaire(x0,y0,t0,cap)
+print ('La vitesse polaire en {:6.4f} {:6.4f} à {:9.4f}s cap{:8.6f} est {:6.4f}'.format(x0,y0,t0,cap,vitesse))
+
+# y=y0 +600/3600/60 * polar*math.cos(cap*math.pi/180)
+# print('y0',y0)
+# print('y',y)
+print("Calcul inverse on connait le depart, l'arrivee la polaire au depart et on cherche le temps")
+#print("Calcul d'un temps de parcours connaissant les points de depart et arrivée")
+# le calcul suivant sert comme données pour le test
 x=deplacement2(x0+y0*1j, dt, cap, polar).real
 y=deplacement2(x0+y0*1j, dt, cap, polar).imag
+# On verifie que cela fonctionne bien
+print("Test d'un parcours : Donnees Depart {:6.4f} {:6.4f} Arrivee {:6.4f} {:6.4f} polaire {:6.2f} ".format(x0,y0,x,y,polar))
+delta_t = temps_depl (x0,y0,x,y,polar)
+print('Temps de parcours :{:6.2f}s '.format(delta_t))  
+
+t0=route[0,3]
+delta_t2 = temps_depl2 (x0,y0,t0,x,y)
+print('Temps de parcours 2 :{:6.2f}s '.format(delta_t2))  
 
 
+# on va faire un essai de racourcissement de route entre L'indice 7 et l'indice 14
+i=0
+xi=route[i,1]
+yi=route[i,2]
+ti=route[i,3]
+
+print('i ,xi yi ti',xi, yi,ti)
+
+"on essaye d'aller directement au point j"
+j=1
+xf=route[j,1]
+yf=route[j,2]
 
 
-y=y0 +600/3600/60 * polar*math.cos(cap*math.pi/180)
-print('y0',y0)
-print('y',y)
-
-
-
-cap0 = temps_depl (x0,y0,x,y,polar)
-
-
-print('Test de cap donnees ',x0,y0,x,y,polar)
-print('Test de dt resultat',cap0)  
-
+print('x14 y14 ',xf, yf)
+temps_parcours = temps_depl2 (xi,yi,ti,xf,yf)
+print('\nNouveau temps de parcours',temps_parcours)
 
 tac =time.time()
 
-print ('temps total',tac-tic)
+print ('\nTemps de calcul',tac-tic)
 print()
 print()
