@@ -444,7 +444,7 @@ for i in range(1, len(chem), 1):
 #tooltip[0]='<b>'+temps+' <br> Lat :'+lat+'° - Long :'+long+'°<br>TWD :' + twd + '°  TWS :' + tws + 'N<br> Cap ' + cap + '°<br>TWA ' +twa +'°</b>'
 
 folium.Marker([-d[1], d[0]], popup=popup[0], tooltip=tooltip[0]).add_to(m)
-folium.Marker([-ar[1], ar[0]], popup='<i>Arrivee</i>', tooltip=tooltip[len(chem)-1]).add_to(m)
+folium.7
 
 folium.PolyLine(chemin_folium, color="blue", weight=2.5, opacity=0.8).add_to(m)
 

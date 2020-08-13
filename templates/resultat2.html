@@ -15,20 +15,28 @@
     </style>
 
     <body onload="initialize()">
+        <div text-align='right'>
+        <form action="http://localhost:8080/resultat2" method="post">
+           <label><b>Depart</b></label> Latitude</label> : <input type="text" name="lat" />
+                         <label>Longitude</label> : <input type="text" name="long"  value=+latdep/><br>
+            <label><b>Arrivee</b></label> Latitude</label> : <input type="text" name="lat" />
+                         <label>Longitude</label> : <input type="text" name="long" /><br>             
+            <input type="submit" value="Envoyer" />
+    </form>
+        </div>
 
-        
-        <div id="map" style="width:80%; height:80%"></div>
+        <div id="map" style="width:100%; height:80%"></div>
     </body>
+
 </html>
 <script type="text/javascript">
     function initialize() {
-
-         // initialise la carte
-        var map = L.map('map').setView([51.505, -0.09], 13);
-              
-
+        var latdep={{  result['lat']  }}
+        var lngdep={{  result['long'] }} 
+        
+        var map = L.map('map').setView([latdep, lngdep], 10); // initialise la carte
         osmLayer=L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
 
 
@@ -36,6 +44,15 @@
         L.marker([51.5, -0.09]).addTo(map)
             .bindPopup('<b>A pretty CSS3 popup.</b> <br> Easily customizable.')
             .openPopup();
+
+       
+        //COMMENTAIRE
+        L.marker([ latdep, lngdep  ] ).addTo(map)
+            .bindPopup('<b>Position Depart</b> <br>Latitude : ' +latdep +'<br>Longitude : '+lngdep)
+            .openPopup();
+
+
+
 
         //add circle
         var circle=L.circle([51.508,-0.11],{
@@ -48,30 +65,30 @@
         circle.bindPopup("<br> I am a circle")
        
 
-        var polygon= L.polygon([
-            [51.509,-0.08],
-            [51.503,-0.06],
-            [51.51,-0.047]
-        ]).addTo(map)
-        polygon.bindPopup("<h2> I am a Polygon</h2>")
+        // var polygon= L.polygon([
+        //     [51.509,-0.08],
+        //     [51.503,-0.06],
+        //     [51.51,-0.047]
+        // ]).addTo(map)
+        // polygon.bindPopup("<h2> I am a Polygon</h2>")
 
-        var popup=L.popup()
-        .setLatLng([51.5,-0.09])
-        .setContent("I am a lonesome popup")
-        .openOn(map);
+        // var popup=L.popup()
+        // .setLatLng([51.5,-0.09])
+        // .setContent("I am a lonesome popup")
+        // .openOn(map);
 
 
 
 
 
         // creation d'un marqueur 
-        var marqueur=L.marker([47,2],{
-            draggable:true,
-            opacity:0.5
-        })
-        .addTo(map)
-        .bindPopup('Bienvenue sur mon premier Marqueur')
-        .openPopup();
+        // var marqueur=L.marker([47,2],{
+        //     draggable:true,
+        //     opacity:0.5
+        // })
+        // .addTo(map)
+        // .bindPopup('Bienvenue sur mon premier Marqueur')
+        // .openPopup();
 
         // Creation d'une poly line 
         var polylinePoints=[[47,2],[47,3],[46.5,3.2]];
@@ -105,3 +122,7 @@
 
     }
 </script>
+// <script>
+//     // alert("latitude Depart "+ {{  result['lat'] }} + "aa" + {{  result['long'] }})
+
+// </script>

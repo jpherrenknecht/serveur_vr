@@ -48,6 +48,17 @@ class user(db.Model):                                              # creation du
 latar=49.25
 longar=-5.16666666
 
+#partie fonction python
+def test():
+  polyline=[[[48,4],[48,2.53],[49.5,4.2],[46.5,5.52]],[[47,2],[48,3.5],[48.5,3.9],[50.5,-1.52]]]
+  time.sleep(10)
+  return polyline
+
+
+
+
+
+
 ##partie serveur web
 
 
@@ -67,15 +78,28 @@ def resultat():
                                                               # resultat = request.args dans le cas d'une requete 'GET'
   latdep                 = resultat1['lat']
   longdep                = resultat1['long']
+  #frouteur (latdep,longdep,latar,longar) 
+  return render_template("resultat.html", total=add(latdep,longdep) , result=request.form)
+
+
+
+@app.route('/resultat2',methods = ['POST'])
+def resultat2():
+  resultat1 = request.form                                    # dictionnaire avec les resultats de la requete
+                                                              # resultat = request.args dans le cas d'une requete 'GET'
+  latdep                 = resultat1['lat']
+  longdep                = resultat1['lng']
   #frouteur (latdep,longdep,latar,longar)
-
  
-  return render_template("map.html", total=add(latdep,longdep) , result=request.form)
+  return render_template("resultat2.html", total=add(latdep,longdep) , result=request.form)
 
 
+@app.route('/resultat3',methods = ['POST'])
+def resultat3():  
 
+  polyline=test()
 
-
+  return render_template("resultat3.html", polyline=test(), result=request.form)
 
 
 

@@ -49,7 +49,7 @@ def dist_cap(x0,y0,x1,y1):
     '''retourne la distance et l'angle du deplacement entre le depart et l'arrivee
     en tenant compte de la courbure et du racourcissement des distances sur l'axe x'''
     coslat= math.cos(y0 * math.pi / 180)
-    C=(x-x0)*coslat +(y-y0)*1j
+    C=(x1-x0)*coslat +(y1-y0)*1j
     return np.abs(C), (450 + np.angle(C, deg=True)) % 360
 
 def dist_cap_r(x0,y0,x1,y1):
@@ -68,28 +68,30 @@ def temps_depl (x0,y0,x1,y1,polar):
 
 def temps_depl2 (x0,y0,t0,x1,y1):
     dist,cap=dist_cap(x0,y0,x1,y1)
-    print('cap dans fonction',cap)
     vitesse2=v_polaire(x0,y0,t0,cap)
-    print('polaire dans fonction',vitesse2)
-    print ('Dans fonction polaire en {:6.4f} {:6.4f} à {:9.4f}s cap{:8.6f} est {:6.4f}'.format(x0,y0,t0,cap,vitesse2))
     cap_r=cap*math.pi/180    
-    dt=(( ((x1-x0)+(y1-y0)*1j)  /  ((math.sin(cap_r)/math.cos(y0*math.pi/180))- math.cos(cap_r)*1j)   ) *(60*3600/polar)).real
+    dt=(( ((x1-x0)+(y1-y0)*1j)  /  ((math.sin(cap_r)/math.cos(y0*math.pi/180))- math.cos(cap_r)*1j)   ) *(60*3600/vitesse2)).real
     return dt
 
 
 def v_polaire(x0,y0,t0,cap):
     ''' recherche de la polaire connaissant le point et l'instant de depart et le cap suivi '''
     '''tig et GR sont les variables globales '''
-    vit_vent, angle_vent=prevision(tig, GR,   t, y, x)
+    vit_vent, angle_vent=prevision(tig, GR,   t0, y0, x0)
+    print('vitesse du vent {} et angle du vent dans fonction polaire {}'.format(vit_vent,angle_vent))
     tw =twa(cap, angle_vent)
+
+    print('twa dans fonction v_polaire {}'.format(tw))
     polar= polaire(polaires, vit_vent, tw)[0]
     return polar
+
+
 
 # Recuperation du fichier csv et transformation en pandas
 fichier='fichier_route.csv'
 df=pd.read_csv(fichier)
 print('Taille pandas',df.shape)
-print (df.head(17))
+print (df.head(130))
 print (df.tail())
 # Transformation du fichier pandas en tableau Numpy
 route=df.to_numpy()
@@ -136,7 +138,7 @@ print ('  Depart  {:6.4f}, y {:6.4f}'.format(x,y))
 
 
 print('Liste des caps suivis')
-print(df['cap'][0:15])
+print(df['cap'][0:50])
 print()
 
 # calcul sur premier point pour test tempspour passer a l'isochrone suivant
@@ -153,28 +155,7 @@ x1=x0+polar*dt/3600/60*math.sin(cap*math.pi/180)/math.cos(y0*math.pi/180)
 y1=y0-polar*dt/3600/60*math.cos(cap*math.pi/180)
 print ('Après deplacement  {:6.4f}  {:6.4f}  '.format(x1,y1))
 print()
-# #verification du deplacemant
-# dt=600
-# y1=y0-polar*dt/3600/60*math.cos(cap*math.pi/180)
-# print('y1 apres deplacement',y1)
 
-# print('x1 apres deplacement',x1)
-# print()
-
-# D=x0+y0*1j
-# A=x1+y1*1j
-# coslat=math.cos(y0*math.pi/180)
-
-
-
-# cap_r=cap*math.pi/180
-
-
-# print(' A-D',A-D)
-
-
-
-#test de vpolaire
 
 x0=route[0,1]
 y0=route[0,2]
@@ -183,9 +164,6 @@ cap=route[0,6]
 vitesse=v_polaire(x0,y0,t0,cap)
 print ('La vitesse polaire en {:6.4f} {:6.4f} à {:9.4f}s cap{:8.6f} est {:6.4f}'.format(x0,y0,t0,cap,vitesse))
 
-# y=y0 +600/3600/60 * polar*math.cos(cap*math.pi/180)
-# print('y0',y0)
-# print('y',y)
 print("Calcul inverse on connait le depart, l'arrivee la polaire au depart et on cherche le temps")
 #print("Calcul d'un temps de parcours connaissant les points de depart et arrivée")
 # le calcul suivant sert comme données pour le test
@@ -200,27 +178,44 @@ t0=route[0,3]
 delta_t2 = temps_depl2 (x0,y0,t0,x,y)
 print('Temps de parcours 2 :{:6.2f}s '.format(delta_t2))  
 
-
-# on va faire un essai de racourcissement de route entre L'indice 7 et l'indice 14
-i=0
+#************************************************************************************************
+#************************************************************************************************
+# on va faire un essai de0 racourcissement de route entre deux indices
+i=23
+j=49
 xi=route[i,1]
 yi=route[i,2]
 ti=route[i,3]
-
-print('i ,xi yi ti',xi, yi,ti)
-
+capi=route[i,6]
+twai=route[i,7]
+polairei=route[i,8]
 "on essaye d'aller directement au point j"
-j=1
+
 xf=route[j,1]
 yf=route[j,2]
+tf=route[j,3]
+capf=route[j,6]
+twaf=route[j,7]
+polairef=route[j,8]
+print('\nTest entre les points{} et {}'.format(i,j))
+print('temps initial',ti)
+print('xi yi capi twai polairei ',xi, yi,capi,twai,polairei)
+print('xf yf ',xf, yf)
+print ('delta_t',tf-ti)
 
+print('Calcul dans le sens direct')
+x=deplacement2(xi+yi*1j, tf-ti, capi, polairei).real
+y=deplacement2(xi+yi*1j, tf-ti, capi, polairei).imag
+print('x y calcules directement ',x, y)
 
-print('x14 y14 ',xf, yf)
 temps_parcours = temps_depl2 (xi,yi,ti,xf,yf)
 print('\nNouveau temps de parcours',temps_parcours)
+#calcul par les indices
+t2=(j-i)*600
+print ('calcul par les indices',t2)
+print('gain de temps ',t2-temps_parcours)
 
 tac =time.time()
-
 print ('\nTemps de calcul',tac-tic)
 print()
 print()

@@ -195,7 +195,7 @@ def f_isochrone(pt_init_cplx, temps_initial_iso):
         trace_iso_cap.append((-pointsx[i][1], pointsx[i][0],pointsx[i][6]))
     
       
-     
+    
 
         # on cherche les temps vers l'arrivee des nouveaux points
         vit_vent, TWD = prevision(tig, GR, nouveau_temps, pointsx[i][1], pointsx[i][0])

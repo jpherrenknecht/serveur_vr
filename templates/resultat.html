@@ -1,4 +1,8 @@
 <!doctype html>
+	<script>
+		alert('bonjour'+{{  result['lat'] }})
+
+	</script>
 	<html lang="fr">
 		<head>
 			<meta charset="utf-8">
@@ -6,6 +10,7 @@
 		</head>
 		<body>
 		<h3> Fichier resultat.html </h3>
+			<p>latitude {{ lat  }}</p>
 			<p>Point de départ : Latitude  {{  result['lat'] }}  et Longitude {{ result['long'] }} </p>
 		<h3>    {{ nom  }}</h3>
 
