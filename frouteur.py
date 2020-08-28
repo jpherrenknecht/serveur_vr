@@ -4,8 +4,9 @@ from uploadgrib import *
 from fonctions_vr import *
 import folium
 import webbrowser
-
-
+from polaires.polaires_ultime import *
+from operator import itemgetter
+from global_land_mask import globe
 
 def chargement_grib2():
  # ouverture du fichier hdf5
@@ -35,8 +36,9 @@ def f_isochrone(pt_init_cplx, temps_initial_iso):
     points_calcul        = []
     caps_x               = []
     tab_t                = []  # tableau des temps vers l arrivee en ligne directe
-    trace_iso            = []
-    trace_iso_cap            = []
+    trace_iso            = []  # tableau de tuples
+    trace_iso2           = []   # tableau de listes
+    trace_iso_cap        = []
   
     
     # on recupere toutes les previsions meteo d'un coup pour l'ensemble des points de depart
@@ -102,7 +104,7 @@ def f_isochrone(pt_init_cplx, temps_initial_iso):
         dico[pointsx[i][4]] = pointsx[i][3]
         trace_iso.append((-pointsx[i][1], pointsx[i][0]))
         trace_iso_cap.append((-pointsx[i][1], pointsx[i][0],pointsx[i][6]))
-    
+        trace_iso2.append([-pointsx[i][1], pointsx[i][0]])
 
         # on cherche les temps vers l'arrivee des nouveaux points
         vit_vent, TWD = prevision(tig, GR, nouveau_temps, pointsx[i][1], pointsx[i][0])
@@ -123,7 +125,7 @@ def f_isochrone(pt_init_cplx, temps_initial_iso):
     ptn_cplx = np.array([pointsx[:, 0] + pointsx[:, 1] * 1j])  # on reforme un tableau numpy de complexes pour la sortie
     print(' Isochrone calculé N° {}  {}  {} points cap mini  {:4.2f}  cap maxi {:4.2f}  '.format(numero_iso, t_iso_formate,longueur,capmini ,  capmaxi  ))
 
-    return ptn_cplx, nouveau_temps, but, indice,trace_iso
+    return ptn_cplx, nouveau_temps, but, indice,trace_iso2
 
 
 
@@ -135,27 +137,21 @@ def frouteur(x0,y0,x1,y1,t0=time.time()):
     '''d et ar depart et arrivee sous forme de tupple ,
      tig instant initial du grib , GR valeurs du grib 
      tic instant de depart de la prevision par defaut instant actuel'''
-
-    filenamehd5 = chargement_grib2()
-    tig, GR = ouverture_fichier(filenamehd5)
+    trace_total=[]
     but = False
     D=x0+y0*1j
     A=x1+y1*1j
-    dt1           = np.ones(72) * 600  # intervalles de temps toutes les 10mn pendant une heure puis toutes les heures
-    dt2           = np.ones(370) * 3600
-    intervalles   = np.concatenate(([t0 - tig], dt1, dt2))
-    temps_cumules = np.cumsum(intervalles)
+   
     # on initialise l'isochrone de depart avec le depart et le temps au depart
     pt1_cpx = np.array([[D]])
     temps=t0
-
+    i=0
     while but == False:
-        pt1_cpx, temps, but, indice,trace_iso = f_isochrone(pt1_cpx, temps)  
+        pt1_cpx, temps, but, indice,trace_iso2 = f_isochrone(pt1_cpx, temps)  
+        trace_total.append(trace_iso2)  
     # trace iso 
 
-
-
-    return None
+    return trace_total
 
 
 
@@ -169,21 +165,27 @@ if __name__ == '__main__':
     import time
 
     # initialisation des variables
+    tig,GR = chargement_grib2()
     angle_objectif = 90
     dico = {}
     indice = 0
     t_v_ar_h = 0
     nouveau_temps = 0
     tic = time.time()
-   
+    dt1           = np.ones(72) * 600  # intervalles de temps toutes les 10mn pendant une heure puis toutes les heures
+    dt2           = np.ones(370) * 3600
+    intervalles   = np.concatenate(([tic - tig], dt1, dt2))
+    temps_cumules = np.cumsum(intervalles)
     (filenamehdf5,dategrib,tig )= filename()
+
+    
     # Depart ou position actuelle 
-    latitude_d = '043-38-42-N'
-    longitude_d = '059-25-36-W'
+    latitude_d = '040-38-42-N'
+    longitude_d = '073-25-36-W'
 
     #todo Arrivee cap Lizard
-    latitude_a = '049-15-00-N'
-    longitude_a = '005-10-00-W'
+    latitude_a = '040-00-00-N'
+    longitude_a = '070-20-00-W'
     d  = chaine_to_dec(latitude_d, longitude_d)  # conversion des latitudes et longitudes en tuple
     ar = chaine_to_dec(latitude_a, longitude_a)
     
@@ -210,12 +212,7 @@ if __name__ == '__main__':
     print() 
 
 
-
-
-
-
-
-
     #lancement de la fonction
-    frouteur(x0,y0,x1,y1)
+    trace=frouteur(x0,y0,x1,y1)
+    print(trace)
     

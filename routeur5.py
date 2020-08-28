@@ -89,7 +89,6 @@ def f_isochrone(pt_init_cplx, temps_initial_iso):
    
     but                  = False
     points_calcul        = []
-    caps_x               = []
     tab_t                = []  # tableau des temps vers l arrivee en ligne directe
     trace_iso            = []
     trace_iso_cap        = []
@@ -250,7 +249,7 @@ d  = chaine_to_dec(latitude_d, longitude_d)  # conversion des latitudes et longi
 ar = chaine_to_dec(latitude_a, longitude_a)
 ar=d
 d=(-73.62,-40.46)
-ar=(-70,-41)
+ar=(-64,-42)
 print(d)
 D = cplx(d)  # transformation des tuples des points en complexes
 A = cplx(ar)
@@ -444,5 +443,3 @@ else :
 #   ****************************************Controle du temps d'execution **********************************
 tac = time.time()
 print('\nDuree d\'execution:  {:4.2f} s'.format(tac - tic))
-
-

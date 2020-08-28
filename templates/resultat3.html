@@ -7,7 +7,6 @@
 
         <script src="https://unpkg.com/leaflet@1.4.0/dist/leaflet.js"></script>
         <script src="https://api.windy.com/assets/map-forecast/libBoot.js"></script>
-
     </head>
 
 
@@ -15,18 +14,14 @@
             var latdep={{  result['lat'] }}
             var lngdep={{  result['lng'] }}
         
-        function initialize() {
-            
+        function initialize()
+        {            
             document.formu.lat.value=latdep
-            document.formu.lng.value=lngdep
-           
+            document.formu.lng.value=lngdep           
         }
-    </script>   
-        <script>
+   
 
-const options = {
-    // Required: API key
-   // key: 'PsLAtXpsPTZexBwUkO7Mx5I', // REPLACE WITH YOUR KEY !!!
+    const options = {
     key: 'ydO74Xuxv2WWOEShDpel1kaiae8zCnLO',
     // Put additional console output
     //verbose: true,
@@ -35,75 +30,122 @@ const options = {
     lat: 45,
     lon: 1,
     zoom: 8,
-};
+    };
 
 // Initialize Windy API
-windyInit(options, windyAPI => {
+    windyInit(options, windyAPI => {
     // windyAPI is ready, and contain 'map', 'store',
     // 'picker' and other usefull stuff
-    const { map } = windyAPI;
-    const { store } = windyAPI;
-    const { picker } = windyAPI;
-    // .map is instance of Leaflet map
-    //var map = L.map('map').setView([51.505, -0.09], 13);
+        const { map } = windyAPI;
+        const { store } = windyAPI;
+        const { picker } = windyAPI;
+        // .map is instance of Leaflet map
+    var blackIcon = new L.Icon({
+    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-black.png',
+    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+    iconSize: [25, 41],
+    iconAnchor: [12, 41],
+    popupAnchor: [1, -34],
+    shadowSize: [41, 41]
+    });
+        
+        
     L.popup()
         .setLatLng([50.4, 0])
         .setContent('Hello World +154');
     
-    var polylinePoints=[[[47,2],[47,3],[46.5,3.2],[48.5,3.52]],[[46,2],[46,3],[45.5,3.8],[49.5,3.52]]];
+   var polylinePoints=[[[47,2],[47,3],[46.5,3.2],[48.5,3.52]],[[46,2],[46,3],[45.5,3.8],[49.5,3.52]]];
+   //[[43.57171204045208, -59.41333505630625], [43.575404315995456, -59.407977397352745], [43.57824552626171, -59.40537511299965], [43.58215273270323, -59.402386788202826], [43.58536366360984, -59.39989578250146], [43.588338586742736, -59.3973967521338], [43.59170310572329, -59.39541011976964], [43.595160395384994, -59.39403959308442], [43.59801482852257, -59.392873105466656], [43.60219716563369, -59.382904035126074], [43.60610681962184, -59.375793517506835], [43.60955789010317, -59.37066325004848], [43.61283211084054, -59.36686513280319], [43.61615901128619, -59.36419624792634], [43.619462895914296, -59.36152012460955], 
    
+   
+   //var polylinePoints=[(47,2),(47,3),(6.5,3.2),(48.5,3.52)];
     L.polyline(polylinePoints).setStyle({
-    color: 'black',
-    weight:1,
-    }).addTo(map);
+        color: 'black',
+        weight:1,
+        }).addTo(map);
     
     polylineRed={{  polyline }}
+
     L.polyline(polylineRed).setStyle({
-    color: 'red',
-    weight:1,
-    }).addTo(map);
+        color: 'red',
+        weight:1,
+        }).addTo(map);
 
 
     L.marker([51.5, -0.09]).addTo(map);
    
     var depart = L.marker([latdep,lngdep], {
-       
+        icon: blackIcon,
         title: "Depart"
       }).addTo(map);
+//      depart.bindPopup("<b>Depart</b><br> Latitude : " + latdep + '<br>Longitude : ' +lngdep).openPopup();
 
-      depart.bindPopup("<b>Depart</b><br> Latitude : " + latdep + '<br>Longitude : ' +lngdep).openPopup();
+    var greenIcon = new L.Icon({
+        iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
+        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowSize: [41, 41]
+        });
 
-      var greenIcon = new L.Icon({
-  iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
-  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41]
-});
-
-L.marker([45, -0.09], {icon: greenIcon}).addTo(map);
+    L.marker([45, -0.09], {icon: greenIcon}).addTo(map);
 
 
-var redIcon = new L.Icon({
-  iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
-  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41]
-});
-
+    var redIcon = new L.Icon({
+        iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowSize: [41, 41]
+        });
 
 
 
-L.marker([46, -5], {icon: redIcon}).addTo(map);
+    L.marker([49.16, -4.54], {icon: redIcon}).addTo(map);
     //L.marker([latdep,lngdep]).addTo(map)
 
+    
+
+    // function onMapClick(e){
+    //     popup
+    //     .setLatLng(e.latlng)
+    //     .setContent("Les coordonnées du point sont :<br> " +e.latlng.toString())
+    //     .openOn(map);
+    
+    // //alert("You clicked the map at " + e.latlng);
+    //     }
+
+    //     map.on('click',onMapClick)
+
+    var popup = L.popup();
+    
+
+ map.on('click', function(e) {
+    popup
+        .setLatLng(e.latlng)
+        .setContent("Latitude      : " +e.latlng.lat +" <br> Longitude : " +e.latlng.lng)
+        .openOn(map);
+
+    // alert("Latitude : " + e.latlng.lat + " Longitude : " + e.latlng.lng)
+        });
+
+
+
+
 });
 
+    // function onMapClick(e){
+    //         popup
+    //         .setLatLng(e.latlng)
+    //         .setContent("Les coordonnées du point sont :<br> " +e.latlng.toString())
+    //         .openOn(map);
+        
+    //     //alert("You clicked the map at " + e.latlng);
+    //         }
 
- 
+    //     map.on('click',onMapClick)
         </script>
 
 
@@ -112,15 +154,24 @@ L.marker([46, -5], {icon: redIcon}).addTo(map);
             #windy {
                 width: 100%;
                 height: 90%;
+               
             }
+            #sur {
+                    z-index: 1;
+                    margin: 0px;
+                    background: white;
+                    opacity=0.1;
+                   
+                }
+
         </style>
     </head>
   
     
 
-
+ 
     <body onload="initialize()">
-        <div text-align='right'>
+        <div text-align='right' id='sur' >
             <form action="http://localhost:8080/resultat3" method="post" name='formu'>
 
                <label><b>Depart</b></label> Latitude</label> :
@@ -130,14 +181,15 @@ L.marker([46, -5], {icon: redIcon}).addTo(map);
                             <br>
 
                 <label><b>Arrivee</b></label> Latitude</label> : 
-                            <input type="text" name="lata" />
+                            <input type="text" name="latar" />
                 <label>Longitude</label> : 
-                            <input type="text" name="lnga" />             
+                            <input type="text" name="lngar" />             
                             <input type="submit" value="Ok" />
             </form>
         </div>
-        
-        <div id="windy"></div>
+
+        <div id="windy">
+        </div>
 
 
         

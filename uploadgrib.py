@@ -280,6 +280,24 @@ def prevision_tableau (tig,GR,tp,points):
     ilati = np.imag(points) + 90
     ilong = np.real(points) %360
     e=np.concatenate((itemp.T,ilati.T,ilong.T ),axis=1)
+    # print ('e.shape)',e.shape)
+    # print ('e',e)
+    prevs = fn3((e))   #prevs est un tableau de complexes des vecteurs du vent aux differents points
+    vitesse = np.abs(prevs) * 1.94384
+    #print (vitesse)
+    angle_vent = (270 - np.angle(prevs, deg=True)) % 360
+    #print (angle_vent)
+    return vitesse, angle_vent
+
+
+def prevision_tableau3 (tig,GR,tp,points):
+    '''Le tableau des points est un tableau de points nparray'''
+    '''retourne un tableau des previsions angles et vitesses '''
+    fn3 = RegularGridInterpolator((ix, iy, iz), GR)
+    itemp=np.ones( points.shape[0])*(tp - tig) / 3600 / 3
+    ilati = np.imag(points) + 90
+    ilong = np.real(points) %360
+    e=np.concatenate((itemp.T,ilati.T,ilong.T ),axis=1)
 
     # print ('e.shape)',e.shape)
     # print ('e',e)
@@ -290,6 +308,8 @@ def prevision_tableau (tig,GR,tp,points):
     #print (angle_vent)
 
     return vitesse, angle_vent
+
+
 
 
 def prevision_tableau2 (GR,temp,point):
@@ -309,6 +329,11 @@ def prevision_tableau2 (GR,temp,point):
 
     return vitesse, angle_vent
     
+
+
+
+
+
 
 if __name__ == '__main__':
 
