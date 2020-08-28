@@ -277,9 +277,14 @@ def prevision_tableau (tig,GR,tp,points):
     '''retourne un tableau des previsions angles et vitesses '''
     fn3 = RegularGridInterpolator((ix, iy, iz), GR)
     itemp=np.ones( points.shape)*(tp - tig) / 3600 / 3
+    #print('shape base',points.shape)
+    #print ('itemp  base',itemp)
     ilati = np.imag(points) + 90
+    #print('ilati base',ilati)
     ilong = np.real(points) %360
     e=np.concatenate((itemp.T,ilati.T,ilong.T ),axis=1)
+
+    #print ('tableau e\n',e)
 
     # print ('e.shape)',e.shape)
     # print ('e',e)
@@ -290,6 +295,34 @@ def prevision_tableau (tig,GR,tp,points):
     #print (angle_vent)
 
     return vitesse, angle_vent
+
+def prevision_tableau3 (tig,GR,tp,pointsxy):
+    '''Le tableau des points est un tableau de points np array x y'''
+    '''retourne un tableau des previsions angles et vitesses '''
+    fn3 = RegularGridInterpolator((ix, iy, iz), GR)
+
+    itemp=np.ones( pointsxy.shape[0])*(tp - tig) / 3600 / 3
+    #print ('itemp ',itemp)
+    item =itemp.reshape((-1,1))
+
+    ilati =  pointsxy.T[1] + 90
+    #print('ilati',ilati)
+    ilat= ilati.reshape((-1,1))
+
+    ilong =  pointsxy.T[0]%360
+    #print('ilong',ilong)
+    ilon=ilong.reshape((-1,1))
+    e=np.concatenate((item,ilat,ilon ),axis=1)
+
+    #print ('e.shape)',e.shape)
+    #print ('e',e)
+    prevs = fn3((e))   #prevs est un tableau de complexes des vecteurs du vent aux differents points
+    vitesse = np.abs(prevs) * 1.94384
+    #print (vitesse)
+    angle_vent = (270 - np.angle(prevs, deg=True)) % 360
+    #print (angle_vent)
+    return vitesse, angle_vent
+    #return None
 
 
 def prevision_tableau2 (GR,temp,point):
@@ -336,64 +369,80 @@ if __name__ == '__main__':
     
 
 
-# prevision avec date donnee    
+# # prevision avec date donnee    
 
-    print ('\nPrévision à date et heure données \
-            \n---------------------------------')
-    print('\nLatitude {:6.2f} et Longitude{:6.2f} '.format( d[1], d[0]))
-    dateprev=datetime(2020 , 7 , 28 , 18, 0 ,  0)
-    print ('\nDateprev : ',dateprev , ' local')
-    # je peux la transformer en secondes mais ce sont des secondes locales
-    
-    dateprev_s=time.mktime(dateprev.timetuple())
-    print ('dateprev_s en local ',dateprev_s )
-    dateprev_formate_local = time.strftime(" %d %b %Y %H:%M:%S ", time.localtime(dateprev_s))
-    print('dateprev_formate_local',dateprev_formate_local)
+#     print ('\nPrévision à date et heure données \
+#             \n---------------------------------')
+#     print('\nLatitude {:6.2f} et Longitude{:6.2f} '.format( d[1], d[0]))
+#     dateprev=datetime(2020 , 8 , 28 , 18, 0 ,  0)
+#     print ('\nDateprev : ',dateprev , ' local')
+#     # je peux la transformer en secondes mais ce sont des secondes locales
+#     dateprev_s=time.mktime(dateprev.timetuple())
+#     print ('dateprev_s en local ',dateprev_s )
+#     dateprev_formate_local = time.strftime(" %d %b %Y %H:%M:%S ", time.localtime(dateprev_s))
+#     print('dateprev_formate_local',dateprev_formate_local)
 
-# prevision proprement dite
-    vit_vent_n, angle_vent = prevision(tig, GR,dateprev_s, d[1], d[0])
-  #  print('\nLe {} heure Locale Pour latitude {:6.2f} et longitude{:6.2f} '.format(dateprev_formate_local, d[1], d[0]))
-    print('\tAngle du vent   {:6.1f} °'.format(angle_vent))
-    print('\tVitesse du vent {:6.3f} Noeuds'.format(vit_vent_n))
-
+# # prevision proprement dite
+#     vit_vent_n, angle_vent = prevision(tig, GR,dateprev_s, d[1], d[0])
+#   #  print('\nLe {} heure Locale Pour latitude {:6.2f} et longitude{:6.2f} '.format(dateprev_formate_local, d[1], d[0]))
+#     print('\tAngle du vent   {:6.1f} °'.format(angle_vent))
+#     print('\tVitesse du vent {:6.3f} Noeuds'.format(vit_vent_n))
 
 
-# prevision avec temps instantane
-    print ("\nPrévision à l'instant de l'heure locale\
-            \n---------------------------------")
+
+# # prevision avec temps instantane
+#     print ("\nPrévision à l'instant de l'heure locale\
+#             \n---------------------------------")
+#     print()
+#     print('Heure Locale ',tic_formate_local)
+#     vit_vent_n, angle_vent = prevision(tig, GR,tic, d[1], d[0])
+#   #  print('\nLe {} heure Locale Pour latitude {:6.2f} et longitude{:6.2f} '.format(dateprev_formate_local, d[1], d[0]))
+#     print('\tAngle du vent   {:6.1f} °'.format(angle_vent))
+#     print('\tVitesse du vent {:6.3f} Noeuds'.format(vit_vent_n))
+
+
+# # prevision avec temps instantane
+#     print ("\nPrévision corrigee proche VR\
+#             \n---------------------------------")
+#     print()
+#     print('Heure Locale ',tic_formate_local)
+#     ticvr=tic+6500
+#     vit_vent_n, angle_vent = prevision(tig, GR,ticvr, d[1], d[0])
+#   #  print('\nLe {} heure Locale Pour latitude {:6.2f} et longitude{:6.2f} '.format(dateprev_formate_local, d[1], d[0]))
+#     print('\tAngle du vent   {:6.1f} °'.format(angle_vent))
+#     print('\tVitesse du vent {:6.3f} Noeuds'.format(vit_vent_n))
+
+
+
+
+    #version tableau np complexe******************************************************************************
+
+    points=np.array([[-67-39*1j, -65-40*1j]])
+    points = np.array([[d[0] + d[1] * 1j]])
+    cplx = np.array([[-10 - 2 * 1j, -15 + 3 * 1j, 50 + 10 * 1j]])
+    prevs=prevision_tableau(tig, GR, tic, cplx)
+    print('\nresultat avec tableau',prevs)
     print()
-    print('Heure Locale ',tic_formate_local)
-    vit_vent_n, angle_vent = prevision(tig, GR,tic, d[1], d[0])
-  #  print('\nLe {} heure Locale Pour latitude {:6.2f} et longitude{:6.2f} '.format(dateprev_formate_local, d[1], d[0]))
-    print('\tAngle du vent   {:6.1f} °'.format(angle_vent))
-    print('\tVitesse du vent {:6.3f} Noeuds'.format(vit_vent_n))
 
+    #version tableau np x y******************************************************************************
 
-# prevision avec temps instantane
-    print ("\nPrévision corrigee proche VR\
-            \n---------------------------------")
+    cplx=np.array([[-10 - 2 * 1j, -15 + 3 * 1j, 50 + 10 * 1j]])
+    points=np.concatenate((cplx.real.reshape(-1,1),cplx.imag.reshape(-1,1)),axis=1)
+    prevs3=prevision_tableau3(tig, GR, tic, points)
+    print('\nresultat avec tableau 3',prevs3)
     print()
-    print('Heure Locale ',tic_formate_local)
-    ticvr=tic+6500
-    vit_vent_n, angle_vent = prevision(tig, GR,ticvr, d[1], d[0])
-  #  print('\nLe {} heure Locale Pour latitude {:6.2f} et longitude{:6.2f} '.format(dateprev_formate_local, d[1], d[0]))
-    print('\tAngle du vent   {:6.1f} °'.format(angle_vent))
-    print('\tVitesse du vent {:6.3f} Noeuds'.format(vit_vent_n))
+
+    # print()
+    # print(prevs)
 
 
 
 
-    # version tableau ******************************************************************************
 
-    #points=np.array([[-67-39*1j, -65-40*1j]])
-    #points = np.array([[d[0] + d[1] * 1j]])
-    #points = np.array([[-10 - 2 * 1j, -15 + 3 * 1j, 50 + 10 * 1j]])
-    #prevs=prevision_tableau(tig, GR, tic, points)
-    #print()
-    #print(prevs)
+
 
     # print ('\nVERSION AVEC DATE EN DUR------------------------------------ ')
-    #
+    
     # for k in range (0,5,1):
     #     dateprev_s+=3600
     #     date_prev_formate = time.strftime(" %d %b %Y %H:%M:%S ", time.gmtime(dateprev_s))
@@ -401,5 +450,5 @@ if __name__ == '__main__':
     #     print('\nLe {} heure UTC Pour latitude {:6.2f} et longitude{:6.2f} '.format(date_prev_formate, d[1], d[0]))
     #     print('\tAngle du vent   {:6.1f} °'.format(angle_vent))
     #     print('\tVitesse du vent {:6.3f} Noeuds'.format(vit_vent_n))
-    #
+    
     #     print()

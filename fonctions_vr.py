@@ -56,17 +56,29 @@ def twa(cap, dvent):
 
 def deplacement2(D, d_t, HDG, VT):
     '''D Depart point complexe ,d_t duree en s  , HDG tableau de caps en° ,vT Tableau de vitesses Polaires en Noeuds'''
-    '''Fonctionne avec des np.array'''
+    '''Fonctionne avec des np.array, un pointy de depart  tableau de points en arrivee'''
     HDG_R = HDG * math.pi / 180
     A = D + (d_t / 3600 / 60 * VT * (np.sin(HDG_R) / math.cos(D.imag * math.pi / 180) - np.cos(HDG_R) * 1j))
     return A
 
 def deplacement_x_y(x0,y0,d_t,HDG,VT):
-    ''' fonction donnalnt le tuple point d arrivée en fonction des coordonnées du point de depart ''' 
+    ''' fonction donnant le tuple point d arrivée en fonction des coordonnées du point de depart ''' 
     HDG_R = HDG * math.pi / 180     # cap en radians
     x= x0+ d_t / 3600 / 60 * VT * (np.sin(HDG_R) / math.cos(y0 * math.pi / 180)) 
     y= y0- d_t / 3600 / 60 * VT * np.cos(HDG_R)
     return x,y
+
+
+def deplacement_x_y_tab_ar(x0,y0,d_t,HDG,VT,A):
+    ''' fonction donnant le tuple point d arrivée en fonction des coordonnées du point de depart ''' 
+    ''' donne egalement le cap vers 'arrivee et la distance vers l'arrivee '''
+    HDG_R = HDG * math.pi / 180     # cap en radians
+    X= x0+ d_t / 3600 / 60 * VT * (np.sin(HDG_R) / math.cos(y0 * math.pi / 180)) 
+    Y= y0- d_t / 3600 / 60 * VT * np.cos(HDG_R)
+    Pointscpx=X+Y*1j
+    Di,Ca=dist_cap(Pointscpx, A)
+
+    return X,Y,Di,Ca
 
 
 def calcul_points(D, tp, d_t, TWD, vit_vent, ranged, polaires):
@@ -85,6 +97,7 @@ def calcul_points(D, tp, d_t, TWD, vit_vent, ranged, polaires):
 
 def dist_cap(D, A):
     '''retourne la distance et l'angle du deplacement entre le depart et l'arrivee'''
+    ''' cette fonction ne tient pas compte de l'effet latitude'''
     C = A - D
     return np.abs(C), (450 + np.angle(C, deg=True)) % 360
 
@@ -102,6 +115,15 @@ def dist_cap3(D,A):
     les points de depart et arrivee sont sous forme complexe'''
     coslat= np.cos(D.imag * math.pi / 180)
     C=(A.real-D.real)*coslat +(A.imag-D.imag)*1j
+    return np.abs(C), (450 + np.angle(C, deg=True)) % 360
+
+
+def dist_cap4(points,A):
+    ''' ppoints est une  liste de points a 2 dimensions , a est un point complexe '''
+    ''' on retourne un tableau des distances et des caps '''
+    #print(points.shape)
+    D=points[0]+points[1]*1j   # on transforme les points en points complexes
+    C = A - D
     return np.abs(C), (450 + np.angle(C, deg=True)) % 360
 
 
@@ -168,15 +190,62 @@ def trace_points_folium (points_cpx):
     return None
 
 if __name__ == '__main__':
-    print ('test')
+#    print ('Test')
+    import numpy as np
+        # test de distance et cap tableau de complexes pour les point de de part et complexe pour l'arrivee
 
-    # test de distance et cap tableau de complexes pour les point de de part et complexe pour l'arrivee
+    #Depart
+    latitude_d     = '047-39-09-N'
+    longitude_d    = '003-53-09-W'
+    #Point Arrivee 
+    latitude_a     = '049-30-00-N'
+    longitude_a    = '005-06-00-W'
 
 
 
 
+    d  = chaine_to_dec(latitude_d, longitude_d)  # conversion des latitudes et longitudes en tuple
+    ar = chaine_to_dec(latitude_a, longitude_a)
+    ar=d
+    d=(-73.62,-40.46)
+    print(d)
+    D = cplx(d)  # transformation des tuples des points en complexes
+    A = cplx(ar)
+    print ('Arrivee',A)
 
-    # # test deplacement_x_y
+    HDG = np.array( [ 0,1,2,3,4,5])
+    VT =  np.array( [2.94700956 ,2.89013849, 2.83244379 ,2.77321923, 2.71399466 ,2.6547701 ])
+
+    a=np.array([[2+5*1j,3+4*1j,7+8*1j]])
+    delta_temps=600
+    i=0
+    n_pts_x = deplacement2(a[0][i], delta_temps, HDG, VT)
+    print('base')
+    print ('HDG : ',HDG )
+    print('resultat n _pts_x',n_pts_x)
+
+
+# meme chose avec un tableau de points
+    print()
+    print('Variante')
+    points=np.concatenate((a.real.reshape(-1,1),a.imag.reshape(-1,1)),axis=1).tolist()
+    print('points',points)
+    d_t=600
+    i=0
+    X,Y,Da,Ca=deplacement_x_y_tab_ar(points[i][0],points[i][1],d_t,HDG,VT,A)
+
+    print('x depart',points[i][0])
+    print('y depart',points[i][i])
+    print('X',X)
+    print('Y',Y)
+    print('Da',Da)
+    print('Ca',Ca)
+
+    X.reshape(-1,1)
+    Y.reshape(-1,1)
+
+
+        # # test deplacement_x_y
     # res=range_cap( 291,3,90,40,20)
     # print (res)
     # res=range_cap( 291,359,90,40,20)
