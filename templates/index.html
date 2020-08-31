@@ -8,9 +8,14 @@
 		<h5> index.html </h5><br>
 
 		<h3> Formulaire de connexion </h3>
-			<form action="http://localhost:8080/resultat" method="post">
-					<label>Latitude</label> : <input type="text" name="lat" /><br>
-					<label>Longitude</label> : <input type="text" name="long" /><br>
+			<form action="http://localhost:8080/leaflet" method="post">
+				<h2>Depart</h2>
+					<label>Latitude</label> : <input type="text" name="latdep" value= 40 /><br>
+					<label>Longitude</label> : <input type="text" name="lngdep" value= 5 /><br>
+					<h2>Arrivee</h2>
+					<label>Latitude</label> : <input type="text" name="latar"   value= 45  ><br>
+					<label>Longitude</label> : <input type="text" name="lngar"  value= -70 /><br>
+
 					<input type="submit" value="Envoyer" />
 			</form>
 		</body>

@@ -50,10 +50,11 @@ def cplx(d):
     D = (d[0] + d[1] * 1j)
     return D
 
+
 def twa(cap, dvent):
     twa = 180 - abs(((360 - dvent + cap) % 360) - 180)
     return twa
-
+    
 def deplacement2(D, d_t, HDG, VT):
     '''D Depart point complexe ,d_t duree en s  , HDG tableau de caps en° ,vT Tableau de vitesses Polaires en Noeuds'''
     '''Fonctionne avec des np.array, un pointy de depart  tableau de points en arrivee'''

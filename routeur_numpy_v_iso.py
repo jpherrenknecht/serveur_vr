@@ -60,70 +60,61 @@ def f_isochrone(points, temps_initial_iso):
     ''' deltatemps, tig , U, V sont supposees etre des variables globales'''
     ''' Retourne les nouveaux points el le nouveau temps et implemente le tableau general des isochrones'''
 
-# la version la plus propre est dans frouteur      
-
     global isochrone
     numero_iso           = int(isochrone[-1][2] + 1)
     delta_temps          = intervalles[numero_iso]  # Ecart de temps entre anciens points et nouveaux en s
-    nouveau_temps = temps_initial_iso + delta_temps
+    nouveau_temps        = temps_initial_iso + delta_temps
     t_iso_formate        = time.strftime(" %d %b %Y %H: %M: %S ", time.localtime(temps_initial_iso + delta_temps))
     numero_dernier_point = int(isochrone[-1][4])                   # dernier point isochrone precedent
     numero_premier_point = int(isochrone[-1][4]) - points.shape[0]   # premier point isochrone precedent
-
-   
-
-
     but                  = False   
     
     # on recupere toutes les previsions meteo d'un coup pour l'ensemble des points de depart
     TWS, TWD = prevision_tableau3(tig, GR, temps_initial_iso, points)
-   
-    # pour chaque point de l'isochrone precedent  donnés en entrée (isochrone précédent)
-    points_calcul2=np.array([[0,0,0,0,0,0,0]]) # initialisation pour Numpy du brouillard des points de l'isochrone
+    
+    points_calcul2=np.array([[0,0,0,0,0,0,0]]) # initialisation pour Numpy du brouillard des points calcules
 
+# pour chacun des points de l'isochrone 
     for i in range(points.shape[0]):
         HDG = range_cap(dist_cap4(points[i], A)[1], TWD[i], angle_objectif, angle_twa_pres, angle_twa_ar)  # Calcul des caps a etudier
-        VT = polaire2_vect(polaires, TWS[i], TWD[i], HDG)
-        X1,Y1,Da1,Ca1=deplacement_x_y_tab_ar(points[i][0],points[i][1],delta_temps,HDG,VT,A) #coordonnees des nouveaux points calcules sous forme X,Y
-        L=len(X1)
-        niso1= np.ones(L)*numero_iso   #len(X1) doit pouvoir etre evite 3 fois
-        npointsm1=np.ones(L)*i  +numero_premier_point +1    # numero du point mere i= 0 correspond au premier point de l'isochrone precedent
-        npoints1=np.array(range(L)) +1           # numero du point  sans importance sera renumeroté
-        X=X1.reshape(-1,1)
-        Y=Y1.reshape(-1,1)
-        niso=niso1.reshape(-1,1)
-        npointsm=npointsm1.reshape(-1,1)
-        npoints=npoints1.reshape(-1,1)
-        Da=Da1.reshape(-1,1)
-        Ca=Ca1.reshape(-1,1)
+        VT  = polaire2_vect(polaires, TWS[i], TWD[i], HDG)                                                  # Vitesses polaires sur ces caps
+        X1,Y1,Da1,Ca1=deplacement_x_y_tab_ar(points[i][0],points[i][1],delta_temps,HDG,VT,A) #Coordonnees des nouveaux points calcules sous forme X,Y
+        L=len(X1)                                                                            # nombre de ( caps ) points etudies  
+        niso1     = np.ones(L)*numero_iso                                                         # numero isochrone
+        npointsm1 = np.ones(L)*i  +numero_premier_point +1    # numero du point mere i = 0 correspond au premier point de l'isochrone precedent
+        npoints1  = np.array(range(L)) +1                      # numero du point  sans importance sera renumeroté
+        X         = X1.reshape(-1,1)
+        Y         = Y1.reshape(-1,1)
+        niso      = niso1.reshape(-1,1)
+        npointsm  = npointsm1.reshape(-1,1)
+        npoints   = npoints1.reshape(-1,1)
+        Da        = Da1.reshape(-1,1)
+        Ca        = Ca1.reshape(-1,1)
         # maintenant on forme le tableau correspondant à n_pts_x
-        n_pts_x2     = np.concatenate((X,Y,niso,npointsm,npoints,Da,Ca), axis=1)    # tableau des points pour un point de base
-        points_calcul2= np.concatenate((points_calcul2,n_pts_x2), axis=0)           # tableau du brouillard des points 
+        n_pts_x2       = np.concatenate((X,Y,niso,npointsm,npoints,Da,Ca), axis = 1)    # tableau des points pour un point de base
+        points_calcul2 = np.concatenate((points_calcul2,n_pts_x2), axis         = 0)           # tableau du brouillard pour tous les points de base 
         
        
 #Version Numpy    
-    points_calcul2=np.delete(points_calcul2,0,0)                                    # on retire le premier terme de points_calcul2
-    points_calcul2= points_calcul2[points_calcul2[:,6].argsort(kind='mergesort')]   # tri stable sur 6eme colonne
+    points_calcul2 = np.delete(points_calcul2,0,0)                                    # on retire le premier terme de points_calcul2
+    points_calcul2 = points_calcul2[points_calcul2[: ,6].argsort(kind = 'mergesort')]   # tri stable sur 6eme colonne (caps vers arrivee)
  
-    k=0
+    k=0                                                                             # on regroupe les  caps 359 et 1
     while (((points_calcul2[k][6]-points_calcul2[k-1][6])<-357)and (k<points_calcul2.shape[0]-1)):
         points_calcul2[k][6]+=360
         k+=1
-    points_calcul2= points_calcul2[points_calcul2[:,6].argsort(kind='mergesort')]
-    capmini2=points_calcul2[0][6]
-    capmaxi2=points_calcul2[-1][6]
+    points_calcul2= points_calcul2[points_calcul2[:,6].argsort(kind='mergesort')]   # les caps en 361 sont replaces a la fin 
    
-   
-    coeff2 = 49/ (capmaxi2-capmini2)  # coefficient pour ecremer et garder 50 points
+    capmini2 = points_calcul2[0][6]
+    capmaxi2 = points_calcul2[-1][6]
+    coeff2   = 49/ (capmaxi2-capmini2)  # coefficient pour ecremer et garder 50 points
    
     
 #ecremage arrondi et tri
-
-    points_calcul2[:,6]=np.around(points_calcul2[:,6]*coeff2,0)   # le calcul est fait sur la colonne sans boucle variante around
-    points_calcul2= points_calcul2[points_calcul2[:,5].argsort(kind='mergesort')] #on trie sur les distances 
-    points_calcul2= points_calcul2[points_calcul2[:,6].argsort(kind='mergesort')] #on trie sur les caps mais l'ordre des distances est respecté
-   
-
+    points_calcul2[:,6]=np.around(points_calcul2[:,6]*coeff2,0)                   # La colonne 6 est arrondie  
+    points_calcul2     = points_calcul2[points_calcul2[:,5].argsort(kind='mergesort')] # On trie sur les distances 
+    points_calcul2     = points_calcul2[points_calcul2[:,6].argsort(kind='mergesort')] # On trie sur les caps mais l'ordre des distances est respecté
+ 
 
 # ecremage proprement dit
     for i in range(points_calcul2.shape[0] - 1, 0, -1):  # ecremage
@@ -133,34 +124,41 @@ def f_isochrone(points, temps_initial_iso):
    
    
 # verification points terre ou mer
- 
     for i in range(points_calcul2.shape[0] - 1, 0, -1):  # ecremage 
         is_on_land = globe.is_land(-points_calcul2[i][1], points_calcul2[i][0])   # point de latitude -y et longitude x
         if (is_on_land==True):
             points_calcul2 = np.delete(points_calcul2, i, 0)
-    points_calcul2[:,6]=np.floor(points_calcul2[:,6]/coeff2)       # on retablit le cap en valeur a rechanger en around 0 decimale
-    points_calcul2= points_calcul2[points_calcul2[:,6].argsort(kind='mergesort')] #on trie sur les caps a voir si necessaire !
-    # renumerotation sur la colonne 4  le premier numero est le numero dernier point iso precedent +1  
+
+    points_calcul2[:,6]= np.floor(points_calcul2[:,6]/coeff2)       # on retablit le cap en valeur a rechanger en around 0 decimale
+    points_calcul2     = points_calcul2[points_calcul2[:,6].argsort(kind='mergesort')] #on trie sur les caps a voir si necessaire !
+# renumerotation sur la colonne 4  le premier numero est le numero dernier point iso precedent +1  
     N=np.array( range( int(numero_dernier_point) + 1, points_calcul2.shape[0] +int(numero_dernier_point) + 1,1))  # tableau des indices
     points_calcul2[:,4]=N     # renumerotation
     TWS, TWD =prevision_tableau3(tig, GR, nouveau_temps, points_calcul2) # Vitesse vent et direction pour nouveaux points (extraction en double)
     VT = polaire3_vect(polaires, TWS, TWD, points_calcul2[:,6])
    
 
-    # calcul des temps vers l arrivee
-    D_a = points_calcul2[:,5]               # Distances vers l'arrivee
-    T_a = 60 * D_a / (VT + 0.000001)        # Temps vers l'arrivée nb ce temps est en heures
+# calcul des temps vers l arrivee
+    D_a       = points_calcul2[: ,5]               # Distances vers l'arrivee
+    T_a       = 60 * D_a / (VT + 0.000001)        # Temps vers l'arrivée nb ce temps est en heures
     temps_mini=(T_a[np.argmin(T_a,0)])      # Valeur du temps minimum
-    
+
+# Verification si le but est atteignable dans le temps d'un isochrone    
     if temps_mini < delta_temps / 3600:
             but = True
     indice2= np.argmin(T_a,0)  + numero_dernier_point + 1     #indice du point de temps minimum
+
+# Constitution du tableau des points retournes en sortie    
     ptn_np2=points_calcul2[:, 0:2]   #(X,Y)
-  
-    trace_iso2=np.concatenate((-points_calcul2[:,1].reshape(-1,1),points_calcul2[:,0].reshape(-1,1)),axis=1)  #(-Y,X)
-    #isochrone = np.concatenate((isochrone, points_calcul2))  # On rajoute ces points a la fin du tableau isochrone
+
+# Ajout des points calcules au tableau global des isochrones
     isochrone = np.concatenate((isochrone, points_calcul2[:,0:5]))  # On rajoute ces points a la fin du tableau isochrone   
-    print(' Isochrone calculé N° {}  {}  {} points  '.format(numero_iso, t_iso_formate,longueur  ))
+
+# Utilisation pour trace folium  
+    trace_iso2=np.concatenate((-points_calcul2[:,1].reshape(-1,1),points_calcul2[:,0].reshape(-1,1)),axis=1)  #(-Y,X)
+    
+    
+    print(' Isochrone  N° {}  {}  {} points  '.format(numero_iso, t_iso_formate,longueur  ))
 
     return ptn_np2, nouveau_temps, but, indice2,trace_iso2
 # ************************************   Fin de la fonction       **********************************************************

@@ -14,7 +14,30 @@
          "bateau":"maxitri",
          "depart":{"lat":10 ,"lon":25},
          "bouee1":{"lat":10 ,"lon":25}
-        }
+        },
         
-        
+    "Solitaire figaro":
+        {"numero"  : "463" ,
+        "nom":"Atlantic record",
+        "bateau":"Figaro III",
+        "depart":{"lat":10 ,"lon":25},
+        "bouee1":{"lat":10 ,"lon":25}
+       },   
+
+    "pacific recordSolitaire figaro": 
+        {"numero"  : "438" ,
+        "nom":"Atlantic record",
+        "bateau":"maxitri",
+        "depart":{"lat":10 ,"lon":25},
+        "bouee1":{"lat":10 ,"lon":25}
+       },     
+}     
 }   
+
+
+{ "_id" : { "user_id" : "59c2706db395b292ed622d84" , "race_id" : 463.0 , "leg_num" : 1.0} , "boat" : { "name" : "Figaro" , "label" : "Figaro III" , "polar_id" : 2 , "assetBundle" : "figaro" , "stats" : { "length" : 10.11 , "width" : 3.43 , "airDraught" : 15.55 , "draught" : 2.15 , "weight" : 3050 , "upwindSails" : 68 , "downwindSails" : 123} , "type" : "figaro2" , "skin_id" : "figaro_basic_pink" , "display" : { "color1" : "#ff8bf7" , "color2" : "#ff8bf7"} , "skinName" : "Basic Pink"} , "branding" : { "id" : "VR"} , "state" : "racing" , "pos" : { "lat" : 48.9470077507 , "lon" : -3.2255976796} , "coord" : { "type" : "Point" , "coordinates" : [ -3.2148271391 , 48.9437651824]} , "heading" : 294.62614 , "sail" : 14.0 , "priceLevel" : 5 , "credits" : 800.0 , "cards" : { "HL" : 0.0 , "AS" : 0.0 , "WP" : 0.0 , "PR" : 0.0} , "legStartDate" : 1.598796E12 , "distanceFromStart" : 30.5 , "welcomePack" : { "HL" : 0.0 , "AS" : 1.0 , "WP" : 1.0 , "PR" : 0.0} , "options" : [ "foil" , "winch" , "radio" , "skin" , "hull" , "reach" , "heavy" , "light"] , "type" : "normal" , "gateGroupCounters" : [ 1.0 , 0.0 , 0.0 , 0.0 , 0.0] , "earlyBirdLimit" :  null  , "isMultiLeg" : true , "personal" : { "displayName" : "takron" , "country" : "FR" , "deptId" : 2971090.0 , "townId" : 3002647.0} , "autosails" : { "added" : { "qty" : 999.0 , "ts" : 1.598779567351E12 , "date" : "30-08-2020 09:26"} , "applied" : { "qty" : 999.0 , "ts" : 1.598779567351E12 , "date" : "30-08-2020 09:26"}} , "fullOptions" : true , "skinDiscount" : 500.0 , "hasPermanentAutoSails" : true , "lastSeen" : 1.598812501879E12 , "startDate" : 1.598779627642E12 , "regPack" : { "tsNext" : 1.5987978E12} , "lastCalcDate" : 1.598813379945E12 , "aground" : false , "stealthMode" :  null  , "tsNextAvailableStealth" :  null  , "badSail" : false , "icelimit" : false , "speed" : 6.78863 , "tws" : 9.46405 , "twd" : 354.57041 , "twa" : 59.94427 , "isRegulated" : true , "twaAuto" : 59.94427 , "distanceToEnd" : 618.88 , "lastCalcOrigin" : "client" , "tsEndOfTack" : 1.598808735E12 , "tsEndOfGybe" :  null  , "tsEndOfSailChange" :  null  , "tsEndOfAutoSail" : 1.6419528E12 , "tsNotified" :  null  , "tsLastAction" : 1.59881154E12 , "preferredMapPreset" : "default" , "nextWpIdx" : 7.0 , "last_seen_rank" : { "rank" : 35 , "ts" : 1598809592} , "lastWpIdx" : 3 , "record" :  null  , "track" : [ { "ts" : 1.598813379945E12 , "lat" : 48.9470077507 , "lon" : -3.2255976796}]},"extCode":"boatStatePush","messageId":"5f4bf4c4723e090e7020663c","notification":false,"playerId":"59c2706db395b292ed622d84","summary":"Update"}
+>>> {"@class":".LogEv
+
+la bouée 2 (Fastnet )que nous laisserons à tribord également
+Coordonnées : 51°N 21’ 48,31"
+                          9*W 39’ 33.01"

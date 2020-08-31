@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="fr">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css" integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ==" crossorigin=""/>
+        <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js" integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew==" crossorigin=""></script>
+    
+    
+        <!-- <script src="{{ url_for('static', filename = 'js/leaf.js') }}"></script> -->
+    
+        <script>
+         // on recupere les donnees postées
+            latdep        = {{ latdep }}
+            lngdep        = {{ lngdep }}
+            latar         = {{  latar }}
+            lngar         = {{  lngar }}
+            
+            polylinered   = {{  multipolyred }}
+            polylineblack = {{  multipolyblack }}
+            polylineblue  = {{  route }}
+
+            //polylineblue=[[40.46, -73.62, '<b> H+-1.0<br> 30 Aug 2020 12:36:59 <br> Lat :40.46° - Long :73.62°<br>TWD :309.0°-  TWS :14.8N<br> Cap :82.0° TWA :133.0°<br>Vt :21.55N</b>'], [40.47,-73.54208405754099,  '<b> H+0.0<br> 30 Aug 2020 12:46:59 <br> Lat :40.47° - Long :73.54°<br>TWD :308.0°-  TWS :15.2N<br> Cap :83.0° TWA :135.0°<br>Vt :21.91N</b>'], [40.48,-73.46267885268455,  '<b> H+0.0<br> 30 Aug 2020 12:56:59 <br> Lat :40.48° - Long :73.46°<br>TWD :308.0°-  TWS :15.6N<br> Cap :86.0° TWA :138.0°<br>Vt :22.04N</b>']]
+
+           
+           
+          
+           // console.log( route );
+            // centrage de la carte 
+            var latmap=(latdep+latar)/2;           
+            var lngmap=(lngdep+lngar)/2;
+
+            dist=((latdep-latar)**2+(lngdep-lngar)**2)**.5;
+            console.log(dist);
+            if(dist<5)
+                {zoom=7}
+            else if (dist<10)
+                {zoom=6}
+            else if (dist<20)
+                {zoom=5}  
+            else if (dist<70)
+                {zoom=5}  
+            else {zoom=4}
+
+            
+
+            console.log(zoom);
+            //var dist=(latdep-latar);)
+        
+        function initialize() {
+
+            document.formu.latdep.value=latdep
+            document.formu.lngdep.value=lngdep
+            document.formu.latar.value = latar
+            document.formu.lngar.value=lngar
+            //document.formu.test.value=dist
+           
+            var map = L.map('map').setView([latmap, lngmap], zoom); 
+    
+            var osmLayer = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', { 
+                attribution: '© OpenStreetMap contributors',
+                maxZoom: 19                 
+            });
+        
+
+
+
+            map.addLayer(osmLayer);
+        
+            var greenIcon = new L.Icon({
+            iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
+            shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+            iconSize: [25, 41],
+            iconAnchor: [12, 41],
+            popupAnchor: [1, -34],
+            shadowSize: [41, 41]
+            });
+
+            var blackIcon = new L.Icon({
+            iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-black.png',
+            shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+            iconSize: [25, 41],
+            iconAnchor: [12, 41],
+            popupAnchor: [1, -34],
+            shadowSize: [41, 41]
+            });
+
+            var redIcon = new L.Icon({
+            iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+            shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+            iconSize: [25, 41],
+            iconAnchor: [12, 41],
+            popupAnchor: [1, -34],
+            shadowSize: [41, 41]
+            });
+
+
+            var circle = L.circle([51.508, -0.11], {
+                color: 'red',
+                fillColor: '#f03',
+                fillOpacity: 0.5,
+                radius: 500
+            }).addTo(map);
+    
+            L.polyline(polylineblack).setStyle({
+            color: 'black',
+            weight:1,
+            }).addTo(map);
+
+            L.polyline(polylinered).setStyle({
+            color: 'red',
+            weight:1,
+            }).addTo(map);
+
+            L.polyline(polylineblue).setStyle({
+            color: 'blue',
+            weight:2,
+            }).addTo(map);
+
+    // marqueurs depart et arrivee        
+        L.marker([latdep, lngdep],  {icon: blackIcon}).addTo(map);
+        L.marker([latar, lngar],    {icon: redIcon}).addTo(map);
+       
+    // points au differents points de passage
+    
+    for ( var i=0 ; i<polylineblue.length ; i++ )
+       { var circle = L.circle(polylineblue[i], {
+                color: 'black',
+                fillColor: '#f03',
+                fillOpacity: 0.5,
+                radius: 500
+            }).bindTooltip('blabla').addTo(map);
+       }    
+
+
+
+        var popup = L.popup();
+        map.on('dblclick', function(e) {
+        popup
+            .setLatLng(e.latlng)
+            .setContent("Latitude      : " +arrondi(e.latlng.lat,4) +" <br> Longitude : " +arrondi(e.latlng.lng,4))
+            .openOn(map);
+
+    // alert("Latitude : " + e.latlng.lat + " Longitude : " + e.latlng.lng)
+        });
+
+
+
+
+
+
+    // la variablepoly est la uniquement pour initialiser une polyline    
+        var poly
+        poly=new  L.polyline(  [[0,0],[1,1]]  ).setStyle({
+        color: 'red',
+        weight:1,
+        });
+
+
+        map.on('click', function(e) {
+        map.removeLayer(poly);    
+        poly=new  L.polyline(  [[latdep,lngdep],[e.latlng.lat,e.latlng.lng]]  ).setStyle({
+        color: 'red',
+        weight:1,
+        });
+        map.addLayer(poly);
+
+    // alert("Latitude : " + e.latlng.lat + " Longitude : " + e.latlng.lng)
+        });
+
+        
+
+
+
+   };
+        </script>
+
+
+<script>
+function arrondi(a,n)
+{return(Math.round(a*10**n)/10**n);}
+
+</script>
+
+    </head>
+    <style>
+        html, body { height: 100% }
+        #map {
+                width: 100%;
+                height: 90%;
+             }
+           
+            
+        </style>
+    </style>
+
+    <body onload="initialize()">
+        <div text-align='right' id='pres' >
+            <form action="http://localhost:8080/leaflet" method="post" name='formu'>
+               <label><b>Depart</b></label> Latitude</label> :
+                            <input type="text" name="latdep"  value = "" />
+                <label>Longitude</label> :
+                            <input type="text" name="lngdep"  value="" />
+                            <br>
+                <label><b>Arrivee</b></label> Latitude</label> : 
+                            <input type="text" name="latar"     />
+                <label>Longitude</label> : 
+                            <input type="text" name="lngar"       />             
+                            <input type="submit" value="Ok"    />
+            </form>
+            <input type="text" name="test" /> 
+        </div>
+
+
+        <div id="map" ></div>
+    </body>
+
+
+</html>

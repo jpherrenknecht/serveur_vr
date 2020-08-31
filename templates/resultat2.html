@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="fr">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css" 
+        integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ==" crossorigin=""/>
+        
+        <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js" 
+        integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew==" crossorigin=""></script>
+    </head>
+
+
+    <style>
+        html, body { height: 100% }
+    </style>
+
+    <body onload="initialize()">
+        <div text-align='right'>
+        <form action="http://localhost:8080/resultat2" method="post">
+           <label><b>Depart</b></label> Latitude</label> : <input type="text" name="lat" />
+                         <label>Longitude</label> : <input type="text" name="long"  value=+latdep/><br>
+            <label><b>Arrivee</b></label> Latitude</label> : <input type="text" name="lat" />
+                         <label>Longitude</label> : <input type="text" name="long" /><br>             
+            <input type="submit" value="Envoyer" />
+    </form>
+        </div>
+
+        <div id="map" style="width:100%; height:80%"></div>
+    </body>
+
+</html>
+<script type="text/javascript">
+    function initialize() {
+        var latdep={{  result['lat']  }}
+        var lngdep={{  result['long'] }} 
+        
+        var map = L.map('map').setView([latdep, lngdep], 10); // initialise la carte
+        osmLayer=L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+
+
+        L.marker([51.5, -0.09]).addTo(map)
+            .bindPopup('<b>A pretty CSS3 popup.</b> <br> Easily customizable.')
+            .openPopup();
+
+       
+        //COMMENTAIRE
+        L.marker([ latdep, lngdep  ] ).addTo(map)
+            .bindPopup('<b>Position Depart</b> <br>Latitude : ' +latdep +'<br>Longitude : '+lngdep)
+            .openPopup();
+
+
+
+
+        //add circle
+        var circle=L.circle([51.508,-0.11],{
+            color:'red',
+            fillcolor:'#f03',
+            fillOpacity:0.5,
+            radius:500
+        }).addTo(map)
+
+        circle.bindPopup("<br> I am a circle")
+       
+
+        // var polygon= L.polygon([
+        //     [51.509,-0.08],
+        //     [51.503,-0.06],
+        //     [51.51,-0.047]
+        // ]).addTo(map)
+        // polygon.bindPopup("<h2> I am a Polygon</h2>")
+
+        // var popup=L.popup()
+        // .setLatLng([51.5,-0.09])
+        // .setContent("I am a lonesome popup")
+        // .openOn(map);
+
+
+
+
+
+        // creation d'un marqueur 
+        // var marqueur=L.marker([47,2],{
+        //     draggable:true,
+        //     opacity:0.5
+        // })
+        // .addTo(map)
+        // .bindPopup('Bienvenue sur mon premier Marqueur')
+        // .openPopup();
+
+        // Creation d'une poly line 
+        var polylinePoints=[[47,2],[47,3],[46.5,3.2]];
+        var polyline = L.polyline(polylinePoints).addTo(map)
+
+        map.addLayer(osmLayer);
+        //map.on('click', addMarker);  //ajoute un marqueur sur action click
+
+
+    function onMapClick(e){
+        popup
+        .setLatLng(e.latlng)
+        .setContent("Les coordonnées du point sont :<br> " +e.latlng.toString())
+        .openOn(map);
+    
+    //alert("You clicked the map at " + e.latlng);
+        }
+
+        map.on('click',onMapClick)
+
+
+
+
+
+        function addMarker(e){
+            var newMarker =new L.marker(e.latlng).addTo(map);
+            alert('latitude : '+e.latlng.lat +'  longitude: '+e.latlng.lng )
+        }
+
+
+
+    }
+</script>
+// <script>
+//     // alert("latitude Depart "+ {{  result['lat'] }} + "aa" + {{  result['long'] }})
+
+// </script>

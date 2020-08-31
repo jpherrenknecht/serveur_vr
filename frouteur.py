@@ -9,22 +9,24 @@ from global_land_mask import globe
 from uploadgrib import *
 from polaires.polaires_ultime import *
 
-def f_isochrone(points, temps_initial_iso):
+def f_isochrone(l, temps_initial_iso):
     ''' Calcule le nouvel isochrone a partir d'un tableau de points pt2cplx tableau numpy de cplx'''
     ''' deltatemps, tig , U, V sont supposees etre des variables globales'''
     ''' Retourne les nouveaux points el le nouveau temps et implemente le tableau general des isochrones'''
 
-    global isochrone
+    global isochrone,TWS,TWD
+    points=(isochrone[-l:,0:2])
     numero_iso           = int(isochrone[-1][2] + 1)
     delta_temps          = intervalles[numero_iso]  # Ecart de temps entre anciens points et nouveaux en s
     nouveau_temps        = temps_initial_iso + delta_temps
     t_iso_formate        = time.strftime(" %d %b %Y %H: %M: %S ", time.localtime(temps_initial_iso + delta_temps))
     numero_dernier_point = int(isochrone[-1][4])                   # dernier point isochrone precedent
     numero_premier_point = int(isochrone[-1][4]) - points.shape[0]   # premier point isochrone precedent
-    but                  = False   
+    but                  = False 
+
     
     # on recupere toutes les previsions meteo d'un coup pour l'ensemble des points de depart
-    TWS, TWD = prevision_tableau3(tig, GR, temps_initial_iso, points)
+    # TWS, TWD = prevision_tableau3(tig, GR, temps_initial_iso, points)
     
     points_calcul2=np.array([[0,0,0,0,0,0,0]]) # initialisation pour Numpy du brouillard des points calcules
 
@@ -104,6 +106,8 @@ def f_isochrone(points, temps_initial_iso):
 
 # Constitution du tableau des points retournes en sortie    
     ptn_np2=points_calcul2[:, 0:2]   #(X,Y)
+    lf=points_calcul2.shape[0]
+    #print ('\n (157) lf : ',lf)
 
 # Ajout des points calcules au tableau global des isochrones
     isochrone = np.concatenate((isochrone, points_calcul2[:,0:5]))  # On rajoute ces points a la fin du tableau isochrone   
@@ -114,13 +118,14 @@ def f_isochrone(points, temps_initial_iso):
     
     print(' Isochrone  N° {}  {}  {} points  '.format(numero_iso, t_iso_formate,longueur  ))
 
-    return ptn_np2, nouveau_temps, but, indice2,trace_iso2
+    return lf, nouveau_temps, but, indice2,trace_iso2
 # ************************************   Fin de la fonction       **********************************************************
 
 
 
 
-def frouteur(x0,y0,x1,y1,t0=time.time()):
+
+def fonction_routeur(x0,y0,x1,y1,t0=time.time()):
     '''x0,y0,x1,y1 depart et arrivee '''
     ''' Le but de la fonction frouteur est a partir de x0 y0 x1 y1 
     de retourner une multipolyline des isochrones'''
@@ -129,13 +134,98 @@ def frouteur(x0,y0,x1,y1,t0=time.time()):
     
     tig, GR        = chargement_grib()
     pt1_np=np.array([[x0,y0]])
+    l=1
     temps=t0
     but = False
 
     while but == False:
-        pt1_np, temps, but, indice,trace_iso = f_isochrone(pt1_np, temps)  
+        l,temps, but, indice,trace_iso = f_isochrone(l,temps) 
 
-    return None
+
+#   calcul de la route a emprunter  indice 2 est l'indice de temps minimum
+# on constitue le doctionnaire des points et points meres
+    a = int(indice)                 # indice du point de la route la plus courte
+    n = int(isochrone[-1][2])       # nombre d'isochrones
+
+# reconstitution de dico par extrait du tableau isochrone
+    dico=dict(zip(isochrone[:,4],isochrone[:,3]))
+    route = [a]
+    for i in range(n):
+        a = int(dico[a])
+        route.append(a)  # route contient les indices successifs des points a emprunter a l'envers
+    route.reverse()
+
+
+
+    chemin2 = np.zeros((len(route) + 1, 2))  # on initialise le np array de complexes qui va recevoir les donnees
+    i = 0
+    for n in (route):
+        chemin2[i][0] = -isochrone[n][1]
+        chemin2[i][1] = isochrone[n][0]
+        i += 1
+    chemin2[i] =[-y1,x1]
+    route2=[arr.tolist() for arr in chemin2]   # route destiné a etre passé a leaflet
+    # on stocke les valeurs des points dans chemin
+   
+   
+    chemin = np.zeros(len(route) + 1, dtype=complex)  # on initialise le np array de complexes qui va recevoir les donnees
+    i = 0
+    for n in (route):
+        chemin[i] = isochrone[n][0] + isochrone[n][1] * 1j
+        i += 1
+    chemin[i] = A
+    # maintenant on reconstitue le chemin avec les caps les TWA et les previsions
+    l = len(chemin)
+    temps_cum = temps_cumules[:l]
+    temps_cum[-1] = temps_cum[-2] + t_v_ar_h * 3600  # le dernier terme est le temps entre le dernier isochrone et l'arrivee
+    # previsions meteo aux differents points
+    TWS_ch, TWD_ch = prevision_tableau2(GR, temps_cum, chemin)
+    # distance et angle d un point au suivant
+    distance, cap1 = dist_cap3(chemin[0:-1], chemin[1:])
+    # on rajoute un 0 pour la distance arrrivee et l angle arrivee
+    dist = np.append(distance, [0])
+    HDG_ch = np.append(cap1, [0])  # tableau des caps aux differents points
+    # calculs twa sous forme de tableau pour les differents points
+    TWA_ch = twa(HDG_ch, TWD_ch)
+    # calcul des polaires aux differents points du chemin
+    POL_ch = polaire3_vect(polaires, TWS_ch, TWD_ch, HDG_ch)
+    temps_cum += tig
+    # mise en forme pour concatener
+    chx =       chemin.real.reshape((1, -1))
+    chy =       chemin.imag.reshape((1, -1))
+    temps_pts = temps_cum.reshape((1, -1))
+    vitesse =   TWS_ch.reshape((1, -1))
+    TWD =       TWD_ch.reshape((1, -1))
+    cap =       HDG_ch.reshape((1, -1))
+    twat =       TWA_ch.reshape((1, -1))
+    pol =       POL_ch.reshape((1, -1))
+    # tabchemin : x,y,vit vent ,TWD,cap vers point suivant twa vers point suivant
+    chem = np.concatenate((chx.T, chy.T, temps_pts.T, vitesse.T, TWD.T, cap.T, twat.T, pol.T), axis=1)
+    #
+    # confection de la route à suivre avec les tooltips
+    route3=[]
+    for i in range (0,len(chem),1):
+        temps=time.strftime(" %d %b %Y %H:%M:%S ", time.localtime(chem[i, 2]))
+        heures=str(((chem[i, 2])- t0)//3600)
+        long=str(-round(chem[i, 0], 2))
+        lat=str(-round(chem[i, 1], 2))
+        tws = str(round(chem[i, 3], 1))
+        twd = str(round(chem[i, 4], 0))
+        cap = str(round(chem[i, 5], 0))
+        twaroute = str(round(chem[i, 6], 0))
+        Vt  = str(round(chem[i, 7], 2))
+        route3.append([chem[i, 0],chem[i, 1,],'<b> H+'+heures+'<br>'+temps+'<br> Lat :'+lat+'° - Long :'+long+'°<br>TWD :' +twd+'°-  TWS :'
+                   + tws +'N<br> Cap :' + cap + '° TWA :' +twaroute +'°<br>Vt :' +Vt+'N</b>'])
+   
+    #Confection de la multipolyline pour le trace des isochrones 
+    X=isochrone[:,0].reshape(-1,1)
+    Y=isochrone[:,1].reshape(-1,1)
+    N=isochrone[:,2].reshape(-1,1)
+    points=np.concatenate((-Y,X,N),1)
+    polyline=np.split(points[:,0:2],np.where(np.diff(points[1:,2])==1)[0]+2)
+    multipolyline=[arr.tolist() for arr in polyline]
+    
+    return multipolyline,route3
 
 
 
@@ -147,8 +237,6 @@ if __name__ == '__main__':
     import folium
     import webbrowser
     import time
-
-
     tic=time.time()
 
 # initialisation des variables
@@ -157,15 +245,12 @@ if __name__ == '__main__':
     t_v_ar_h = 0
     nouveau_temps = 0
     tig, GR        = chargement_grib()
-   
-       
     x0,y0=(-73.62,-40.46)
     t0=time.time()    
     x1,y1=(-3.89,-47.65)
     A= x1+y1*1j
     pt1_np=np.array([[x0,y0]])
     but = False
-
     # definition des temps des isochrones
     dt1           = np.ones(72) * 600  # intervalles de temps toutes les 10mn pendant une heure puis toutes les heures
     dt2           = np.ones(370) * 3600
@@ -173,11 +258,11 @@ if __name__ == '__main__':
     temps_cumules = np.cumsum(intervalles)
     # on initialise l'isochrone de depart avec le depart et le temps au depart
     pt1_np=np.array([[x0,y0]])
-   
+    TWS, TWD = prevision_tableau3(tig, GR, t0, pt1_np)
 # Initialisation du tableau des points d'isochrones
-    # 0: x du point (longitude), 1: y du point (latitude) , 2: N° isochrone , 3: N° du pt mere ,
-    # 4: N° du pt , 5: Distance a l'arrivee , 6: Cap vers l'arrivee
-    isochrone = [[x0, y0, 0, 0, 0]]
+    #  x (longitude), y  (latitude) , 2: N° isochrone , 3: N° du pt mere ,    # 4: N° du pt 
+    isochrone = np.array([[x0, y0, 0, 0, 0]])
+
 
 # impression des donnees au point de depart
     print()
@@ -197,9 +282,15 @@ if __name__ == '__main__':
 
 
 
-#lancement de la fonction
-    frouteur(x0,y0,x1,y1)
-    print (isochrone[0:120])
+# Fonction_routeur  elle retourne les isochrones (multipolyline) et la route ,
+
+    multipolyline,route=fonction_routeur(x0,y0,x1,y1)
+
+    
+
+
+
+    
 
     #   ****************************************Controle du temps d'execution **********************************
 tac = time.time()
