@@ -5,6 +5,13 @@
 			<title>Page test Jp</title>
 		</head>
 		<body>
+		<script type="text/javascript" >
+			var intl=new Intl.DateTimeFormat("en-US",{month:"2-digit",day:"2-digit", hour12: false,hour:"2-digit", minute:"2-digit" });
+			var temps = new Date(1598917919.3*1000);
+			console.log( intl.format(temps));
+
+		</script>	
+
 		<h5> index.html </h5><br>
 
 		<h3> Formulaire de connexion </h3>
@@ -17,6 +24,10 @@
 					<label>Longitude</label> : <input type="text" name="lngar"  value= -70 /><br>
 
 					<input type="submit" value="Envoyer" />
+					<br><br>
+
+
+					<div id ='test'>Test </div> 
 			</form>
 		</body>
 	</html>

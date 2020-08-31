@@ -13,7 +13,7 @@ import webbrowser
 from uploadgrib import *
 from fonctions_vr import *
 import webbrowser
-from polaires.polaires_ultime import *
+from polaires.polaires_figaro2 import *
 from operator import itemgetter
 from global_land_mask import globe
 import pickle
@@ -54,10 +54,25 @@ class user(db.Model):                                              # creation du
 
 
 # Initialisation des variables necessaires **********************************************************************************
+#Depart
+latitude_d     = '049-07-17-N'
+longitude_d    = '004-13-01-W'
+#Point Arrivee 
+latitude_a     = '049-51-00-N'
+longitude_a    = '006-24-00-W'
+d  = chaine_to_dec(latitude_d, longitude_d)  # conversion des latitudes et longitudes en tuple
+ar = chaine_to_dec(latitude_a, longitude_a)
+x0,y0=d
+x1,y1=ar
+# x0,y0=(-73.62,-40.46)
+# x1,y1=(-3.89,-47.65)
+A= x1+y1*1j
+pt1_np=np.array([[x0,y0]])
+but = False
 
-latar=49.25
-longar=-5.16666666
+
 tic=time.time()
+t0=time.time() 
 
 angle_objectif = 90
 indice = 0
@@ -65,12 +80,7 @@ t_v_ar_h = 0
 nouveau_temps = 0
 tig, GR        = chargement_grib()
     
-x0,y0=(-73.62,-40.46)
-t0=time.time()    
-x1,y1=(-3.89,-47.65)
-A= x1+y1*1j
-pt1_np=np.array([[x0,y0]])
-but = False
+
 
 # definition des temps des isochrones
 dt1           = np.ones(72) * 600  # intervalles de temps toutes les 10mn pendant une heure puis toutes les heures
@@ -266,6 +276,7 @@ def fonction_routeur(x0,y0,x1,y1,t0=time.time()):
     #
     # confection de la route à suivre avec les tooltips
     route3=[]
+    comment=[]
     for i in range (0,len(chem),1):
         temps=time.strftime(" %d %b %Y %H:%M:%S ", time.localtime(chem[i, 2]))
         heures=str(((chem[i, 2])- t0)//3600)
@@ -277,7 +288,8 @@ def fonction_routeur(x0,y0,x1,y1,t0=time.time()):
         twaroute = str(round(chem[i, 6], 0))
         Vt  = str(round(chem[i, 7], 2))
         route3.append([-chem[i, 1],chem[i, 0,],chem[i, 3,]])
-   
+
+        comment.append([-chem[i, 1],chem[i, 0],chem[i, 2],chem[i, 3],chem[i, 4],chem[i, 5],chem[i, 6],chem[i, 7]])
     #Confection de la multipolyline pour le trace des isochrones 
     X=isochrone[:,0].reshape(-1,1)
     Y=isochrone[:,1].reshape(-1,1)
@@ -286,7 +298,7 @@ def fonction_routeur(x0,y0,x1,y1,t0=time.time()):
     polyline=np.split(points[:,0:2],np.where(np.diff(points[1:,2])==1)[0]+2)
     multipolyline=[arr.tolist() for arr in polyline]
     
-    return multipolyline,route3
+    return multipolyline,route3,comment
 
 
 
@@ -361,8 +373,8 @@ def leaflet():
   
   
   
-  multipolyline,route=fonction_routeur(x0,y0,x1,y1)
-  print ('route',route)
+  multipolyline,route,comment=fonction_routeur(x0,y0,x1,y1)
+  #print ('route',route)
 
   red=[]
   black=[]
@@ -371,7 +383,7 @@ def leaflet():
             black.append(multipolyline[i])
       else:
             red.append(multipolyline[i])  
-  return render_template("leaflet.html", multipolyred=red,multipolyblack=black,route=route,lngdep=lngdep,latdep=latdep,lngar=longar,latar=latar, result=request.form)
+  return render_template("leaflet.html", multipolyred=red,multipolyblack=black,route=route,comment=comment,lngdep=lngdep,latdep=latdep,lngar=longar,latar=latar, result=request.form)
 
 
 
