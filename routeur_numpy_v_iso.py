@@ -204,6 +204,8 @@ A = cplx(ar)
 # 4: N° du pt , 5: Distance a l'arrivee , 6: Cap vers l'arrivee
 #isochrone     = [[D.real, D.imag, 0, 0, 0, dist_cap(D, A)[0], dist_cap(D, A)[1]]]
 isochrone     = [[D.real, D.imag, 0, 0, 0]]
+print ('isochrone au deaprt',isochrone)
+
 
 dt1           = np.ones(72) * 600  # intervalles de temps toutes les 10mn pendant une heure puis toutes les heures
 dt2           = np.ones(370) * 3600

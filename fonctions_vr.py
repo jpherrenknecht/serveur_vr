@@ -11,6 +11,8 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 
 def chaine_to_dec(latitude, longitude):
     ''' Transforme les chaines latitude et longitude en un tuple (x,y) '''
+    '''les latitudes nord et longitudes W  sont transformées en negatifs'''
+    ''' retourne la longitude en premier'''
     degre = int(latitude[0:3])
     minutes = int(latitude[4:6])
     secondes = int(latitude[7:9])
@@ -23,11 +25,11 @@ def chaine_to_dec(latitude, longitude):
     long = degre + minutes / 60 + secondes / 3600
     if longitude[10] == 'W':
         long = -long
-
     return (long, lat)
 
 def chaine_to_cplx(latitude, longitude):
     ''' Transforme les chaines latitude et longitude en un complexe  (x+iy) '''
+    '''les latitudes nord et longitudes W  sont transformées en negatifs'''
     degre = int(latitude[0:2])
     minutes = int(latitude[3:5])
     secondes = int(latitude[6:8])
@@ -41,12 +43,11 @@ def chaine_to_cplx(latitude, longitude):
     if longitude[9] == 'W':
         long = -long
     position = long + lat * 1j
-
     return position
 
 
 def cplx(d):
-    ''' transforme un tuple en nparray complex'''
+    ''' transforme un tuple (lng,lat) en nparray complex'''
     D = (d[0] + d[1] * 1j)
     return D
 
