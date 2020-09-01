@@ -269,7 +269,7 @@ def resultat3():
   lngdep                 = float(result['lngdep'])
   #polyline=test()
   
-  return render_template("resultat3.html", polyline=frouteur(lngdep,-latdep,x1,y1), result=request.form)
+  return render_template("resultat3.html", result=request.form)
 
 
 @app.route('/leaflet',methods = ['POST'])
