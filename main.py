@@ -172,7 +172,7 @@ def fonction_routeur(xn,yn,x1,y1,t0=time.time()):
 # on calcule tous les isochrones
     while but == False:
         l,temps, but, indice = f_isochrone(l,temps) 
-# Recinstitution de la route a emprunter  indice  est l'indice de temps minimum du dernier point 
+# Reconstitution de la route a emprunter  indice  est l'indice de temps minimum du dernier point 
     a = int(indice)                 # indice du point de la route la plus courte
     n = int(isochrone[-1][2])       # nombre d'isochrones
     dico=dict(zip(isochrone[:,4],isochrone[:,3]))   #dictionnaire des points et points meres
@@ -315,7 +315,7 @@ def leaflet():
     red=[]
     black=[]
     for i in range(len(multipolyline)):
-        if i%5==0:
+        if i%6==0:
                 black.append(multipolyline[i])
         else:
                 red.append(multipolyline[i])  
