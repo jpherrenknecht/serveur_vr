@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="fr">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css" />
+        <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js" ></script>
+    </head>
+    <style>
+        html, body { height: 100% }
+    </style>
+
+
+
+
+
+
+    <body onload="initialize()">
+        <div id="map" style="width:100%; height:100%"></div>
+    </body>
+</html>
+
+
+
+<script type="text/javascript">
+    function initialize() {
+
+      
+        var map = L.map('map').setView([48.833, 2.333], 7); 
+        var osmLayer = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {   maxZoom: 19});
+
+        var Stamen_TonerLite = L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}{r}.{ext}', {
+	    attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+	    subdomains: 'abcd',
+	    minZoom: 0,
+	    maxZoom: 20,
+	    ext: 'png'
+        });
+
+        var Stamen_TerrainBackground = L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/terrain-background/{z}/{x}/{y}{r}.{ext}', {
+            attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+            subdomains: 'abcd',
+            minZoom: 0,
+            maxZoom: 18,
+            ext: 'png'
+        });
+
+        var Esri_WorldImagery = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+	attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+        });
+
+
+        var overlayMaps = {  "Cities": cities};
+    
+        map.addLayer(osmLayer,Stamen_TonerLite,Stamen_TerrainBackground,Esri_WorldImagery);
+
+        var littleton = L.marker([39.61, -105.02]).bindPopup('This is Littleton, CO.'),
+            denver    = L.marker([39.74, -104.99]).bindPopup('This is Denver, CO.'),
+            aurora    = L.marker([39.73, -104.8]).bindPopup('This is Aurora, CO.'),
+            golden    = L.marker([39.77, -105.23]).bindPopup('This is Golden, CO.');
+
+        var cities = L.layerGroup([littleton, denver, aurora, golden]);
+
+       
+        L.control.layers
+        ({
+         'Main':osmLayer,
+         'Stamen':Stamen_TerrainBackground,
+         'Esri':Esri_WorldImagery
+        },{
+            'Villes':cities
+
+        }
+        
+        )
+        .addTo(map);
+
+    }
+</script>

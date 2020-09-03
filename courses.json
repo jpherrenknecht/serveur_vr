@@ -24,13 +24,23 @@
         "bouee1":{"lat":10 ,"lon":25}
        },   
 
-    "pacific recordSolitaire figaro": 
+    "pacific recordSolitaire ": 
         {"numero"  : "438" ,
-        "nom":"Atlantic record",
+        "nom":"pacific recordSolitaire",
         "bateau":"maxitri",
         "depart":{"lat":10 ,"lon":25},
         "bouee1":{"lat":10 ,"lon":25}
-       },     
+       },   
+       
+    "Eurosaf":   
+    {"numero"  : "447" ,
+        "nom":"Eurosaf",
+        "bateau":"mono_mini_650_v2",
+        "depart":{"lat":'044-23-12-N' ,     "lon":'008-55-00-E' },
+        "bouee1":{"lat":'043-01-00-N' ,     "lon":'009-24-00-E'}
+       },   
+      
+
 }     
 }   
 

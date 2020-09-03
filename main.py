@@ -13,7 +13,7 @@ import webbrowser
 from uploadgrib import *
 from fonctions_vr import *
 import webbrowser
-from polaires.polaires_figaro2 import *
+from polaires.polaires_mono_mini_650_v2 import *
 from operator import itemgetter
 from global_land_mask import globe
 import pickle
@@ -116,6 +116,8 @@ def f_isochrone(l, temps_initial_iso):
     N=np.array( range( int(numero_dernier_point) + 1, points_calcul2.shape[0] +int(numero_dernier_point) + 1,1))  # tableau des indices
     points_calcul2[:,4]=N     # renumerotation
     TWS, TWD =prevision_tableau3(tig, GR, nouveau_temps, points_calcul2) # Vitesse vent et direction pour nouveaux points (extraction en double)
+    # on minore TWS à  2 pour règle VR
+    TWS[TWS <2] = 2
     VT = polaire3_vect(polaires, TWS, TWD, points_calcul2[:,6])
 # calcul des temps vers l arrivee
     D_a       = points_calcul2[: ,5]               # Distances vers l'arrivee
@@ -158,7 +160,9 @@ def fonction_routeur(xn,yn,x1,y1,t0=time.time()):
     temps_cumules = np.cumsum(intervalles)
     but = False
     isochrone = np.array([[x0, y0, 0, 0, 0]])# on initialise le tableau isochrone et TWS TWD
-    TWS, TWD = prevision_tableau3(tig, GR, t0, pt1_np)   
+    TWS, TWD = prevision_tableau3(tig, GR, t0, pt1_np)
+    # on minore TWS à  2 pour règle VR
+    TWS[TWS <2] = 2   
 # on imprime les donnees de depart    
     print()
     print('Depart :      Latitude {:6.4f}     \tLongitude {:6.4f}'.format(y0, x0))
@@ -192,6 +196,8 @@ def fonction_routeur(xn,yn,x1,y1,t0=time.time()):
     temps_cum = temps_cumules[:l]
     temps_cum[-1] = temps_cum[-2] + temps_mini * 3600  # le dernier terme est le temps entre le dernier isochrone et l'arrive
     TWS_ch, TWD_ch = prevision_tableau2(GR, temps_cum, chemin)# previsions meteo aux differents points pour reconstitution 
+    # on minore TWS à  2 pour règle VR
+    TWS_ch[TWS_ch<2] = 2
     distance, cap1 = dist_cap3(chemin[0:-1], chemin[1:])    # distance et angle de chaque point au suivant
     #dist = np.append(distance, [0])                         # on rajoute un 0 pour la distance arrivee et l angle arrivee
     HDG_ch = np.append(cap1, [0])                           # tableau des caps aux differents points
@@ -249,6 +255,11 @@ def index():
 def map2():
   return render_template("map2.html")
 
+@app.route('/leafletbase')
+def leafletbase():
+  return render_template("leafletbase.html")
+
+
 
 
 @app.route('/resultat',methods = ['POST'])
@@ -296,15 +307,11 @@ def leaflet():
     longitude_a    = '009-39-00-W'
     t0=time.time() 
     x1,y1=chaine_to_dec(latitude_a, longitude_a)
-
 # on tient compte des valeurs retournees par get
-    resultat = request.args  
     latdep        = float(request.args['latdep'])
     lngdep        = float(request.args['lngdep'])
-
     x0=lngdep
     y0=-latdep
-   
     lngar=x1
     latar=-y1
     
@@ -325,11 +332,41 @@ def leaflet():
 
 
 
-@app.route('/numpyhtml')
-def numpy():  
-    return render_template("numpyhtml.html",polyline=polylinetest())
+@app.route('/windleaf',methods =["GET", "POST"])
+def windleaf():
+    global x0,y0,x1,y1
+    latitude_d     = '044-23-12-N'
+    longitude_d    = '008-55-00-E' 
+    x0,y0=chaine_to_dec(latitude_d, longitude_d)  # conversion des latitudes et longitudes en tuple
+    
+    #Point Arrivee 
+    latitude_a     = '043-01-00-N'
+    longitude_a    = '009-24-00-E'
+    t0=time.time() 
+    x1,y1=chaine_to_dec(latitude_a, longitude_a)
+# on tient compte des valeurs retournees par get
+    latdep        = float(request.args['latdep'])
+    lngdep        = float(request.args['lngdep'])
+    x0=lngdep
+    y0=-latdep
+    lngar=x1
+    latar=-y1
+    
+  
+    multipolyline,route,comment=fonction_routeur(lngdep,latdep,x1,y1)
+    #print ('route',route)
+
+    red=[]
+    black=[]
+    for i in range(len(multipolyline)):
+        if i%6==0:
+                black.append(multipolyline[i])
+        else:
+                red.append(multipolyline[i])  
+    return render_template("windleaf.html", multipolyred=red,multipolyblack=black,route=route,comment=comment,lngdep=lngdep,latdep=latdep,lngar=lngar,latar=latar, result=request.form)
 
 
+    
 
 
 

@@ -367,12 +367,19 @@ print ('*****************************************Route à suivre ***************
 print('Depart :  {:6.4f}  {:6.4f}       Le {}    Arrivee: {:4.2f}  {:4.2f} '.format(d[1], d[0],instant_formate, ar[1], ar[0] ))
 print ('-----------------------------------------------------------------------------------------------------------')
 
-# Exportation en pandas
+# Exportation en pandas et en csv
 indexiso=np.arange(l)
 df = pd.DataFrame(chem, index = indexiso, columns = ['x', 'y', 't', 'vit_vent','angle_vent','cap','twa', 'polaire'])
 print(df.head(12))
 print()
 df.to_csv('fichier_route.csv')
+
+
+
+
+
+
+
 # print ('tabchemin.shape',chem.shape)
 #print('\t n \t\t\t Date \t\t\t\t  X \t\t\tY  \tV_vent \tA_Vent \t Cap  \t TWA\t Polaire')
 chemin_folium=[]

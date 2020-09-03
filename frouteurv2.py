@@ -90,6 +90,8 @@ def f_isochrone(l, temps_initial_iso):
     N=np.array( range( int(numero_dernier_point) + 1, points_calcul2.shape[0] +int(numero_dernier_point) + 1,1))  # tableau des indices
     points_calcul2[:,4]=N     # renumerotation
     TWS, TWD =prevision_tableau3(tig, GR, nouveau_temps, points_calcul2) # Vitesse vent et direction pour nouveaux points (extraction en double)
+# on minore TWS à  2 pour règle VR
+    TWS[TWS <2] = 2
     VT = polaire3_vect(polaires, TWS, TWD, points_calcul2[:,6])
 # calcul des temps vers l arrivee
     D_a       = points_calcul2[: ,5]               # Distances vers l'arrivee
@@ -132,7 +134,8 @@ def fonction_routeur(xn,yn,x1,y1,t0=time.time()):
     temps_cumules = np.cumsum(intervalles)
     but = False
     isochrone = np.array([[x0, y0, 0, 0, 0]])# on initialise le tableau isochrone et TWS TWD
-    TWS, TWD = prevision_tableau3(tig, GR, t0, pt1_np)   
+    TWS, TWD = prevision_tableau3(tig, GR, t0, pt1_np)  
+    print ('(137  premier TWS',TWS) 
 # on imprime les donnees de depart    
     print()
     print('Depart :      Latitude {:6.4f}     \tLongitude {:6.4f}'.format(y0, x0))
@@ -146,7 +149,7 @@ def fonction_routeur(xn,yn,x1,y1,t0=time.time()):
 # on calcule tous les isochrones
     while but == False:
         l,temps, but, indice = f_isochrone(l,temps) 
-# Recinstitution de la route a emprunter  indice  est l'indice de temps minimum du dernier point 
+# Reconstitution de la route a emprunter  indice  est l'indice de temps minimum du dernier point 
     a = int(indice)                 # indice du point de la route la plus courte
     n = int(isochrone[-1][2])       # nombre d'isochrones
     dico=dict(zip(isochrone[:,4],isochrone[:,3]))   #dictionnaire des points et points meres
@@ -196,7 +199,7 @@ def fonction_routeur(xn,yn,x1,y1,t0=time.time()):
         cap = str(round(chem[i, 5], 0))
         # twaroute = str(round(chem[i, 6], 0))
         # Vt  = str(round(chem[i, 7], 2))
-        route3.append([-chem[i, 1],chem[i, 0,],chem[i, 3,]])
+        route3.append([-chem[i, 1],chem[i, 0]])   # dans la version leaflet on a le temps en trois
         comment.append([-chem[i, 1],chem[i, 0],chem[i, 2],chem[i, 3],chem[i, 4],chem[i, 5],chem[i, 6],chem[i, 7]])
     #Confection de la multipolyline pour le trace des isochrones 
     X=isochrone[:,0].reshape(-1,1)
@@ -205,7 +208,7 @@ def fonction_routeur(xn,yn,x1,y1,t0=time.time()):
     points=np.concatenate((-Y,X,N),1)
     polyline=np.split(points[:,0:2],np.where(np.diff(points[1:,2])==1)[0]+2)
     multipolyline=[arr.tolist() for arr in polyline]
-    
+    del multipolyline[0][0]
     return multipolyline,route3,comment
 
 
@@ -214,25 +217,96 @@ def fonction_routeur(xn,yn,x1,y1,t0=time.time()):
 if __name__ == '__main__':
     # Initialisation  **********************************************************************************
     #Depart
-    latitude_d     = '049-54-17-N'
-    longitude_d    = '006-46-01-W'
+    latitude_d     = '043-28-20-N'
+    longitude_d    = '009-28-58-E'
     #Point Arrivee 
-    latitude_a     = '051-21-00-N'
-    longitude_a    = '009-39-00-W'
+    latitude_a     = '043-01-00-N'
+    longitude_a    = '009-24-00-E'
+    
+
+
+    
     t0=time.time() 
     x0,y0=chaine_to_dec(latitude_d, longitude_d)  # conversion des latitudes et longitudes en tuple
     x1,y1=chaine_to_dec(latitude_a, longitude_a)
   
 
 
+#*******************************************************************************************
+#*******************************************************************************************
 # Fonction_routeur  elle retourne les isochrones (multipolyline) et la route ,
     multipolyline,route,comment=fonction_routeur(x0,y0,x1,y1)
+#*******************************************************************************************
+#*******************************************************************************************
+#*******************************************************************************************
 
-    
 
 
 
-    
+# Exportation en pandas et en csv
+indexiso=np.arange(len(comment))
+df = pd.DataFrame(comment, index = indexiso, columns = ['x', 'y', 't', 'vit_vent','angle_vent','cap','twa', 'polaire'])
+
+print()
+print(df.head(12))
+print()
+df.to_csv('fichier_route2.csv')
+
+#*******************************************************************************************
+#*******************************************************************************************
+
+# pour des raisons de mise au point on va l'afficher directement dans folium
+# Initialisation carte folium **************************************************************
+lat1=  -(y0+y1)/2
+lng1=   (x0+x1)/2  
+m = folium.Map( location=[lat1,lng1],  zoom_start=9)
+folium.LatLngPopup().add_to(m)   # popup lat long
+#*******************************************************************************************
+#trace de la multipolyline des isochrones
+red=[]
+black=[]
+for i in range(len(multipolyline)):
+    if i%6==0:
+            black.append(multipolyline[i])
+    else:
+            red.append(multipolyline[i]) 
+#trace des isochrones           
+folium.PolyLine(black,color='black',weight=1 , popup='Isochrone %6 ').add_to(m) 
+folium.PolyLine(red,color='red',weight=1 , popup='Isochrone ').add_to(m)     
+#trace de la route
+folium.PolyLine(route, color="blue", weight=2.5, popup='Route calculée ',opacity=0.8).add_to(m)
+
+# Creation de points sur la route avec tooltips pour folium
+tooltip=[]
+popup=[]
+
+#print ('\ncomment \n',comment)
+
+for i in range (0,len(comment),1):
+    temps=time.strftime(" %d %b %Y %H:%M:%S ", time.localtime(comment[i][2]))
+    delta_t   = comment[i][2]- t0 +30   #(les 30s sont pour le temps dexecution du programme)
+    delta_t_h = delta_t//3600
+    delta_t_mn=(delta_t-delta_t_h*3600)//60
+    heures=str(delta_t_h)+'H '+str(delta_t_mn)+'mn'
+    lng= str(-round(comment[i][0], 2))
+    lat = str(-round(comment[i][1], 2))
+    tws = str(round(comment[i][3], 1))
+    twd = str(round(comment[i][4], 0))
+    cap = str(round(comment[i][5], 0))
+    twa = str(round(comment[i][6], 0))
+    Vt  = str(round(comment[i][7], 2))
+    tooltip.append('<b>'+temps+'<br> +'+heures+'<br> Lat :'+lat+'° - Long :'+lng+'°<br>TWD :' +twd+'°-  TWS :'
+                   + tws +'N<br> Cap :' + cap + '° TWA :' +twa +'°<br>Vt :' +Vt+'N</b>')
+    popup.append( folium.Popup(folium.Html(tooltip[i], script=True), max_width=200,min_width=150))
+for i in range( len(comment)):
+    folium.Circle([comment[i][0],comment[i][1]],color='black', radius=200,tooltip=tooltip[i], popup=popup[i],fill=True).add_to(m)
+
+#*******************************************************************************************
+# Sauvegarde carte et affichage dans browser
+filecarte='map.html'
+filepath = 'templates/'+filecarte
+m.save(filepath)
+webbrowser.open( filepath)
 
     #   ****************************************Controle du temps d'execution **********************************
 tac = time.time()
