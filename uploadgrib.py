@@ -23,7 +23,7 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 
 ix = np.arange(129)  # temps
 iy = np.arange(181)  # latitudes
-iz = np.arange(360)  # longitudes
+iz = np.arange(361)  # longitudes
 
 
 def chainetemps_to_int(chainetemps):
@@ -92,58 +92,6 @@ def filename():
     return filenamehdf5,date,tig
 
 
-
-
-
-
-
-# def chargement_grib_old():
-#     '''Charge le grib a la date indiquée et le sauve en type tableau de complexes sous format hd5'''
-
-#     (filenamehdf5,dategrib,tig )= filename()
-#     date=dategrib[0:10].replace("-","")
-#     strhour=dategrib[11:13]
-   
-#     if os.path.exists(filenamehdf5) == False:
-#         leftlon, rightlon, toplat, bottomlat = 0, 360, 90, -90
-#         iprev = ()
-#         for a in range(0, 387, 3):  # Construit le tuple des indexs des fichiers maxi 387
-#             iprev += (str(int(a / 100)) + str(int((a % 100) / 10)) + str(a % 10),)
-#         GR = np.zeros((len(iprev), 181, 360),
-#                       dtype=complex)  # initialise le np array de complexes qui recoit les donnees
-
-#         for indexprev in range(len(iprev)):  # recuperation des fichiers
-#             prev = iprev[indexprev]
-
-#             url = "https://nomads.ncep.noaa.gov/cgi-bin/filter_gfs_1p00.pl?file=gfs.t" + strhour + "z.pgrb2.1p00.f" + \
-#                   prev + "&lev_10_m_above_ground=on&all_var=on&leftlon=" \
-#                   + str(leftlon) + "&rightlon=" + str(rightlon) + "&toplat=" + str(toplat) + "&bottomlat=" + str(
-#                 bottomlat) + "&dir=%2Fgfs." + date + "%2F" + strhour
-#             nom_fichier = "grib_" + date + "_" + strhour + "_" + prev
-
-#             urlretrieve(url, nom_fichier)  # recuperation des fichiers
-
-#             print(' Enregistrement prévision {} + {} heures effectué: '.format(dategrib,prev))  # destine a suivre le chargement des previsions
-
-#             # exploitation du fichier et mise en memoire dans GR
-#             ds = xr.open_dataset(nom_fichier, engine='cfgrib')
-
-#             GR[indexprev] = ds.variables['u10'].data + ds.variables['v10'].data * 1j
-
-#             os.remove(nom_fichier)  # On efface le fichier pour ne pas encombrer
-#             os.remove(nom_fichier + '.4cc40.idx')
-
-#         # sauvegarde dans fichier hdf5 du tableau GR
-#         #filename = "~/PycharmProjects/VR_version2/gribs/grib_gfs_" + dategrib + ".hdf5"
-#         f1 = h5py.File(filenamehdf5, "w")
-#         dset1 = f1.create_dataset("dataset_01", GR.shape, dtype='complex', data=GR)
-
-#         dset1.attrs['time_grib'] = tig  # transmet le temps initial du grib en temps local en s pour pouvoir faire les comparaisons
-#         f1.close()
-
-#     return filenamehdf5
-
-
 def ouverture_fichier(filename):
     # ouverture du fichier hdf5
     f2 = h5py.File(filename, 'r')
@@ -200,6 +148,9 @@ def chargement_grib():
             os.remove(nom_fichier)  # On efface le fichier pour ne pas encombrer
             os.remove(nom_fichier + '.4cc40.idx')
 
+        # on modifie GR pour lui donner un indice 360 egal à l'indice 0
+        GR=np.concatenate((GR,GR[:,:,0:1]), axis=2)
+
         # sauvegarde dans fichier hdf5 du tableau GR
         #filename = "~/PycharmProjects/VR_version2/gribs/grib_gfs_" + dategrib + ".hdf5"
         f1 = h5py.File(filenamehdf5, "w")
@@ -242,7 +193,7 @@ def prevision(tig, GR, tp, latitude, longitude):
     ilati = (latitude + 90)
     ilong = (longitude) % 360
 
-    #print ('indices',itemp,ilati,ilong )
+    print ('indices',itemp,ilati,ilong )
 
     vcplx = fn3((itemp, ilati, ilong))
     #print('vcplx',vcplx)
@@ -341,30 +292,30 @@ if __name__ == '__main__':
 
     # Depart
     latitude_d = '051-38-17-N'
-    longitude_d = '005-46-19-W'
+    longitude_d = '000-46-19-W'
     d = chaine_to_dec(latitude_d, longitude_d)  # co
+    print ('latitude et longitude',d)
     
-    
 
 
-# # prevision avec date donnee    
+# prevision avec date donnee    
 
-#     print ('\nPrévision à date et heure données \
-#             \n---------------------------------')
-#     print('\nLatitude {:6.2f} et Longitude{:6.2f} '.format( d[1], d[0]))
-#     dateprev=datetime(2020 , 8 , 28 , 18, 0 ,  0)
-#     print ('\nDateprev : ',dateprev , ' local')
-#     # je peux la transformer en secondes mais ce sont des secondes locales
-#     dateprev_s=time.mktime(dateprev.timetuple())
-#     print ('dateprev_s en local ',dateprev_s )
-#     dateprev_formate_local = time.strftime(" %d %b %Y %H:%M:%S ", time.localtime(dateprev_s))
-#     print('dateprev_formate_local',dateprev_formate_local)
+    print ('\nPrévision à date et heure données \
+            \n---------------------------------')
+    print('\nLatitude {:6.2f} et Longitude{:6.2f} '.format( d[1], d[0]))
+    dateprev=datetime(2020 , 9 , 8 , 18, 0 ,  0)
+    print ('\nDateprev : ',dateprev , ' local')
+    # je peux la transformer en secondes mais ce sont des secondes locales
+    dateprev_s=time.mktime(dateprev.timetuple())
+    print ('dateprev_s en local ',dateprev_s )
+    dateprev_formate_local = time.strftime(" %d %b %Y %H:%M:%S ", time.localtime(dateprev_s))
+    print('dateprev_formate_local',dateprev_formate_local)
 
-# # prevision proprement dite
-#     vit_vent_n, angle_vent = prevision(tig, GR,dateprev_s, d[1], d[0])
-#   #  print('\nLe {} heure Locale Pour latitude {:6.2f} et longitude{:6.2f} '.format(dateprev_formate_local, d[1], d[0]))
-#     print('\tAngle du vent   {:6.1f} °'.format(angle_vent))
-#     print('\tVitesse du vent {:6.3f} Noeuds'.format(vit_vent_n))
+# prevision proprement dite
+    vit_vent_n, angle_vent = prevision(tig, GR,dateprev_s, d[1], d[0])
+  #  print('\nLe {} heure Locale Pour latitude {:6.2f} et longitude{:6.2f} '.format(dateprev_formate_local, d[1], d[0]))
+    print('\tAngle du vent   {:6.1f} °'.format(angle_vent))
+    print('\tVitesse du vent {:6.3f} Noeuds'.format(vit_vent_n))
 
 
 
@@ -393,25 +344,25 @@ if __name__ == '__main__':
 
 
 
-    #version tableau np complexe******************************************************************************
+    # #version tableau np complexe******************************************************************************
 
-    points=np.array([[-67-39*1j, -65-40*1j]])
-    points = np.array([[d[0] + d[1] * 1j]])
-    cplx = np.array([[-10 - 2 * 1j, -15 + 3 * 1j, 50 + 10 * 1j]])
-    prevs=prevision_tableau(tig, GR, tic, cplx)
-    print('\nresultat avec tableau',prevs)
-    print()
-
-    #version tableau np x y******************************************************************************
-
-    cplx=np.array([[-10 - 2 * 1j, -15 + 3 * 1j, 50 + 10 * 1j]])
-    points=np.concatenate((cplx.real.reshape(-1,1),cplx.imag.reshape(-1,1)),axis=1)
-    prevs3=prevision_tableau3(tig, GR, tic, points)
-    print('\nresultat avec tableau 3',prevs3)
-    print()
-
+    # points=np.array([[-67-39*1j, -65-40*1j]])
+    # points = np.array([[d[0] + d[1] * 1j]])
+    # cplx = np.array([[-10 - 2 * 1j, -15 + 3 * 1j, 50 + 10 * 1j]])
+    # prevs=prevision_tableau(tig, GR, tic, cplx)
+    # print('\nresultat avec tableau',prevs)
     # print()
-    # print(prevs)
+
+    # #version tableau np x y******************************************************************************
+
+    # cplx=np.array([[-10 - 2 * 1j, -15 + 3 * 1j, 50 + 10 * 1j]])
+    # points=np.concatenate((cplx.real.reshape(-1,1),cplx.imag.reshape(-1,1)),axis=1)
+    # prevs3=prevision_tableau3(tig, GR, tic, points)
+    # print('\nresultat avec tableau 3',prevs3)
+    # print()
+
+    # # print()
+    # # print(prevs)
 
 
 
