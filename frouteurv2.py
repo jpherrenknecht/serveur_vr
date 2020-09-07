@@ -7,11 +7,15 @@ import numpy as np
 import matplotlib.pyplot as plt
 import xarray as xr
 import pandas as pd
+import json
 import folium
 import webbrowser
 from uploadgrib import *
 from fonctions_vr import *
-from polaires.polaires_figaro2 import *
+
+val='polaires.polaires_figaro2'
+exec('from '+val+ ' import *')
+
 from global_land_mask import globe
 import pickle
 from flask import Flask, redirect, url_for,render_template, request , session , flash
@@ -19,9 +23,8 @@ from flask_sqlalchemy import SQLAlchemy
 
 tic=time.time()
 
-def polylinetest():
-    polyline=[[45,2],[44,3],[46,4]]
-    return polyline    
+
+
 
 
 def f_isochrone(l, temps_initial_iso):
@@ -63,7 +66,7 @@ def f_isochrone(l, temps_initial_iso):
     points_calcul2 = np.delete(points_calcul2,0,0)                                    # on retire le premier terme de points_calcul2
     points_calcul2 = points_calcul2[points_calcul2[: ,6].argsort(kind = 'mergesort')]   # tri stable sur 6eme colonne (caps vers arrivee)
     k=0                                                                             # on regroupe les  caps 359 et 1
-    while (((points_calcul2[k][6]-points_calcul2[k-1][6])<-357)and (k<points_calcul2.shape[0]-1)):
+    while (((points_calcul2[k][6]-points_calcul2[k-1][6])<-330)and (k<points_calcul2.shape[0]-1)):
         points_calcul2[k][6]+=360
         k+=1
     points_calcul2= points_calcul2[points_calcul2[:,6].argsort(kind='mergesort')]   # les caps en 361 sont replaces a la fin 
@@ -107,7 +110,7 @@ def f_isochrone(l, temps_initial_iso):
     isochrone = np.concatenate((isochrone, points_calcul2[:,0:5]))  # On rajoute ces points a la fin du tableau isochrone 
 # Utilisation pour trace folium  
     #trace_iso2=np.concatenate((-points_calcul2[:,1].reshape(-1,1),points_calcul2[:,0].reshape(-1,1)),axis=1)  #(-Y,X)
-    print(' Isochrone  N° {}  {}  {} points  '.format(numero_iso, t_iso_formate,longueur  ))
+    print(' Isochrone  N° {}  {}  {} points capmini {:6.2f} capmaxi {:6.2f} coeff {:6.2f} '.format(numero_iso, t_iso_formate,longueur,capmini2,capmaxi2,coeff2  ))
     return lf, nouveau_temps, but, indice2
 # ************************************   Fin de la fonction       **********************************************************
 
@@ -207,6 +210,7 @@ def fonction_routeur(xn,yn,x1,y1,t0=time.time()):
     N=isochrone[:,2].reshape(-1,1)
     points=np.concatenate((-Y,X,N),1)
     polyline=np.split(points[:,0:2],np.where(np.diff(points[1:,2])==1)[0]+2)
+    
     multipolyline=[arr.tolist() for arr in polyline]
     del multipolyline[0][0]
     return multipolyline,route3,comment
@@ -214,23 +218,61 @@ def fonction_routeur(xn,yn,x1,y1,t0=time.time()):
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
 if __name__ == '__main__':
     # Initialisation  **********************************************************************************
-    #Depart
-    latitude_d     = '043-28-20-N'
-    longitude_d    = '009-28-58-E'
-    #Point Arrivee 
-    latitude_a     = '043-01-00-N'
-    longitude_a    = '009-24-00-E'
-    
+    # #Depart
+    # latitude_d     = '048-37-41-N'
+    # longitude_d    = '002-42-25-W'
+    # #Point Arrivee 
+    # latitude_a     = '050-08-00-N'
+    # longitude_a    = '004-15-00-W'
+
+    #   "depart":{"lat":"043-28-20-N" ,"lng":"009-28-58-E"},
+    #   "brehat" :{"lat":"048-01-00-N" ,"lng":"009-24-00-E"},
+    #   "bouee1":{"lat":"043-01-00-N" ,"lng":"009-24-00-E"}, 
 
 
-    
-    t0=time.time() 
-    x0,y0=chaine_to_dec(latitude_d, longitude_d)  # conversion des latitudes et longitudes en tuple
-    x1,y1=chaine_to_dec(latitude_a, longitude_a)
-  
+    # x0,y0=chaine_to_dec(latitude_d, longitude_d)  # conversion des latitudes et longitudes en tuple
+    # x1,y1=chaine_to_dec(latitude_a, longitude_a)
 
+    # Extraction de donnees du fichier json
+    with open('courses.json', 'r') as fichier:
+        data = json.load(fichier)
+    n_course='463'
+    bateau=(data[n_course]["bateau"])
+    print('\nBateau : ',bateau)
+    fichier_polaires='polaires.'+(data[n_course]["polaires"])
+
+    latdep = (data[n_course]["courant"]["lat"])
+    lngdep = (data[n_course]["courant"]["lng"])
+    latar  = (data[n_course]["bouee3"]["lat"])
+    lngar  = (data[n_course]["bouee3"]["lng"])
+    x0,y0=chaine_to_dec(latdep, lngdep)  # conversion des latitudes et longitudes en tuple
+    x1,y1=chaine_to_dec(latar, lngar)
+    print ('x0,y0',x0,y0)
+    print ('x1,y1',x1,y1)
+
+
+
+    # on force les coordonnees de depart
+    #y0=-42.5763
+    #x0=10.1035
+    t0=time.time()     
+    print ('coordonnees Depart ',x0,y0)
+    print ('coordonnees Arrivee',x1,y1)
 
 #*******************************************************************************************
 #*******************************************************************************************
@@ -239,75 +281,97 @@ if __name__ == '__main__':
 #*******************************************************************************************
 #*******************************************************************************************
 #*******************************************************************************************
+    print ( '\n(295) multipolyline[0]\n',multipolyline[0])
+    print ('\n       multipolyline[1]\n',multipolyline[1])
+    
+    print ('\npoint0\n',route[0])
+    print ('point1\n',route[1])
 
 
 
+    arcomment=np.asarray(comment)
 
-# Exportation en pandas et en csv
-indexiso=np.arange(len(comment))
-df = pd.DataFrame(comment, index = indexiso, columns = ['x', 'y', 't', 'vit_vent','angle_vent','cap','twa', 'polaire'])
+    #print ('caps=\n',arcomment[:,5:6])
+    #print ('twa=\n',arcomment[:,6:7])
+    inter=np.asarray(arcomment[:,4:5])
+    # print ()
+    # print ('cap\n')
+    # for i in range(len(comment)):
+    #     print ('{:4.0f},'.format(comment[i][5]),end='')
+    # print()
+    # print ('vent\n')
+    # for i in range(len(comment)):
+    #     print ('{:4.0f},'.format(comment[i][4]),end='')
 
-print()
-print(df.head(12))
-print()
-df.to_csv('fichier_route2.csv')
+    # Exportation en pandas et en csv
+    indexiso=np.arange(len(comment))
+    df = pd.DataFrame(comment, index = indexiso, columns = ['x', 'y', 't', 'vit_vent','angle_vent','cap','twa', 'polaire'])
 
-#*******************************************************************************************
-#*******************************************************************************************
+    print()
+    print(df.head(5))
 
-# pour des raisons de mise au point on va l'afficher directement dans folium
-# Initialisation carte folium **************************************************************
-lat1=  -(y0+y1)/2
-lng1=   (x0+x1)/2  
-m = folium.Map( location=[lat1,lng1],  zoom_start=9)
-folium.LatLngPopup().add_to(m)   # popup lat long
-#*******************************************************************************************
-#trace de la multipolyline des isochrones
-red=[]
-black=[]
-for i in range(len(multipolyline)):
-    if i%6==0:
-            black.append(multipolyline[i])
-    else:
-            red.append(multipolyline[i]) 
-#trace des isochrones           
-folium.PolyLine(black,color='black',weight=1 , popup='Isochrone %6 ').add_to(m) 
-folium.PolyLine(red,color='red',weight=1 , popup='Isochrone ').add_to(m)     
-#trace de la route
-folium.PolyLine(route, color="blue", weight=2.5, popup='Route calculée ',opacity=0.8).add_to(m)
+    print()
+    print(df.tail(5))
+    df.to_csv('fichier_route3.csv')
 
-# Creation de points sur la route avec tooltips pour folium
-tooltip=[]
-popup=[]
+    #*******************************************************************************************
+    #*******************************************************************************************
 
-#print ('\ncomment \n',comment)
+    # pour des raisons de mise au point on va l'afficher directement dans folium
+    # Initialisation carte folium **************************************************************
+    lat1=  -(y0+y1)/2
+    lng1=   (x0+x1)/2  
+    m = folium.Map( location=[lat1,lng1],  zoom_start=9)
+    folium.LatLngPopup().add_to(m)   # popup lat long
+    #*******************************************************************************************
+    #trace de la multipolyline des isochrones
+    red=[]
+    black=[]
+    for i in range(len(multipolyline)):
+        if (i+1)%6==0:
+                black.append(multipolyline[i])
+        else:
+                red.append(multipolyline[i]) 
 
-for i in range (0,len(comment),1):
-    temps=time.strftime(" %d %b %Y %H:%M:%S ", time.localtime(comment[i][2]))
-    delta_t   = comment[i][2]- t0 +30   #(les 30s sont pour le temps dexecution du programme)
-    delta_t_h = delta_t//3600
-    delta_t_mn=(delta_t-delta_t_h*3600)//60
-    heures=str(delta_t_h)+'H '+str(delta_t_mn)+'mn'
-    lng= str(-round(comment[i][0], 2))
-    lat = str(-round(comment[i][1], 2))
-    tws = str(round(comment[i][3], 1))
-    twd = str(round(comment[i][4], 0))
-    cap = str(round(comment[i][5], 0))
-    twa = str(round(comment[i][6], 0))
-    Vt  = str(round(comment[i][7], 2))
-    tooltip.append('<b>'+temps+'<br> +'+heures+'<br> Lat :'+lat+'° - Long :'+lng+'°<br>TWD :' +twd+'°-  TWS :'
-                   + tws +'N<br> Cap :' + cap + '° TWA :' +twa +'°<br>Vt :' +Vt+'N</b>')
-    popup.append( folium.Popup(folium.Html(tooltip[i], script=True), max_width=200,min_width=150))
-for i in range( len(comment)):
-    folium.Circle([comment[i][0],comment[i][1]],color='black', radius=200,tooltip=tooltip[i], popup=popup[i],fill=True).add_to(m)
 
-#*******************************************************************************************
-# Sauvegarde carte et affichage dans browser
-filecarte='map.html'
-filepath = 'templates/'+filecarte
-m.save(filepath)
-webbrowser.open( filepath)
+    #trace des isochrones           
+    folium.PolyLine(black,color='black',weight=1 , popup='Isochrone %6 ').add_to(m) 
+    folium.PolyLine(red,color='red',weight=1 , popup='Isochrone ').add_to(m)     
+    #trace de la route
+    folium.PolyLine(route, color="blue", weight=2.5, popup='Route calculée ',opacity=0.8).add_to(m)
 
-    #   ****************************************Controle du temps d'execution **********************************
-tac = time.time()
-print('\nDuree d\'execution:  {:4.2f} s'.format(tac - tic))
+    # Creation de points sur la route avec tooltips pour folium
+    tooltip=[]
+    popup=[]
+
+    #print ('\ncomment \n',comment)
+
+    for i in range (0,len(comment),1):
+        temps=time.strftime(" %d %b %Y %H:%M:%S ", time.localtime(comment[i][2]))
+        delta_t   = comment[i][2]- t0 +30   #(les 30s sont pour le temps dexecution du programme)
+        delta_t_h = delta_t//3600
+        delta_t_mn=(delta_t-delta_t_h*3600)//60
+        heures=str(delta_t_h)+'H '+str(delta_t_mn)+'mn'
+        lng= str(-round(comment[i][0], 2))
+        lat = str(-round(comment[i][1], 2))
+        tws = str(round(comment[i][3], 1))
+        twd = str(round(comment[i][4], 0))
+        cap = str(round(comment[i][5], 0))
+        twa = str(round(comment[i][6], 0))
+        Vt  = str(round(comment[i][7], 2))
+        tooltip.append('<b>'+temps+'<br>Iso N°:'+str(i) +'  +' +heures+'<br> Lat :'+lat+'° - Long :'+lng+'°<br>TWD :' +twd+'°-  TWS :'
+                    + tws +'N<br> Cap :' + cap + '° TWA :' +twa +'°<br>Vitesse :' +Vt+'Noeuds</b>')
+        popup.append( folium.Popup(folium.Html(tooltip[i], script=True), max_width=200,min_width=150))
+    for i in range( len(comment)):
+        folium.Circle([comment[i][0],comment[i][1]],color='black', radius=200,tooltip=tooltip[i], popup=popup[i],fill=True).add_to(m)
+
+    #*******************************************************************************************
+    # Sauvegarde carte et affichage dans browser
+    filecarte='map.html'
+    filepath = 'templates/'+filecarte
+    m.save(filepath)
+    webbrowser.open( filepath)
+
+        #   ****************************************Controle du temps d'execution **********************************
+    tac = time.time()
+    print('\nDuree d\'execution:  {:4.2f} s'.format(tac - tic))

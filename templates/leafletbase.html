@@ -49,30 +49,50 @@
         });
 
 
-        var overlayMaps = {  "Cities": cities};
+        var overlayMaps = {  "Marques": marques};
     
         map.addLayer(osmLayer,Stamen_TonerLite,Stamen_TerrainBackground,Esri_WorldImagery);
 
-        var littleton = L.marker([39.61, -105.02]).bindPopup('This is Littleton, CO.'),
-            denver    = L.marker([39.74, -104.99]).bindPopup('This is Denver, CO.'),
-            aurora    = L.marker([39.73, -104.8]).bindPopup('This is Aurora, CO.'),
-            golden    = L.marker([39.77, -105.23]).bindPopup('This is Golden, CO.');
+        var depart    = L.marker([48.6167, -2.7028]).bindPopup('Depart'),
+            bouee_2   = L.marker([50.1797, -4.2558]).bindPopup('Bouee 2'),
+            bouee_3   = L.marker([49.7539, -0.1069]).bindPopup('Bouee 3'),
+            arrivee   = L.marker([51, 2]).bindPopup('Arrivee');
 
-        var cities = L.layerGroup([littleton, denver, aurora, golden]);
+        var marques = L.layerGroup([depart, bouee_2, bouee_3, arrivee ]);
 
-       
-        L.control.layers
-        ({
-         'Main':osmLayer,
-         'Stamen':Stamen_TerrainBackground,
-         'Esri':Esri_WorldImagery
-        },{
-            'Villes':cities
+        // classes pour les icones
+        var LeafletIcon=L.Icon.extend({
+            options:{
+                shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+                shadowSize: [41, 41],
+                iconSize: [25, 41],
+                iconAnchor: [12, 41],
+                popupAnchor: [1, -34]   
+                    }
+            });
 
-        }
+        var greenIcon = new LeafletIcon({ iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png'});
+        var blackIcon = new LeafletIcon({ iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-black.png'});    
+        var redIcon   = new LeafletIcon({ iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png'});        
         
-        )
-        .addTo(map);
+        L.marker([47, -0.09], {icon: greenIcon}).addTo(map);        
+        L.marker([48, -0.20], {icon: blackIcon}).addTo(map); 
+        L.marker([49, -0.50], {icon: redIcon}).addTo(map); 
+
+        L.control.layers ({
+                'Esri':Esri_WorldImagery,
+                'Main':osmLayer,
+                'Stamen':Stamen_TerrainBackground         
+                        },{
+                'Marques':marques
+                }).addTo(map);
+
+        L.control.scale({
+            metric:true,
+            imperial:false,
+            position:'topleft'
+
+        }).addTo(map)        
 
     }
 </script>

@@ -69,28 +69,6 @@ def chaine_to_dec(latitude, longitude):
     return (long, lat)
 
 
-# def filename_old():
-#     ''' retourne le nom du fichier du dernier grib sous lequel le grib chargé sera sauvé ou du derenier grib disponible '''
-#     heures = ['00', '06', '12', '18']
-#     t = time.localtime()
-#     utc = time.gmtime()
-#     decalage_h = t[3] - utc[3]
-#     decalage_s = decalage_h * 3600
-
-#     #on bloque l'heure du grib
-#     heure_grib = heures[((utc[3] + 19) // 6) % 4]  #
-#     #si utc inferieur à 5 la date doit etre celle de la veille
-#     if utc[3]<5:
-#         utc = time.gmtime(time.time() -18000)
-#     dategrib = str(utc[2] // 10) + str(utc[2] % 10) + '-' + str(utc[1] // 10) + str(utc[1] % 10) + '-' + str(
-#         utc[0]) + ' ' + heure_grib + '-00-00'
-#     filename="gribs/grib_gfs_" + dategrib + ".hdf5"
-#     filenamehdf5 = os.path.join(basedir,filename)
-
-#     return filenamehdf5,dategrib
-
-
-
 def filename():
     ''' retourne le nom du fichier du dernier grib sous lequel le grib chargé sera sauvé ou du dernier grib disponible
        la date du grib et le tig en secondes locales '''
@@ -302,15 +280,15 @@ def prevision_tableau3 (tig,GR,tp,pointsxy):
     fn3 = RegularGridInterpolator((ix, iy, iz), GR)
 
     itemp=np.ones( pointsxy.shape[0])*(tp - tig) / 3600 / 3
-    #print ('itemp ',itemp)
+    print ('itemp ',itemp)
     item =itemp.reshape((-1,1))
 
     ilati =  pointsxy.T[1] + 90
-    #print('ilati',ilati)
+    print('ilati',ilati)
     ilat= ilati.reshape((-1,1))
 
     ilong =  pointsxy.T[0]%360
-    #print('ilong',ilong)
+    print('ilong',ilong)
     ilon=ilong.reshape((-1,1))
     e=np.concatenate((item,ilat,ilon ),axis=1)
 

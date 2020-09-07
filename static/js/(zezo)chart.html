@@ -1,0 +1,731 @@
+<html>
+<head>
+<meta name="viewport" content="width=device-width, user-scalable=no initial-scale=1.0, minimum-scale=1.0">
+<title>New York - San Francisco</title>
+<link href="div.css?42" rel="stylesheet" type="text/css">
+<!--[if lt IE 7]>
+<link href="div6.css?23" rel="stylesheet" type="text/css">
+<![endif]-->
+<!--[if lt IE 9]>
+<style type="text/css">
+.ie {
+	display: none;
+}
+</style>
+<![endif]-->
+<script>
+var scale = 8;
+var session_id = "f48f5014f864dde1934e5077772a25c9";
+var days = 16;
+var boat_lat = 40.49709;
+var boat_lon = -73.9504;
+var goal_lat = 37.8141;
+var goal_lon = -122.4053;
+var scroll_x = 555; 
+var scroll_y = -389; 
+var boat_heading = 182.732522891361;
+var iso_id = 'ab/63a947dd4af3abf9b3b493ce5fa253848'; 
+var iso_minx = -4; 
+var iso_miny = 0; 
+var iso_maxx = 0; 
+var iso_maxy = 3;
+var wind_time = 0;
+var grib_steps = 16;
+var windbase = 1599469200;
+var datastamp = '06+393';
+var mobile = 0;
+var pro_options = 0;
+</script>
+
+<SCRIPT src="util.js?31" defer></SCRIPT>
+
+<SCRIPT  src="iwind.js?32" defer></SCRIPT>
+
+<SCRIPT src="cwind.js?31" defer></SCRIPT>
+<SCRIPT src="scroll.js?32" defer></SCRIPT>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-27385643-1', 'zezo.org');
+  ga('set', 'anonymizeIp', true);
+  ga('send', 'pageview');
+
+</script>
+
+</head>
+<body onload="init()">
+<div style="position: relative; top:0px; width:100%;">
+ 
+<div id="fs_menubar">
+&nbsp;<a href="/index.html" style="color:black;"><u>H</u>ome</a>&nbsp;&nbsp;
+<a href="/forum.pl" style="color:black;"><u>F</u>orum</a>&nbsp;&nbsp;
+<a href="/fb.html" style="color:black;"><u>C</u>ontact</a>&nbsp;&nbsp;
+<a href="/qa.html" style="color:black;"><u>Q</u>&amp;A</a>&nbsp;&nbsp;
+<a href="/about.html" style="color:black;"><u>A</u>bout</a>&nbsp;
+<a href="polars.html?opt=0" style="color:black;" target="vor_polars"><u>P</u>olars</a>&nbsp;|
+&nbsp;
+<!-- Announcement area --> 
+<!--font size="-1"> <Would you like to support the project by 
+<a style="text-decoration:underline;" href="about.html#donate">donating</a> 
+a small amount for hardware upgrade? Read the 
+<a style="text-decoration:underline;" href="about.html#tech">full story</a>. -->
+<b>New York - San Francisco</b>
+<a style="text-decoration:underline;" href="times.html">Predicted times</a>
+<div style="float:right"><a href="about.html#donate"><img src="http://i.zezo.org/img/btn_donate_SM.gif"></a></div>
+</div>
+
+<div id="new_nav">
+<button class="nnav" onmousedown="zoom_out();" title="Zoom Out"><b>&minus;</b></button><select class="nnav" title="Zoom level" onchange="select_zoom(this);">
+
+	<option value="8" selected>1%</option>
+
+	<option value="16" >2%</option>
+
+	<option value="32" >5%</option>
+
+	<option value="64" >10%</option>
+
+	<option value="128" >25%</option>
+
+	<option value="256" >50%</option>
+
+	<option value="512" >100%</option>
+
+</select><button class="nnav" onmousedown="zoom_in();" title="Zoom In" style="margin-right:20px;"><b>+</b></button>
+<button class="nnav pad2 ie" onmousedown="toggle_tracks();" title="Toggle tracks"><img id="track_icon" style="vertical-align: text-top;" width="16" height="16" src="img/icon_track_gray.png"></button>
+<button class="nnav pad2" onmousedown="wind_display(0);" title="None"><img style="vertical-align: text-top;" width="16" height="16" src="img/icon_n.png"></button><button class="nnav pad2" onmousedown="wind_display(1);" title="Black barbs"><img style="vertical-align: text-top;" width="16" height="16" src="img/icon_bb.png"></button><button class="nnav pad2 ie" onmousedown="wind_display(2);" title="Color barbs"><img style="vertical-align: text-top;" width="16" height="16" src="img/icon_cb.png"></button><button class="nnav pad2 ie" onmousedown="wind_display(3);" title="Arrows"><img style="vertical-align: text-top;" width="16" height="16" src="img/icon_a.png"></button>
+<button title="Previous  wind" class="nnav" onmousedown="prev_wind();">&lt;</button><select id="hours" class="nnav" title="Wind time" onchange="show_wind(this.selectedIndex * 3);">
+
+	<option selected>Now</option>
+
+	<option >+3 h</option>
+
+	<option >+6 h</option>
+
+	<option >+9 h</option>
+
+	<option >+12 h</option>
+
+	<option >+15 h</option>
+
+	<option >+18 h</option>
+
+	<option >+21 h</option>
+
+	<option >+24 h</option>
+
+	<option >+27 h</option>
+
+	<option >+30 h</option>
+
+	<option >+33 h</option>
+
+	<option >+36 h</option>
+
+	<option >+39 h</option>
+
+	<option >+42 h</option>
+
+	<option >+45 h</option>
+
+	<option >+48 h</option>
+
+	<option >+51 h</option>
+
+	<option >+54 h</option>
+
+	<option >+57 h</option>
+
+	<option >+60 h</option>
+
+	<option >+63 h</option>
+
+	<option >+66 h</option>
+
+	<option >+69 h</option>
+
+	<option >+72 h</option>
+
+	<option >+75 h</option>
+
+	<option >+78 h</option>
+
+	<option >+81 h</option>
+
+	<option >+84 h</option>
+
+	<option >+87 h</option>
+
+	<option >+90 h</option>
+
+	<option >+93 h</option>
+
+	<option >+96 h</option>
+
+	<option >+99 h</option>
+
+	<option >+102 h</option>
+
+	<option >+105 h</option>
+
+	<option >+108 h</option>
+
+	<option >+111 h</option>
+
+	<option >+114 h</option>
+
+	<option >+117 h</option>
+
+	<option >+120 h</option>
+
+	<option >+123 h</option>
+
+	<option >+126 h</option>
+
+	<option >+129 h</option>
+
+	<option >+132 h</option>
+
+	<option >+135 h</option>
+
+	<option >+138 h</option>
+
+	<option >+141 h</option>
+
+	<option >+144 h</option>
+
+	<option >+147 h</option>
+
+	<option >+150 h</option>
+
+	<option >+153 h</option>
+
+	<option >+156 h</option>
+
+	<option >+159 h</option>
+
+	<option >+162 h</option>
+
+	<option >+165 h</option>
+
+	<option >+168 h</option>
+
+	<option >+171 h</option>
+
+	<option >+174 h</option>
+
+	<option >+177 h</option>
+
+	<option >+180 h</option>
+
+	<option >+183 h</option>
+
+	<option >+186 h</option>
+
+	<option >+189 h</option>
+
+	<option >+192 h</option>
+
+	<option >+195 h</option>
+
+	<option >+198 h</option>
+
+	<option >+201 h</option>
+
+	<option >+204 h</option>
+
+	<option >+207 h</option>
+
+	<option >+210 h</option>
+
+	<option >+213 h</option>
+
+	<option >+216 h</option>
+
+	<option >+219 h</option>
+
+	<option >+222 h</option>
+
+	<option >+225 h</option>
+
+	<option >+228 h</option>
+
+	<option >+231 h</option>
+
+	<option >+234 h</option>
+
+	<option >+237 h</option>
+
+	<option >+240 h</option>
+
+	<option >+243 h</option>
+
+	<option >+246 h</option>
+
+	<option >+249 h</option>
+
+	<option >+252 h</option>
+
+	<option >+255 h</option>
+
+	<option >+258 h</option>
+
+	<option >+261 h</option>
+
+	<option >+264 h</option>
+
+	<option >+267 h</option>
+
+	<option >+270 h</option>
+
+	<option >+273 h</option>
+
+	<option >+276 h</option>
+
+	<option >+279 h</option>
+
+	<option >+282 h</option>
+
+	<option >+285 h</option>
+
+	<option >+288 h</option>
+
+	<option >+291 h</option>
+
+	<option >+294 h</option>
+
+	<option >+297 h</option>
+
+	<option >+300 h</option>
+
+	<option >+303 h</option>
+
+	<option >+306 h</option>
+
+	<option >+309 h</option>
+
+	<option >+312 h</option>
+
+	<option >+315 h</option>
+
+	<option >+318 h</option>
+
+	<option >+321 h</option>
+
+	<option >+324 h</option>
+
+	<option >+327 h</option>
+
+	<option >+330 h</option>
+
+	<option >+333 h</option>
+
+	<option >+336 h</option>
+
+	<option >+339 h</option>
+
+	<option >+342 h</option>
+
+	<option >+345 h</option>
+
+	<option >+348 h</option>
+
+	<option >+351 h</option>
+
+	<option >+354 h</option>
+
+	<option >+357 h</option>
+
+	<option >+360 h</option>
+
+	<option >+363 h</option>
+
+	<option >+366 h</option>
+
+	<option >+369 h</option>
+
+	<option >+372 h</option>
+
+	<option >+375 h</option>
+
+	<option >+378 h</option>
+
+	<option >+381 h</option>
+
+	<option >+384 h</option>
+
+</select><button class="nnav" title="Next wind" style="margin-right: 30px;" onmousedown="next_wind();">&gt;</button>
+<select onchange="set_days(this.selectedIndex + 1);" class="nnav" title="Track duration">
+
+	<option >1d</option>
+
+	<option >2d</option>
+
+	<option >3d</option>
+
+	<option >4d</option>
+
+	<option >5d</option>
+
+	<option >6d</option>
+
+	<option >7d</option>
+
+	<option >8d</option>
+
+	<option >9d</option>
+
+	<option >10d</option>
+
+	<option >11d</option>
+
+	<option >12d</option>
+
+	<option >13d</option>
+
+	<option >14d</option>
+
+	<option >15d</option>
+
+	<option  selected>16d</option>
+
+</select>
+<!-- button class="nnav"><b>?</b></button -->
+</div><!-- new nav--> 
+
+<div id="latlon" style="clear: right;">
+	<form method="GET" action="chart.pl">
+	<button title="3 hours back" onmousedown="this.form[1].selectedIndex--;">&lt;</button>
+	<select name="st" title="Start time" onchange="this.form.submit();">
+	
+	  <option value="0" selected>Start NOW</option>
+	
+	  <option value="1599480000">2020-09-07 12:00Z</option>
+	
+	  <option value="1599490800">2020-09-07 15:00Z</option>
+	
+	  <option value="1599501600">2020-09-07 18:00Z</option>
+	
+	  <option value="1599512400">2020-09-07 21:00Z</option>
+	
+	  <option value="1599523200">2020-09-08 00:00Z</option>
+	
+	  <option value="1599534000">2020-09-08 03:00Z</option>
+	
+	  <option value="1599544800">2020-09-08 06:00Z</option>
+	
+	  <option value="1599555600">2020-09-08 09:00Z</option>
+	
+	  <option value="1599566400">2020-09-08 12:00Z</option>
+	
+	  <option value="1599577200">2020-09-08 15:00Z</option>
+	
+	  <option value="1599588000">2020-09-08 18:00Z</option>
+	
+	  <option value="1599598800">2020-09-08 21:00Z</option>
+	
+	  <option value="1599609600">2020-09-09 00:00Z</option>
+	
+	  <option value="1599620400">2020-09-09 03:00Z</option>
+	
+	  <option value="1599631200">2020-09-09 06:00Z</option>
+	
+	  <option value="1599642000">2020-09-09 09:00Z</option>
+	
+	  <option value="1599652800">2020-09-09 12:00Z</option>
+	
+	  <option value="1599663600">2020-09-09 15:00Z</option>
+	
+	  <option value="1599674400">2020-09-09 18:00Z</option>
+	
+	  <option value="1599685200">2020-09-09 21:00Z</option>
+	
+	  <option value="1599696000">2020-09-10 00:00Z</option>
+	
+	  <option value="1599706800">2020-09-10 03:00Z</option>
+	
+	  <option value="1599717600">2020-09-10 06:00Z</option>
+	
+	  <option value="1599728400">2020-09-10 09:00Z</option>
+	
+	  <option value="1599739200">2020-09-10 12:00Z</option>
+	
+	  <option value="1599750000">2020-09-10 15:00Z</option>
+	
+	  <option value="1599760800">2020-09-10 18:00Z</option>
+	
+	  <option value="1599771600">2020-09-10 21:00Z</option>
+	
+	  <option value="1599782400">2020-09-11 00:00Z</option>
+	
+	  <option value="1599793200">2020-09-11 03:00Z</option>
+	
+	  <option value="1599804000">2020-09-11 06:00Z</option>
+	
+	  <option value="1599814800">2020-09-11 09:00Z</option>
+	
+	  <option value="1599825600">2020-09-11 12:00Z</option>
+	
+	  <option value="1599836400">2020-09-11 15:00Z</option>
+	
+	  <option value="1599847200">2020-09-11 18:00Z</option>
+	
+	  <option value="1599858000">2020-09-11 21:00Z</option>
+	
+	  <option value="1599868800">2020-09-12 00:00Z</option>
+	
+	  <option value="1599879600">2020-09-12 03:00Z</option>
+	
+	  <option value="1599890400">2020-09-12 06:00Z</option>
+	
+	  <option value="1599901200">2020-09-12 09:00Z</option>
+	
+	  <option value="1599912000">2020-09-12 12:00Z</option>
+	
+	  <option value="1599922800">2020-09-12 15:00Z</option>
+	
+	  <option value="1599933600">2020-09-12 18:00Z</option>
+	
+	  <option value="1599944400">2020-09-12 21:00Z</option>
+	
+	  <option value="1599955200">2020-09-13 00:00Z</option>
+	
+	  <option value="1599966000">2020-09-13 03:00Z</option>
+	
+	  <option value="1599976800">2020-09-13 06:00Z</option>
+	
+	  <option value="1599987600">2020-09-13 09:00Z</option>
+	
+	  <option value="1599998400">2020-09-13 12:00Z</option>
+	
+	  <option value="1600009200">2020-09-13 15:00Z</option>
+	
+	  <option value="1600020000">2020-09-13 18:00Z</option>
+	
+	  <option value="1600030800">2020-09-13 21:00Z</option>
+	
+	  <option value="1600041600">2020-09-14 00:00Z</option>
+	
+	  <option value="1600052400">2020-09-14 03:00Z</option>
+	
+	  <option value="1600063200">2020-09-14 06:00Z</option>
+	
+	  <option value="1600074000">2020-09-14 09:00Z</option>
+	
+	</select>
+	<button title="3 hours forward" onmousedown="this.form[1].selectedIndex++;">&gt;</button>
+	<input type="tel" name="lat_deg" size="3" maxlength="3" style="width: 3ch;" value="40">&deg;
+	<input type="tel" name="lat_min" size="2" maxlength="2" style="width: 2ch;" value="29">'
+	<input type="tel" name="lat_sec" size="2" maxlength="2" style="width: 2ch;" value="49">"
+	<select name="lat_ns">
+		<option selected>N</option>
+		<option >S</option>
+	</select>
+	<input  type="tel" name="lon_deg" size="3" maxlength="3" style="width: 3ch;" value="73">&deg;
+	<input type="tel" name="lon_min" size="2" maxlength="2" style="width: 2ch;" value="57">'
+	<input type="tel" name="lon_sec" size="2" maxlength="2" style="width: 2ch;" value="1">"
+	<select name="lon_ew">
+		<option >E</option>
+		<option selected>W</option>
+	</select>
+	<button type="submit">Go!</button>
+	</form>
+</div>
+
+
+
+</div>
+<div id="vp_container">
+<div id="vp_canvas" onmousedown="grab(event)">
+<div id="wind_info" >Wind:&nbsp;<span id="wind_data"></span></div>
+<div id="tile_layer"></div>
+<div id="iso_layer" style="z-index:0" ></div>
+<div id="winds_layer"></div>
+<div id="dot_layer" style="z-index:0">
+
+<img src="img/dot.png" class="abs" alt="" style="z-index: 1; left :-594px; top:394px;" 
+	onmouseover="updi(event,'2020-09-07 11:40 UTC (T+ 0:00)<br>Distances:&nbsp;0.0nm/2231.7nm<br><b>Wind:</b> 165&deg; 7.4 kt (<b>TWA -55&deg;</b>)<br><b>Heading:</b> 219&deg;<b>Sail:</b> Jib<br><b>Boat Speed:</b> 12.87 kts','220px')" onmouseout="cleari()" 
+	onmousedown="show_wind(0);">
+<img src="img/dot.png" class="abs" alt="" style="z-index: 1; left :-594px; top:394px;" 
+	onmouseover="updi(event,'2020-09-07 12:00 UTC (T+ 0:20)<br>Distances:&nbsp;4.3nm/2229.8nm<br><b>Wind:</b> 163&deg; 7.5 kt (<b>TWA 100&deg;</b>)<br><b>Heading:</b> 62&deg;<b>Sail:</b> Spi<br><b>Boat Speed:</b> 14.20 kts','220px')" onmouseout="cleari()" 
+	onmousedown="show_wind(3);">
+<img src="img/dot.png" class="abs" alt="" style="z-index: 1; left :-595px; top:400px;" 
+	onmouseover="updi(event,'2020-09-07 18:00 UTC (T+ 6:20)<br>Distances:&nbsp;47.5nm/2234.9nm<br><b>Wind:</b> 150&deg; 9.8 kt (<b>TWA -55&deg;</b>)<br><b>Heading:</b> 207&deg;<b>Sail:</b> Jib<br><b>Boat Speed:</b> 14.07 kts','220px')" onmouseout="cleari()" 
+	onmousedown="show_wind(9);">
+<img src="img/dot.png" class="abs" alt="" style="z-index: 1; left :-602px; top:410px;" 
+	onmouseover="updi(event,'2020-09-08 00:00 UTC (T+12:20)<br>Distances:&nbsp;130.4nm/2211.5nm<br><b>Wind:</b> 100&deg; 8.8 kt (<b>TWA -95&deg;</b>)<br><b>Heading:</b> 194&deg;<b>Sail:</b> Jib<br><b>Boat Speed:</b> 15.67 kts','220px')" onmouseout="cleari()" 
+	onmousedown="show_wind(15);">
+<img src="img/dot.png" class="abs" alt="" style="z-index: 1; left :-606px; top:423px;" 
+	onmouseover="updi(event,'2020-09-08 06:00 UTC (T+18:20)<br>Distances:&nbsp;226.2nm/2214.9nm<br><b>Wind:</b> 79&deg; 11.1 kt (<b>TWA -111&deg;</b>)<br><b>Heading:</b> 188&deg;<b>Sail:</b> Spi<br><b>Boat Speed:</b> 17.76 kts','220px')" onmouseout="cleari()" 
+	onmousedown="show_wind(21);">
+<img src="img/dot.png" class="abs" alt="" style="z-index: 1; left :-609px; top:436px;" 
+	onmouseover="updi(event,'2020-09-08 12:00 UTC (T+24:20)<br>Distances:&nbsp;329.2nm/2228.0nm<br><b>Wind:</b> 71&deg; 8.2 kt (<b>TWA -115&deg;</b>)<br><b>Heading:</b> 188&deg;<b>Sail:</b> Spi<br><b>Boat Speed:</b> 14.89 kts','220px')" onmouseout="cleari()" 
+	onmousedown="show_wind(27);">
+<img src="img/dot.png" class="abs" alt="" style="z-index: 1; left :-614px; top:448px;" 
+	onmouseover="updi(event,'2020-09-08 18:00 UTC (T+30:20)<br>Distances:&nbsp;423.0nm/2227.5nm<br><b>Wind:</b> 76&deg; 11.1 kt (<b>TWA -135&deg;</b>)<br><b>Heading:</b> 206&deg;<b>Sail:</b> Spi<br><b>Boat Speed:</b> 16.29 kts','220px')" onmouseout="cleari()" 
+	onmousedown="show_wind(33);">
+<img src="img/dot.png" class="abs" alt="" style="z-index: 1; left :-621px; top:457px;" 
+	onmouseover="updi(event,'2020-09-09 00:00 UTC (T+36:20)<br>Distances:&nbsp;497.1nm/2206.2nm<br><b>Wind:</b> 50&deg; 13.9 kt (<b>TWA -135&deg;</b>)<br><b>Heading:</b> 189&deg;<b>Sail:</b> Spi<br><b>Boat Speed:</b> 19.32 kts','220px')" onmouseout="cleari()" 
+	onmousedown="show_wind(39);">
+<img src="img/dot.png" class="abs" alt="" style="z-index: 1; left :-628px; top:471px;" 
+	onmouseover="updi(event,'2020-09-09 06:00 UTC (T+42:20)<br>Distances:&nbsp;610.6nm/2204.8nm<br><b>Wind:</b> 112&deg; 8.1 kt (<b>TWA -100&deg;</b>)<br><b>Heading:</b> 212&deg;<b>Sail:</b> Spi<br><b>Boat Speed:</b> 14.80 kts','220px')" onmouseout="cleari()" 
+	onmousedown="show_wind(45);">
+<img src="img/dot.png" class="abs" alt="" style="z-index: 1; left :-633px; top:480px;" 
+	onmouseover="updi(event,'2020-09-09 12:00 UTC (T+48:20)<br>Distances:&nbsp;690.1nm/2202.9nm<br><b>Wind:</b> 114&deg; 7.3 kt (<b>TWA -86&deg;</b>)<br><b>Heading:</b> 199&deg;<b>Sail:</b> Jib<br><b>Boat Speed:</b> 14.44 kts','220px')" onmouseout="cleari()" 
+	onmousedown="show_wind(51);">
+<img src="img/dot.png" class="abs" alt="" style="z-index: 1; left :-637px; top:492px;" 
+	onmouseover="updi(event,'2020-09-09 18:00 UTC (T+54:20)<br>Distances:&nbsp;783.0nm/2216.2nm<br><b>Wind:</b> 136&deg; 10.9 kt (<b>TWA -70&deg;</b>)<br><b>Heading:</b> 210&deg;<b>Sail:</b> Jib<br><b>Boat Speed:</b> 16.06 kts','220px')" onmouseout="cleari()" 
+	onmousedown="show_wind(57);">
+<img src="img/dot.png" class="abs" alt="" style="z-index: 1; left :-642px; top:503px;" 
+	onmouseover="updi(event,'2020-09-10 00:00 UTC (T+60:20)<br>Distances:&nbsp;869.6nm/2228.1nm<br><b>Wind:</b> 118&deg; 9.4 kt (<b>TWA -75&deg;</b>)<br><b>Heading:</b> 189&deg;<b>Sail:</b> Jib<br><b>Boat Speed:</b> 15.73 kts','220px')" onmouseout="cleari()" 
+	onmousedown="show_wind(63);">
+<img src="img/dot.png" class="abs" alt="" style="z-index: 1; left :-645px; top:516px;" 
+	onmouseover="updi(event,'2020-09-10 06:00 UTC (T+66:20)<br>Distances:&nbsp;969.1nm/2256.8nm<br><b>Wind:</b> 97&deg; 12.1 kt (<b>TWA -125&deg;</b>)<br><b>Heading:</b> 222&deg;<b>Sail:</b> Spi<br><b>Boat Speed:</b> 17.81 kts','220px')" onmouseout="cleari()" 
+	onmousedown="show_wind(69);">
+<img src="img/dot.png" class="abs" alt="" style="z-index: 1; left :-656px; top:524px;" 
+	onmouseover="updi(event,'2020-09-10 12:00 UTC (T+72:20)<br>Distances:&nbsp;1052.8nm/2222.4nm<br><b>Wind:</b> 104&deg; 11.1 kt (<b>TWA -130&deg;</b>)<br><b>Heading:</b> 232&deg;<b>Sail:</b> Spi<br><b>Boat Speed:</b> 16.63 kts','220px')" onmouseout="cleari()" 
+	onmousedown="show_wind(75);">
+<img src="img/dot.png" class="abs" alt="" style="z-index: 1; left :-666px; top:532px;" 
+	onmouseover="updi(event,'2020-09-10 18:00 UTC (T+78:20)<br>Distances:&nbsp;1131.5nm/2194.7nm<br><b>Wind:</b> 65&deg; 7.7 kt (<b>TWA -140&deg;</b>)<br><b>Heading:</b> 202&deg;<b>Sail:</b> Spi<br><b>Boat Speed:</b> 12.26 kts','220px')" onmouseout="cleari()" 
+	onmousedown="show_wind(81);">
+<img src="img/dot.png" class="abs" alt="" style="z-index: 1; left :-677px; top:534px;" 
+	onmouseover="updi(event,'2020-09-11 00:00 UTC (T+84:20)<br>Distances:&nbsp;1173.6nm/2137.0nm<br><b>Wind:</b> 50&deg; 12.6 kt (<b>TWA 140&deg;</b>)<br><b>Heading:</b> 276&deg;<b>Sail:</b> Spi<br><b>Boat Speed:</b> 16.81 kts','220px')" onmouseout="cleari()" 
+	onmousedown="show_wind(87);">
+<img src="img/dot.png" class="abs" alt="" style="z-index: 1; left :-691px; top:531px;" 
+	onmouseover="updi(event,'2020-09-11 06:00 UTC (T+90:20)<br>Distances:&nbsp;1195.1nm/2046.0nm<br><b>Wind:</b> 74&deg; 10.4 kt (<b>TWA 144&deg;</b>)<br><b>Heading:</b> 289&deg;<b>Sail:</b> Spi<br><b>Boat Speed:</b> 14.02 kts','220px')" onmouseout="cleari()" 
+	onmousedown="show_wind(93);">
+<img src="img/dot.png" class="abs" alt="" style="z-index: 1; left :-703px; top:527px;" 
+	onmouseover="updi(event,'2020-09-11 12:00 UTC (T+96:20)<br>Distances:&nbsp;1210.8nm/1964.6nm<br><b>Wind:</b> 71&deg; 10.1 kt (<b>TWA 142&deg;</b>)<br><b>Heading:</b> 289&deg;<b>Sail:</b> Spi<br><b>Boat Speed:</b> 14.07 kts','220px')" onmouseout="cleari()" 
+	onmousedown="show_wind(99);">
+<img src="img/dot.png" class="abs" alt="" style="z-index: 1; left :-714px; top:523px;" 
+	onmouseover="updi(event,'2020-09-11 18:00 UTC (T+102:20)<br>Distances:&nbsp;1230.5nm/1882.3nm<br><b>Wind:</b> 79&deg; 8.1 kt (<b>TWA 147&deg;</b>)<br><b>Heading:</b> 286&deg;<b>Sail:</b> Spi<br><b>Boat Speed:</b> 11.64 kts','220px')" onmouseout="cleari()" 
+	onmousedown="show_wind(105);">
+<img src="img/dot.png" class="abs" alt="" style="z-index: 1; left :-724px; top:521px;" 
+	onmouseover="updi(event,'2020-09-12 00:00 UTC (T+108:20)<br>Distances:&nbsp;1259.1nm/1817.3nm<br><b>Wind:</b> 59&deg; 8.2 kt (<b>TWA 130&deg;</b>)<br><b>Heading:</b> 288&deg;<b>Sail:</b> Spi<br><b>Boat Speed:</b> 14.05 kts','220px')" onmouseout="cleari()" 
+	onmousedown="show_wind(111);">
+<img src="img/dot.png" class="abs" alt="" style="z-index: 1; left :-737px; top:517px;" 
+	onmouseover="updi(event,'2020-09-12 06:00 UTC (T+114:20)<br>Distances:&nbsp;1284.1nm/1729.3nm<br><b>Wind:</b> 74&deg; 8.9 kt (<b>TWA 147&deg;</b>)<br><b>Heading:</b> 290&deg;<b>Sail:</b> Spi<br><b>Boat Speed:</b> 12.23 kts','220px')" onmouseout="cleari()" 
+	onmousedown="show_wind(117);">
+<img src="img/dot.png" class="abs" alt="" style="z-index: 1; left :-746px; top:513px;" 
+	onmouseover="updi(event,'2020-09-12 12:00 UTC (T+120:20)<br>Distances:&nbsp;1304.5nm/1660.4nm<br><b>Wind:</b> 77&deg; 8.2 kt (<b>TWA 147&deg;</b>)<br><b>Heading:</b> 291&deg;<b>Sail:</b> Spi<br><b>Boat Speed:</b> 11.76 kts','220px')" onmouseout="cleari()" 
+	onmousedown="show_wind(123);">
+<img src="img/dot.png" class="abs" alt="" style="z-index: 1; left :-757px; top:510px;" 
+	onmouseover="updi(event,'2020-09-12 18:00 UTC (T+126:20)<br>Distances:&nbsp;1336.4nm/1588.1nm<br><b>Wind:</b> 63&deg; 10.0 kt (<b>TWA 140&deg;</b>)<br><b>Heading:</b> 282&deg;<b>Sail:</b> Spi<br><b>Boat Speed:</b> 14.44 kts','220px')" onmouseout="cleari()" 
+	onmousedown="show_wind(129);">
+<img src="img/dot.png" class="abs" alt="" style="z-index: 1; left :-770px; top:507px;" 
+	onmouseover="updi(event,'2020-09-13 00:00 UTC (T+132:20)<br>Distances:&nbsp;1385.3nm/1499.0nm<br><b>Wind:</b> 72&deg; 12.7 kt (<b>TWA 140&deg;</b>)<br><b>Heading:</b> 295&deg;<b>Sail:</b> Spi<br><b>Boat Speed:</b> 17.00 kts','220px')" onmouseout="cleari()" 
+	onmousedown="show_wind(135);">
+<img src="img/dot.png" class="abs" alt="" style="z-index: 1; left :-782px; top:501px;" 
+	onmouseover="updi(event,'2020-09-13 06:00 UTC (T+138:20)<br>Distances:&nbsp;1413.3nm/1411.6nm<br><b>Wind:</b> 103&deg; 7.0 kt (<b>TWA 130&deg;</b>)<br><b>Heading:</b> 332&deg;<b>Sail:</b> Spi<br><b>Boat Speed:</b> 12.66 kts','220px')" onmouseout="cleari()" 
+	onmousedown="show_wind(141);">
+<img src="img/flag.png" class="abs" style="left :-979px; top:390px;">
+</div>
+<div id="friends_layer" >
+</div>
+<div id="track_layer"><canvas id="track_canvas"></canvas></div> 
+</div>
+<div id="help_div"></div>
+<div id="cmenu" class="contextmenu" style="display: none;">
+	<div class="menuitem" style="width:150px" onmouseover="over(event,this)"
+			onmouseout="out(event,this)" onmousedown="show_polars()">Polar graph</div>
+    <div class="divider"></div> 
+	<div class="menuitem" style="width:150px" onmouseover="over(event,this)"
+			onmouseout="out(event,this)" onmousedown="set_pos(0,1)">Set as starting point</div>
+	<div class="menuitem" style="width:150px" onmouseover="over(event,this)"
+			onmouseout="out(event,this)" onmousedown="set_pos(1,1)">Set as destination</div>
+    <div class="divider"></div> 
+	
+	<div class="menuitem" style="width:150px;" onmouseover="over(event,this)"
+                   onmouseout="out(event,this)" onmousedown="set_pos(1,0,-34.810432407043,-7.625408964863)">
+					Go to Ponta de Pedras</div>
+	
+	<div class="menuitem" style="width:150px;" onmouseover="over(event,this)"
+                   onmouseout="out(event,this)" onmousedown="set_pos(1,0,-67.274606356451,-55.948446668984)">
+					Go to Cape Horn</div>
+	
+	<div class="menuitem" style="width:150px; background:#E3F3FF;" onmouseover="over(event,this)"
+                   onmouseout="out(event,this)" onmousedown="set_pos(1,0,-122.4053,37.8141)">
+					Go to San Francisco</div>
+	
+	<div class="divider"></div> 
+	<div class="menuitem" style="display:block; width:150px;" onmouseover="over(event,this)" onmouseout="out(event,this)" 
+			onmousedown="full_options()">
+			<input type="checkbox" id="fullpack" style="border:none; margin-left: 0;" onmousedown="cancel_event"
+			> Full Pack
+	</div>
+	
+	<div class="menuitem" style="display:block; width:150px;" onmouseover="over(event,this)" onmouseout="out(event,this)" 
+			onmousedown="toggle_options(32)">
+			<input type="checkbox" id="so1" style="border:none; margin-left: 0;" onmousedown="cancel_event"
+			> Light sails
+	</div>
+	<div class="menuitem" style="display:block; width:150px;" onmouseover="over(event,this)" onmouseout="out(event,this)" 
+			onmousedown="toggle_options(64)">
+			<input type="checkbox" id="so2" style="border:none; margin-left: 0;" onmousedown="cancel_event"
+			> C0
+	</div>
+	<div class="menuitem" style="display:block; width:150px;" onmouseover="over(event,this)" onmouseout="out(event,this)" 
+			onmousedown="toggle_options(128)">
+			<input type="checkbox" id="so4" style="border:none; margin-left: 0;" onmousedown="cancel_event"
+			> Heavy sails
+	</div>
+	<div class="menuitem" style="display:block; width:150px;" onmouseover="over(event,this)" onmouseout="out(event,this)" 
+			onmousedown="toggle_options(16)">
+			<input type="checkbox" id="tfb" style="border:none; margin-left: 0;" onmousedown="cancel_event"
+			> Foils
+	</div>
+	<div class="menuitem" style="width:150px" onmouseover="over(event,this)" onmouseout="out(event,this)" 
+			onmousedown="toggle_options(4)">
+			<input type="checkbox" id="tpb" style="border:none; margin-left: 0;" onmousedown="cancel_event"
+			> Pro winches
+	</div>
+	
+	<div class="menuitem" style="width:150px" onmouseover="over(event,this)" onmouseout="out(event,this)" 
+			onmousedown="toggle_options(8)">
+			<input type="checkbox" id="tgb" style="border:none; margin-left: 0;" onmousedown="cancel_event"
+			> Ignore gates
+	</div>
+	<div class="divider"></div> 
+		<div class="menuitem" style="width:150px" onmouseover="over(event,this)"
+                        onmouseout="out(event,this)" onmousedown="find_boat()">Center chart</div>
+</div>
+
+<div style="display:block; position: fixed; z-index:15; right:0px; bottom: 20px; padding: 1px;">
+<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- Chart bottom -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:728px;height:90px"
+     data-ad-client="ca-pub-4306548645573687"
+     data-ad-slot="4516500658"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</div>
+
+</div>
+<div id="statusbar">
+<div class="statusitem" style="width: 10em">DST:<span id="span_dd1"></span></div>
+<div class="statusitem" style="width: 10em"><span id="span_lat"></span>&nbsp;<span id="span_lon"></span></div>
+<div class="statusitem">Mon Sep  7 11:40 UTC</div>
+
+<div class="statusitem" id="debug_div"></div>
+<div class="statusitem" style="float:right; margin-right: 1px; width:10em">DTF:<span id="span_dd2"></span></div>
+<div class="statusitem" style="float:right;" title="Last file:gfs.t06z+393h">GFS:06Z</div>
+
+
+</div>
+
+
+
+<div id="amenu" class="contextmenu" style="display:none;">
+	<div class="menuitem" style="width:150px">Router algorithm:</div>
+    <div class="divider"></div> 
+	
+</div>
+
+</body>
+</html>

@@ -1,5 +1,4 @@
 
-# coding: utf-8
 import os
 import time
 from datetime import timedelta
@@ -8,16 +7,29 @@ import numpy as np
 import matplotlib.pyplot as plt
 import xarray as xr
 import pandas as pd
+import json
 import folium
 import webbrowser
 from uploadgrib import *
 from fonctions_vr import *
-import webbrowser
-from polaires.polaires_mono_mini_650_v2 import *
-from operator import itemgetter
+
+val='polaires.polaires_figaro2'
+exec('from '+val+ ' import *')
+
 from global_land_mask import globe
 import pickle
-#from frouteurv2 import *
+from flask import Flask, redirect, url_for,render_template, request , session , flash
+from flask_sqlalchemy import SQLAlchemy
+
+tic=time.time()
+
+
+
+
+
+
+
+
 
 from flask import Flask, redirect, url_for,render_template, request , session , flash
 from flask_sqlalchemy import SQLAlchemy
@@ -34,19 +46,14 @@ db = SQLAlchemy(app)
 
 tic=time.time()
 
-def polylinetest():
-    polyline=[[45,2],[44,3],[46,4]]
-    return polyline    
-
-
-
-
 
 
 class user(db.Model):                                              # creation du modele de base de donnée
     id     = db.Column(db.Integer, primary_key=True)
     nom    = db.Column(db.String(100))
     prenom = db.Column(db.String(100))
+
+
 
 
 
@@ -89,7 +96,7 @@ def f_isochrone(l, temps_initial_iso):
     points_calcul2 = np.delete(points_calcul2,0,0)                                    # on retire le premier terme de points_calcul2
     points_calcul2 = points_calcul2[points_calcul2[: ,6].argsort(kind = 'mergesort')]   # tri stable sur 6eme colonne (caps vers arrivee)
     k=0                                                                             # on regroupe les  caps 359 et 1
-    while (((points_calcul2[k][6]-points_calcul2[k-1][6])<-357)and (k<points_calcul2.shape[0]-1)):
+    while (((points_calcul2[k][6]-points_calcul2[k-1][6])<-330)and (k<points_calcul2.shape[0]-1)):
         points_calcul2[k][6]+=360
         k+=1
     points_calcul2= points_calcul2[points_calcul2[:,6].argsort(kind='mergesort')]   # les caps en 361 sont replaces a la fin 
@@ -116,7 +123,7 @@ def f_isochrone(l, temps_initial_iso):
     N=np.array( range( int(numero_dernier_point) + 1, points_calcul2.shape[0] +int(numero_dernier_point) + 1,1))  # tableau des indices
     points_calcul2[:,4]=N     # renumerotation
     TWS, TWD =prevision_tableau3(tig, GR, nouveau_temps, points_calcul2) # Vitesse vent et direction pour nouveaux points (extraction en double)
-    # on minore TWS à  2 pour règle VR
+# on minore TWS à  2 pour règle VR
     TWS[TWS <2] = 2
     VT = polaire3_vect(polaires, TWS, TWD, points_calcul2[:,6])
 # calcul des temps vers l arrivee
@@ -133,7 +140,7 @@ def f_isochrone(l, temps_initial_iso):
     isochrone = np.concatenate((isochrone, points_calcul2[:,0:5]))  # On rajoute ces points a la fin du tableau isochrone 
 # Utilisation pour trace folium  
     #trace_iso2=np.concatenate((-points_calcul2[:,1].reshape(-1,1),points_calcul2[:,0].reshape(-1,1)),axis=1)  #(-Y,X)
-    print(' Isochrone  N° {}  {}  {} points  '.format(numero_iso, t_iso_formate,longueur  ))
+    print(' Isochrone  N° {}  {}  {} points capmini {:6.2f} capmaxi {:6.2f} coeff {:6.2f} '.format(numero_iso, t_iso_formate,longueur,capmini2,capmaxi2,coeff2  ))
     return lf, nouveau_temps, but, indice2
 # ************************************   Fin de la fonction       **********************************************************
 
@@ -160,9 +167,8 @@ def fonction_routeur(xn,yn,x1,y1,t0=time.time()):
     temps_cumules = np.cumsum(intervalles)
     but = False
     isochrone = np.array([[x0, y0, 0, 0, 0]])# on initialise le tableau isochrone et TWS TWD
-    TWS, TWD = prevision_tableau3(tig, GR, t0, pt1_np)
-    # on minore TWS à  2 pour règle VR
-    TWS[TWS <2] = 2   
+    TWS, TWD = prevision_tableau3(tig, GR, t0, pt1_np)  
+    print ('(137  premier TWS',TWS) 
 # on imprime les donnees de depart    
     print()
     print('Depart :      Latitude {:6.4f}     \tLongitude {:6.4f}'.format(y0, x0))
@@ -196,8 +202,6 @@ def fonction_routeur(xn,yn,x1,y1,t0=time.time()):
     temps_cum = temps_cumules[:l]
     temps_cum[-1] = temps_cum[-2] + temps_mini * 3600  # le dernier terme est le temps entre le dernier isochrone et l'arrive
     TWS_ch, TWD_ch = prevision_tableau2(GR, temps_cum, chemin)# previsions meteo aux differents points pour reconstitution 
-    # on minore TWS à  2 pour règle VR
-    TWS_ch[TWS_ch<2] = 2
     distance, cap1 = dist_cap3(chemin[0:-1], chemin[1:])    # distance et angle de chaque point au suivant
     #dist = np.append(distance, [0])                         # on rajoute un 0 pour la distance arrivee et l angle arrivee
     HDG_ch = np.append(cap1, [0])                           # tableau des caps aux differents points
@@ -228,7 +232,7 @@ def fonction_routeur(xn,yn,x1,y1,t0=time.time()):
         cap = str(round(chem[i, 5], 0))
         # twaroute = str(round(chem[i, 6], 0))
         # Vt  = str(round(chem[i, 7], 2))
-        route3.append([-chem[i, 1],chem[i, 0,],chem[i, 3,]])
+        route3.append([-chem[i, 1],chem[i, 0]])   # dans la version leaflet on a le temps en trois
         comment.append([-chem[i, 1],chem[i, 0],chem[i, 2],chem[i, 3],chem[i, 4],chem[i, 5],chem[i, 6],chem[i, 7]])
     #Confection de la multipolyline pour le trace des isochrones 
     X=isochrone[:,0].reshape(-1,1)
@@ -236,9 +240,31 @@ def fonction_routeur(xn,yn,x1,y1,t0=time.time()):
     N=isochrone[:,2].reshape(-1,1)
     points=np.concatenate((-Y,X,N),1)
     polyline=np.split(points[:,0:2],np.where(np.diff(points[1:,2])==1)[0]+2)
-    multipolyline=[arr.tolist() for arr in polyline]
     
+    multipolyline=[arr.tolist() for arr in polyline]
+    del multipolyline[0][0]
     return multipolyline,route3,comment
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -315,14 +341,21 @@ def leaflet():
     lngar=x1
     latar=-y1
     
-  
+    print ('latar',latar)
+    print ('lngar',latar)
+
+
+
     multipolyline,route,comment=fonction_routeur(lngdep,latdep,x1,y1)
     #print ('route',route)
 
     red=[]
     black=[]
+
+    print (multipolyline[0:1])
+
     for i in range(len(multipolyline)):
-        if i%6==0:
+        if (i+1)%6==0:
                 black.append(multipolyline[i])
         else:
                 red.append(multipolyline[i])  
@@ -340,29 +373,70 @@ def windleaf():
     x0,y0=chaine_to_dec(latitude_d, longitude_d)  # conversion des latitudes et longitudes en tuple
     
     #Point Arrivee 
+     #Point Arrivee 
     latitude_a     = '043-01-00-N'
     longitude_a    = '009-24-00-E'
+
+# Extraction de donnees du fichier json
+     # Extraction de donnees du fichier json
+    with open('courses.json', 'r') as fichier:
+        data = json.load(fichier)
+    n_course='463'
+    bateau=(data[n_course]["bateau"])
+    print('\nBateau : ',bateau)
+    fichier_polaires='polaires.'+(data[n_course]["polaires"])
+
+    latdep = (data[n_course]["courant"]["lat"])
+    lngdep = (data[n_course]["courant"]["lng"])
+    latar  = (data[n_course]["bouee3"]["lat"])
+    lngar  = (data[n_course]["bouee3"]["lng"])
+    x0,y0=chaine_to_dec(latdep, lngdep)  # conversion des latitudes et longitudes en tuple
+    x1,y1=chaine_to_dec(latar, lngar)
+    print ('x0,y0',x0,y0)
+    print ('x1,y1',x1,y1)
+    latar=y1
+    lngar=x1
+
     t0=time.time() 
-    x1,y1=chaine_to_dec(latitude_a, longitude_a)
+
+ 
 # on tient compte des valeurs retournees par get
-    latdep        = float(request.args['latdep'])
+    latdep        = -float(request.args['latdep'])
     lngdep        = float(request.args['lngdep'])
     x0=lngdep
-    y0=-latdep
-    lngar=x1
-    latar=-y1
+    y0=latdep
+
+
+# #Depart force les 3 lignes seront à supprimer
+#     latitude_d     = '043-17-12-N'
+#     longitude_d    = '010-07-49-E'
+#     x0,y0=chaine_to_dec(latitude_d, longitude_d)  # conversion des latitudes et longitudes en tuple
+    
+#     latdep=-y0
+#     lngdep=x0
+#     lngar=x1
+#     latar=-y1
     
   
     multipolyline,route,comment=fonction_routeur(lngdep,latdep,x1,y1)
-    #print ('route',route)
+   
+    # print ( '\n(295)(main) multipolyline[0]\n',multipolyline[0])
+    # print ('\n             multipolyline[1]\n',multipolyline[1])
+    
+    # print ('\npoint0\n',route[0])
+    # print ('point1\n',route[1])
 
+
+    #print ( '\nmultipolyline[0]\n',multipolyline[0])
+    #print ('\nmultipolyline[1]\n',multipolyline[1])
     red=[]
     black=[]
     for i in range(len(multipolyline)):
-        if i%6==0:
+        if (i+1)%6==0:
                 black.append(multipolyline[i])
         else:
-                red.append(multipolyline[i])  
+                red.append(multipolyline[i]) 
+
     return render_template("windleaf.html", multipolyred=red,multipolyblack=black,route=route,comment=comment,lngdep=lngdep,latdep=latdep,lngar=lngar,latar=latar, result=request.form)
 
 
