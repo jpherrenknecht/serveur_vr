@@ -231,15 +231,15 @@ def prevision_tableau3 (tig,GR,tp,pointsxy):
     fn3 = RegularGridInterpolator((ix, iy, iz), GR)
 
     itemp=np.ones( pointsxy.shape[0])*(tp - tig) / 3600 / 3
-    print ('itemp ',itemp)
+    #print ('itemp ',itemp)
     item =itemp.reshape((-1,1))
 
     ilati =  pointsxy.T[1] + 90
-    print('ilati',ilati)
+    #print('ilati',ilati)
     ilat= ilati.reshape((-1,1))
 
     ilong =  pointsxy.T[0]%360
-    print('ilong',ilong)
+    #print('ilong',ilong)
     ilon=ilong.reshape((-1,1))
     e=np.concatenate((item,ilat,ilon ),axis=1)
 

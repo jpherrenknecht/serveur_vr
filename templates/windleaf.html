@@ -19,9 +19,46 @@
                     if ((x1-x0)>0)
                         {capi=capi+180}
                 return capi }   
-
-
-
+    // Fonction zezo                
+        function crsdist(lat1, lon1, lat2, lon2) {
+		var a = crsdist_num(lat1, lon1, lat2, lon2);
+		   var dist = Math.round(a[1] * 34377.4)/10;
+        if (dist.toString().indexOf('.') < 0) {
+                dist += '.0';
+        }
+        var dir = Math.round(a[0] * (180/Math.PI) * 10)/10;
+        if (dir.toString().indexOf('.') < 0) {
+                dir += '.0';
+        }
+        dir = dir.toString();
+        dist = dist.toString();
+                while (dir.length < 5) {
+                dir = " " + dir;
+        }
+        while (dist.length < 6) {
+                dist = " " + dist;
+        }
+        //var res = dist + 'nm ' + dir + '°';
+        var res = 'Cap :'+dir +'° Distance :'+dist+'M';
+        return res;
+            }
+        
+            function crsdist_num(lat1, lon1, lat2, lon2)
+{
+        lat1 = lat1 * Math.PI/180;
+        lon1 = lon1 * Math.PI/180;
+        lat2 = lat2 * Math.PI/180;
+        lon2 = lon2 * Math.PI/180;
+        var crs;        
+        var d=Math.acos(Math.sin(lat1)*Math.sin(lat2)+Math.cos(lat1)*Math.cos(lat2)*Math.cos(lon1-lon2));
+        var argacos=(Math.sin(lat2)-Math.sin(lat1)*Math.cos(d))/(Math.sin(d)*Math.cos(lat1));
+        if (Math.sin(lon2-lon1) > 0){   
+                crs=Math.acos(argacos); 
+        } else {
+                crs=2*Math.PI-Math.acos(argacos); 
+        }
+		return [crs,d];
+}
 
         // pour formater les dates
             var intl=new Intl.DateTimeFormat("en-US",{month:"2-digit",day:"2-digit", hour12: false,hour:"2-digit", minute:"2-digit" });
@@ -204,15 +241,17 @@
     map.on('click', function(e) {
         latclick=e.latlng.lat
         lngclick=e.latlng.lng
+        cap_dist=crsdist( latdep ,lngdep,latclick, lngclick);
     popup
         .setLatLng(e.latlng)
-        .setContent("Latitude      : " +arrondi(e.latlng.lat,4) +" <br> Longitude : " +arrondi(e.latlng.lng,4) +'<br> Cap '+arrondi(cap(lngclick,latclick,lngdep,latdep),2))
+        .setContent("Latitude      : " +arrondi(e.latlng.lat,4) +" <br> Longitude : " +arrondi(e.latlng.lng,4) +'<br> ' +cap_dist )
         .openOn(map);
         
         document.formu.test2.value=arrondi(latclick,4);
         document.formu.test.value=arrondi(lngclick,4);
         document.formu.cap.value =arrondi(cap(lngclick,latclick,lngdep,latdep),2);
-
+        document.formu.test3.value =crsdist( latdep ,lngdep,latclick, lngclick);
+     
         map.removeLayer(poly);
         ligne=[[latdep,lngdep],[latclick,lngclick]]
         poly=new L.polyline(ligne).setStyle({
@@ -273,6 +312,10 @@
                   Latitude :   <input type="text" name="test" /> 
                   Longitude : <input type="text" name="test2" />
                   Cap     : <input type="text" name="cap" />
+
+
+                  Test :<input type="text" name="test3" />
+
             </form>
         </div>
 

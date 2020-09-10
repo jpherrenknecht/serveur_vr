@@ -9,6 +9,24 @@ tic = time.time()
 basedir = os.path.abspath(os.path.dirname(__file__))
 # **************************************   Fonctions   ******************************************************************
 
+def TWAO( HDG,TWD):
+    '''retourne un ndarray de twa orientees babord<0 tribord>0 à partir de ndarray HDG et TWD'''
+    A=np.mod((HDG-TWD+360),360)
+    return np.where(A<180,-A,360-A)
+
+
+def test_virement(HDG,TWD,tribord_init):
+    '''retourne un np array booleen True si virement , tribord_init = True or False
+    HDG et  TWD np array  Nouveaux caps et Directions de vent
+    Voir jupyter notebook pour explications'''
+    Virement= np.where( np.where(np.mod((HDG-TWD+360),360)<180,False,True) ==tribord_init,False,True)
+    return Virement
+
+
+
+
+
+
 def chaine_to_dec(latitude, longitude):
     ''' Transforme les chaines latitude et longitude en un tuple (x,y) '''
     '''les latitudes nord et longitudes W  sont transformées en negatifs'''
@@ -73,6 +91,7 @@ def deplacement_x_y(x0,y0,d_t,HDG,VT):
 
 def deplacement_x_y_tab_ar(x0,y0,d_t,HDG,VT,A):
     ''' fonction donnant le tuple point d arrivée en fonction des coordonnées du point de depart ''' 
+    ''' c'est cette fonction qui sert dans le calcul des isochrones '''
     ''' donne egalement le cap vers 'arrivee et la distance vers l'arrivee '''
     HDG_R = HDG * math.pi / 180     # cap en radians
     X= x0+ d_t / 3600 / 60 * VT * (np.sin(HDG_R) / math.cos(y0 * math.pi / 180)) 
@@ -81,6 +100,9 @@ def deplacement_x_y_tab_ar(x0,y0,d_t,HDG,VT,A):
     Di,Ca=dist_cap(Pointscpx, A)
 
     return X,Y,Di,Ca
+
+
+
 
 
 def calcul_points(D, tp, d_t, TWD, vit_vent, ranged, polaires):

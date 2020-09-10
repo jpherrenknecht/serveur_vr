@@ -77,7 +77,11 @@ def f_isochrone(l, temps_initial_iso):
     for i in range(points.shape[0]):
         HDG = range_cap(dist_cap4(points[i], A)[1], TWD[i], angle_objectif, angle_twa_pres, angle_twa_ar)  # Calcul des caps a etudier
         VT  = polaire2_vect(polaires, TWS[i], TWD[i], HDG)                                                  # Vitesses polaires sur ces caps
+       
+       
         X1,Y1,Da1,Ca1=deplacement_x_y_tab_ar(points[i][0],points[i][1],delta_temps,HDG,VT,A) #Coordonnees des nouveaux points calcules sous forme X,Y
+       
+       
         L=len(X1)                                                                            # nombre de ( caps ) points etudies  
         niso1     = np.ones(L)*numero_iso                                                         # numero isochrone
         npointsm1 = np.ones(L)*i  +numero_premier_point +1    # numero du point mere i = 0 correspond au premier point de l'isochrone precedent
@@ -108,12 +112,12 @@ def f_isochrone(l, temps_initial_iso):
     points_calcul2     = points_calcul2[points_calcul2[:,5].argsort(kind='mergesort')] # On trie sur les distances 
     points_calcul2     = points_calcul2[points_calcul2[:,6].argsort(kind='mergesort')] # On trie sur les caps mais l'ordre des distances est respecté
 # ecremage proprement dit
-    for i in range(points_calcul2.shape[0] - 1, 0, -1):  # ecremage
+    for i in range(points_calcul2.shape[0] - 1, -1, -1):  # ecremage
         if (points_calcul2[i][6]) == (points_calcul2[i - 1][6]):
             points_calcul2 = np.delete(points_calcul2, i, 0)
     longueur= points_calcul2.shape[0] 
 # verification points terre ou mer
-    for i in range(points_calcul2.shape[0] - 1, 0, -1):  # ecremage 
+    for i in range(points_calcul2.shape[0] - 1, -1, -1):  # ecremage 
         is_on_land = globe.is_land(-points_calcul2[i][1], points_calcul2[i][0])   # point de latitude -y et longitude x
         if (is_on_land==True):
             points_calcul2 = np.delete(points_calcul2, i, 0)
@@ -147,7 +151,7 @@ def f_isochrone(l, temps_initial_iso):
 
 
 
-def fonction_routeur(xn,yn,x1,y1,t0=time.time()):
+def fonction_routeur(xn,yn,x1,y1,t0):
     '''x0,y0,x1,y1 depart et arrivee '''
     ''' Le but de la fonction frouteur est a partir de x0 y0 x1 y1 
     de retourner une multipolyline des isochrones'''
@@ -281,10 +285,18 @@ def index():
 def map2():
   return render_template("map2.html")
 
+
 @app.route('/leafletbase')
 def leafletbase():
   return render_template("leafletbase.html")
 
+@app.route('/windybase')
+def windybase():
+  return render_template("windybase.html")
+
+@app.route('/numpyhtml')
+def numpyhtml():
+  return render_template("numpyhtml.html")
 
 
 
@@ -386,10 +398,10 @@ def windleaf():
     print('\nBateau : ',bateau)
     fichier_polaires='polaires.'+(data[n_course]["polaires"])
 
-    latdep = (data[n_course]["courant"]["lat"])
-    lngdep = (data[n_course]["courant"]["lng"])
-    latar  = (data[n_course]["bouee3"]["lat"])
-    lngar  = (data[n_course]["bouee3"]["lng"])
+    latdep = (data[n_course]["bouee3"]["lat"])
+    lngdep = (data[n_course]["bouee3"]["lng"])
+    latar  = (data[n_course]["arrivee"]["lat"])
+    lngar  = (data[n_course]["arrivee"]["lng"])
     x0,y0=chaine_to_dec(latdep, lngdep)  # conversion des latitudes et longitudes en tuple
     x1,y1=chaine_to_dec(latar, lngar)
     print ('x0,y0',x0,y0)
@@ -398,6 +410,7 @@ def windleaf():
     lngar=x1
 
     t0=time.time() 
+    print ('(401) temps t0',time.strftime(" %d %b %Y %H:%M:%S ", time.localtime(t0)))
 
  
 # on tient compte des valeurs retournees par get
@@ -418,7 +431,7 @@ def windleaf():
 #     latar=-y1
     
   
-    multipolyline,route,comment=fonction_routeur(lngdep,latdep,x1,y1)
+    multipolyline,route,comment=fonction_routeur(lngdep,latdep,x1,y1,t0)
    
     # print ( '\n(295)(main) multipolyline[0]\n',multipolyline[0])
     # print ('\n             multipolyline[1]\n',multipolyline[1])

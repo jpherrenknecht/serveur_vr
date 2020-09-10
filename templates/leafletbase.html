@@ -22,6 +22,20 @@
 
 
 <script type="text/javascript">
+
+    function arrondi(a,n)
+            {return(Math.round(a*10**n)/10**n);}
+
+    function pos_dec_mn(pos)
+    {   abs=Math.abs(pos)
+        deg=Math.floor(abs)
+        min=Math.floor((abs-deg)*60)
+        sec=Math.round(((abs-deg)*60-min)*60)
+        return deg+'°'+min+'mn'+sec+'s'
+    }        
+
+console.log(pos_dec_mn(46.555))
+
     function initialize() {
 
       
@@ -49,16 +63,20 @@
         });
 
 
-        var overlayMaps = {  "Marques": marques};
+        
     
         map.addLayer(osmLayer,Stamen_TonerLite,Stamen_TerrainBackground,Esri_WorldImagery);
 
+        latdep=53
+        lngdep=2
         var depart    = L.marker([48.6167, -2.7028]).bindPopup('Depart'),
             bouee_2   = L.marker([50.1797, -4.2558]).bindPopup('Bouee 2'),
             bouee_3   = L.marker([49.7539, -0.1069]).bindPopup('Bouee 3'),
-            arrivee   = L.marker([51, 2]).bindPopup('Arrivee');
+            arrivee   = L.marker([51, 2]).bindPopup('Arrivee'),
+            test      = L.marker([latdep, lngdep]).bindPopup('Test');
+        var marques = L.layerGroup([depart, bouee_2, bouee_3, arrivee,test ]);
+        var overlayMaps = {  "Marques": marques};
 
-        var marques = L.layerGroup([depart, bouee_2, bouee_3, arrivee ]);
 
         // classes pour les icones
         var LeafletIcon=L.Icon.extend({
@@ -80,19 +98,57 @@
         L.marker([49, -0.50], {icon: redIcon}).addTo(map); 
 
         L.control.layers ({
-                'Esri':Esri_WorldImagery,
-                'Main':osmLayer,
-                'Stamen':Stamen_TerrainBackground         
+                'osm':osmLayer,
+                'Stamen':Stamen_TerrainBackground,         
+                'Esri':Esri_WorldImagery.addTo(map)
                         },{
-                'Marques':marques
+                'Marques':marques.addTo(map)
                 }).addTo(map);
 
+     
+     
+     
+     
+     
+     
+     
         L.control.scale({
             metric:true,
             imperial:false,
             position:'topleft'
+        }).addTo(map)     
 
-        }).addTo(map)        
+
+
+        var poly
+    poly= new L.Polyline ([[0,0],[1,1]]).setStyle({color:'red',weight:1,});
+
+ 
+    map.on('click', function(e) {
+        latclick=e.latlng.lat
+        lngclick=e.latlng.lng
+
+
+        var popup = L.popup();   
+
+        
+    popup
+        .setLatLng(e.latlng)
+        .setContent("Latitude      : " +arrondi(e.latlng.lat,4) +" (" +pos_dec_mn(e.latlng.lat) +") <br> Longitude : " +arrondi(e.latlng.lng,4)+" (" +pos_dec_mn(e.latlng.lng) +")" )
+        .openOn(map);
+        map.removeLayer(poly);
+        ligne=[[latdep,lngdep],[latclick,lngclick]]
+        poly=new L.polyline(ligne).setStyle({
+            color: 'red',
+            weight:2,
+            opacity:0.5,
+            }).addTo(map);
+
+
+    // alert("Latitude : " + e.latlng.lat + " Longitude : " + e.latlng.lng)
+        });
+
+
 
     }
 </script>

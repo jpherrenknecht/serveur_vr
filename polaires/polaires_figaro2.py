@@ -9,10 +9,7 @@ angle_pres = 36
 angle_var = 20
 x1=np.array([0,4,6,8,10,12,14,16,20,25,30,35,40,50,60,70])
 y1=np.array([0,10,30,36,40,44,45,50,52,60,70,80,90,95,100,105,110,120,125,130,135,140,143,146,150,155,158,160,165,170,180])
-
-
 polaires=np.array([[
-
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[
 0,1.294,1.936,2.849,3.721,4.634,5.025,5.125,5.025,5.055,4.945,4.844,4.493,2.217,1.364,0.08],[
@@ -81,6 +78,24 @@ def polaire2_vect(polaires,tws,twd,HDG):
     valeurs = interpn((y1, x1), polaires, donnees, method='linear')
     return valeurs
 
+def polaire4_vect(polaires,tws,twd,HDG):
+    '''ici un seul point avec une seule tws twd
+     mais plusieurs caps on retourne egalement TWAorientés'''
+    # on ajuste les tableaux TW et TWD à HDG
+    l=len(HDG)
+    TWD = (np.ones(l)*twd)
+    TWA = (180 - np.abs(((360 - TWD + HDG) % 360) - 180)).reshape((-1, 1))
+    TWS = (np.ones(l) * tws).reshape((-1, 1))
+    donnees = np.concatenate((TWA, TWS), axis=1)
+    valeurs = interpn((y1, x1), polaires, donnees, method='linear')
+    return valeurs
+
+
+
+
+
+
+
 
 def polaire3_vect(polaires,TWS,TWD,HDG):
     '''Retourne un tableau de polaires en fonction des polaires bateau  de TWS TWD et HDG'''
@@ -106,9 +121,6 @@ if __name__ == '__main__':
     HDG = np.array([100, 101, 102])  # caps
     res4 = polaire2_vect(polaires, tws, twd, HDG)
     print('polaires calculees 4 ', res4)
-
-
-
 
     HDG=np.array([100,101,102])   #caps
     TWD=np.array([150,150,150])   #direction vent
