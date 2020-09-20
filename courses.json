@@ -73,8 +73,8 @@
                  "bouee2":{"lat":"050-10-47-N" ,"lng":"004-15-21-W"},
                  "bouee3":{"lat":"049-45-14-N" ,"lng":"000-06-24-W"},
                  "test" :{"lat":"050-55-14-N" ,"lng":"001-06-24-W"},
-                 "dunkerque":{"lat":"051-01-30-N" ,"lng":"002-10-20-E"}
-                 
+                 "dunkerque":{"lat":"051-02-40-N" ,"lng":"002-09-30-E"},
+                 "arrivee":{"lat":"050-20-40-N" ,"lng":"002-00-30-W"}
                 }   ,
 
                 "4633":   
@@ -82,13 +82,13 @@
                     "nom":"Solitaire Figaro 3ème manche",
                     "bateau":"Figaro III",
                     "polaires":"polaires_figaro2.py",
-                    "dunkerque":{"lat":"051-01-30-N" ,"lng":"002-10-20-E"},
+                    "dunkerque":{"lat":"051-03-30-N" ,"lng":"002-09-30-E"},
                     "ouessant":{"lat":"048-27-05-N" ,"lng":"005-08-45-W"}, 
                     "belle_ile":{"lat":"047-23-27-N" ,"lng":"003-15-05-W"},
                     "bouee3":{"lat":"043-01-00-N" ,"lng":"009-24-00-W"}
                    }   ,
 
-                   "4634":   
+                   "4635":   
                    {"numero"  : "4633" ,
                        "nom":"Normandy Channel",
                        "bateau":"Class40",
@@ -104,7 +104,45 @@
                        "pt_cotentin":{"lat":"049-43-54-N" ,"lng":"001-57-20-W"},
                        "arrivee":{"lat":"047-21-30-N" ,"lng":"002-14-52-W"}
 
-                      }   
+                      } ,  
+
+
+                      "4634":   
+                      {"numero"  : "4634" ,
+                          "nom":"Solitaire Figaro 4ème manche",
+                          "bateau":"Figaro III",
+                          "polaires":"polaires_figaro2.py",
+                          "position":{"lat":"046-43-20-N" ,"lng":"002-29-00-E"},
+                          "bouee_2":{"lat":"047-01-25-N" ,"lng":"002-52-50-W"}, 
+                          "belle_ile":{"lat":"047-23-27-N" ,"lng":"003-15-05-W"},
+                          "bouee3":{"lat":"043-01-00-N" ,"lng":"009-24-00-W"}
+                         }   ,
+
+
+
+
+
+
+
+
+
+                      "9999":   
+                    {"numero"  : "9999" ,
+                    "nom":"Course test",
+                    "bateau":"Figaro III",
+                    "polaires":"polaires_figaro2.py",
+                    "depart":{"lat":"050-15-50-N" ,"lng":"001-41-50-W"},
+                    "courant":{"lat":"048-57-02-N" ,"lng":"002-49-01-W"},
+                    "brehat" :{"lat":"048-01-00-N" ,"lng":"009-24-00-W"},
+                    "bouee1":{"lat":"043-01-00-N" ,"lng":"009-24-00-W"}, 
+                    "bouee2":{"lat":"050-10-47-N" ,"lng":"004-15-21-W"},
+                    "bouee3":{"lat":"049-45-14-N" ,"lng":"000-06-24-W"},
+                    "test" :{"lat":"050-55-14-N" ,"lng":"001-06-24-W"},
+                    "dunkerque":{"lat":"051-02-40-N" ,"lng":"002-09-30-E"},
+                    "arrivee":{"lat":"050-30-40-N" ,"lng":"000-20-30-W"}
+                    }   
+
+
    
 
 }     

@@ -255,15 +255,15 @@ if __name__ == '__main__':
      # Extraction de donnees du fichier json
     with open('courses.json', 'r') as fichier:
         data = json.load(fichier)
-    n_course='463'
+    n_course='9999'
     bateau=(data[n_course]["bateau"])
     print('\nBateau : ',bateau)
     fichier_polaires='polaires.'+(data[n_course]["polaires"])
 
-    latdep = (data[n_course]["bouee3"]["lat"])
-    lngdep = (data[n_course]["bouee3"]["lng"])
-    latar  = (data[n_course]["dunkerque"]["lat"])
-    lngar  = (data[n_course]["dunkerque"]["lng"])
+    latdep = (data[n_course]["depart"]["lat"])
+    lngdep = (data[n_course]["depart"]["lng"])
+    latar  = (data[n_course]["arrivee"]["lat"])
+    lngar  = (data[n_course]["arrivee"]["lng"])
     x0,y0=chaine_to_dec(latdep, lngdep)  # conversion des latitudes et longitudes en tuple
     x1,y1=chaine_to_dec(latar, lngar)
     print ('x0,y0',x0,y0)

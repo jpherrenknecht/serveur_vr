@@ -7,9 +7,18 @@ import os
 import folium
 tic = time.time()
 basedir = os.path.abspath(os.path.dirname(__file__))
+
+
+val='polaires.polaires_figaro2'
+exec('from '+val+ ' import *')
+
+
+
+
+
 # **************************************   Fonctions   ******************************************************************
 
-def TWAO( HDG,TWD):
+def Twao( HDG,TWD):
     '''retourne un ndarray de twa orientees babord<0 tribord>0 à partir de ndarray HDG et TWD'''
     A=np.mod((HDG-TWD+360),360)
     return np.where(A<180,-A,360-A)
@@ -101,8 +110,57 @@ def deplacement_x_y_tab_ar(x0,y0,d_t,HDG,VT,A):
 
     return X,Y,Di,Ca
 
+def deplacement_x_y_tab_ar_twa(x0,y0,d_t,HDG,VT,A,twa):
+    ''' fonction donnant le tuple point d arrivée en fonction des coordonnées du point de depart ''' 
+    ''' c'est cette fonction qui sert dans le calcul des isochrones '''
+    ''' donne egalement le cap vers 'arrivee et la distance vers l'arrivee '''
+    # integre une penalite si la nouvelle twa est de signe inverse de la nouvelle
+    
+    HDG_R = HDG * math.pi / 180     # cap en radians
+    X= x0+ d_t / 3600 / 60 * VT * (np.sin(HDG_R) / math.cos(y0 * math.pi / 180)) 
+    Y= y0- d_t / 3600 / 60 * VT * np.cos(HDG_R)
+    Pointscpx=X+Y*1j
+    Di,Ca=dist_cap(Pointscpx, A)
+
+    return X,Y,Di,Ca
+
+def deplacement_old (x0,y0,d_t,twa,tws,twd,HDG,A, penalite):
+    ''' Fonction globale calculant le deplacement avec penalite sur l'ensemble du np.array de caps HDG
+        twa est la twa orientee pour arriver au point 
+        tws et twd ont deja ete calcules pour ce point'''
+    VT  = polaire2_vect(polaires, tws,twd, HDG)  # ensemble des vitesses polaires
+    TWAO=Twao(HDG,twd )                          # Ensemble des twa orientées
+                                                 # tableau des penalites    
+    HDG_R = HDG * math.pi / 180                  # caps en radians
+    X= x0+ d_t / 3600 / 60 * VT * (np.sin(HDG_R) / math.cos(y0 * math.pi / 180)) 
+    Y= y0- d_t / 3600 / 60 * VT * np.cos(HDG_R)
+    Pointscpx=X+Y*1j
+    Di,Ca=dist_cap(Pointscpx, A)
+    return X,Y,Di,Ca,TWAO
 
 
+def deplacement(x0,y0,d_t,HDG,TWD,VT,A,twa,penalite):
+    ''' fonction donnant le tuple point d arrivée en fonction des coordonnées du point de depart ''' 
+    ''' c'est cette fonction qui sert dans le calcul des isochrones '''
+    ''' donne egalement le cap vers 'arrivee et la distance vers l'arrivee '''
+    # integre une penalite si la nouvelle twa est de signe inverse de la nouvelle
+   
+    TWAO=Twao( HDG,TWD)
+    Virement=np.where(TWAO*twa>0,False,True)
+    TWA=np.abs(TWAO)
+    #print(TWAO)
+    #VT=polaire2_vect(HDG,TWD)
+    #print (VT)
+    #print (Virement)
+    DT=np.ones(len(VT))*d_t-Virement*penalite
+    #print(DT)
+    HDG_R = HDG * math.pi / 180     # cap en radians
+    X= x0+ DT / 3600 / 60 * VT * (np.sin(HDG_R) / math.cos(y0 * math.pi / 180)) 
+    Y= y0- DT / 3600 / 60 * VT * np.cos(HDG_R)
+    Pointscpx=X+Y*1j
+    Di,Ca=dist_cap(Pointscpx, A)
+
+    return X,Y,Di,Ca
 
 
 def calcul_points(D, tp, d_t, TWD, vit_vent, ranged, polaires):
@@ -124,15 +182,16 @@ def dist_cap(D, A):
     ''' cette fonction ne tient pas compte de l'effet latitude'''
     C = A - D
     return np.abs(C), (450 + np.angle(C, deg=True)) % 360
+    
 
 
 def dist_cap2(x0,y0,x1,y1):
-
     '''retourne la distance et l'angle du deplacement entre le depart et l'arrivee
     en tenant compte de la courbure et du racourcissement des distances sur l'axe x'''
     coslat= math.cos(y0 * math.pi / 180)
     C=(x-x0)*coslat +(y-y0)*1j
     return np.abs(C), (450 + np.angle(C, deg=True)) % 360
+
 
 def dist_cap3(D,A):
     ''' retourne la distance et l'angle du deplacement entre le depart et l'arrivee 
@@ -212,6 +271,21 @@ def trace_points_folium (points_cpx):
         folium.CircleMarker(point,color='black', radius=1,fill_color='black',fill_opacity=0.3).add_to(carte)
 
     return None
+
+# def polaire2_vect(polaires,tws,twd,HDG):
+#     '''ici un seul point avec une seule tws twd
+#      mais plusieurs caps'''
+#     # on ajuste les tableaux TW et TWD à HDG
+#     l=len(HDG)
+#     TWD = (np.ones(l)*twd)
+#     TWA = (180 - np.abs(((360 - TWD + HDG) % 360) - 180)).reshape((-1, 1))
+#     TWS = (np.ones(l) * tws).reshape((-1, 1))
+#     donnees = np.concatenate((TWA, TWS), axis=1)
+#     valeurs = interpn((y1, x1), polaires, donnees, method='linear')
+#     return valeurs
+
+
+
 
 if __name__ == '__main__':
 #    print ('Test')
