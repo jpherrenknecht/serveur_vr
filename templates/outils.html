@@ -1,0 +1,92 @@
+ 
+<!doctype html> 
+<html lang="fr"> 
+    <head> 
+        <meta charset="UTF-8"> 
+        <title> Vents json </title> 
+        <!-- lien vers la bibliothèque bootstrap --> 
+        <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css" rel="stylesheet"> 
+        <!-- lien vers le script contenant jquery--> 
+        <!-- <script type="text/javascript" src="http://code.jquery.com/jquery.min.js"></script>  -->
+
+        <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+        <script type="text/javascript"> 
+          
+            // initialisation de la variable vents destinee a recevoir les vents 
+            var vents = []; 
+  
+            function executerRequete(callback) { 
+                // on vérifie si le catalogue a déjà été chargé pour n'exécuter la requête AJAX qu'une seule fois 
+                if (vents.length === 0) { 
+                    console.log (vents.length)
+
+                    $.ajax({ 
+                        type: 'GET', 
+                        url: 'vents.json',
+                        timeout: 3000, 
+                        dataType: 'text', 
+
+                        success: function(data) { 
+                          vents = JSON.parse(data); 
+                         
+                          callback(); 
+                        }, 
+                        error: function() { 
+                          alert('La requête n\'a pas abouti'); 
+                        } 
+                      }); 
+                    } 
+                     else { 
+                    callback(); 
+                } 
+            } 
+  
+            
+           
+
+                     
+            executerRequete(afficher); 
+            var index = 0;
+            var a=0
+            var i=0
+            var j=1
+            var k=2
+
+           function afficher()
+           {
+               a=vents["latini"]  
+            document.getElementById("latini").innerHTML = vents["latini"]; 
+            document.getElementById("latfin").innerHTML = vents["latfin"]; 
+            document.getElementById("longini").innerHTML = vents["longini"]; 
+            document.getElementById("longfin").innerHTML = vents["longfin"]; 
+            document.getElementById("u10").innerHTML = vents["u10"][i][j][k];
+            document.getElementById("v10").innerHTML = vents["v10"][i][j][k];
+           }
+
+            function vent()
+            {
+                a=vents["u10"][i][1][1]
+           console.log(a) 
+            // on initialise la lecture au premier élément 
+            }
+
+
+
+        </script> 
+    </head> 
+    <body> 
+        <section  class="container"> 
+            <article name="données" class="well form-inline pull-left col-lg-5"> 
+                <legend>Extraction vent pour test</legend> 
+                <label>latitude de depart</label> : <label id = "latini"></label> <br>
+                <label>latitude de fin de grib</label> : <label id = "latfin"></label> <br>
+                <label>longitude de debut grib</label> : <label id = "longini"></label> <br>
+                <label>longitude de fin de grib</label> : <label id = "longfin"></label> <br>
+
+                <button class="btn btn-primary" type="submit" onclick="executerRequete(vent);i=2"><span class="glyphicon glyphicon-play"> </span> Lecture avant</button> 
+                <label>U10</label> : <label id = "u10"></label> <br>
+                <label>V10 </label> : <label id = "v10"></label> 
+            </article> 
+        </section> 
+    </body> 
+</html>

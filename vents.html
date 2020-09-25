@@ -1,0 +1,78 @@
+<!doctype html> 
+<html lang="fr"> 
+    <head> 
+        <meta charset="UTF-8"> 
+        <title> Catalogue outillage </title> 
+        <!-- lien vers la bibliothèque bootstrap --> 
+        <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css" rel="stylesheet"> 
+        <!-- lien vers le script contenant jquery--> 
+        <script type="text/javascript" src="http://code.jquery.com/jquery.min.js"></script> 
+        <script type="text/javascript"> 
+            // pointeur sur la position de l'article courant dans le catalogue 
+            var index = 0; 
+            // initialisation du catalogue 
+            var catalogue = []; 
+  
+            function executerRequete(callback) { 
+                // on vérifie si le catalogue a déjà été chargé pour n'exécuter la requête AJAX qu'une seule fois 
+                if (catalogue.length === 0) { 
+                    $.ajax({ 
+                        type: 'GET', 
+                        url: 'jsonfactory.php', 
+                        timeout: 3000, 
+                        dataType: 'text', 
+                        success: function(data) { 
+                          catalogue = JSON.parse(data); 
+                          callback(); 
+                        }, 
+                        error: function() { 
+                          alert('La requête n\'a pas abouti'); 
+                        } 
+                      }); 
+                    } 
+                     else { 
+                    callback(); 
+                } 
+            } 
+  
+            function lireSuivant() { 
+                // connaitre le nombre d'articles dans le catalogue 
+                var longueur = catalogue.length; 
+                // manipulation du DOM pour afficher les caractéristiques de l'article 
+                document.getElementById("nom").innerHTML = catalogue[index].nom; 
+                document.getElementById("desc").innerHTML = catalogue[index].desc; 
+                document.getElementById("qte").innerHTML = catalogue[index].qte; 
+                document.getElementById("prix").innerHTML = catalogue[index].prix; 
+                if (index < longueur - 1) { 
+                    index++; 
+                } 
+            } 
+  
+            function lirePrecedent() { 
+                document.getElementById("nom").innerHTML = catalogue[index].nom; 
+                document.getElementById("desc").innerHTML = catalogue[index].desc; 
+                document.getElementById("qte").innerHTML = catalogue[index].qte; 
+                document.getElementById("prix").innerHTML = catalogue[index].prix; 
+                if (index > 0) { 
+                    index--; 
+                } 
+            } 
+  
+            // on initialise la lecture au premier élément 
+            executerRequete(lireSuivant); 
+        </script> 
+    </head> 
+    <body> 
+        <section  class="container"> 
+            <article name="données" class="well form-inline pull-left col-lg-5"> 
+                <legend>Outils au catalogue</legend> 
+                <label>Nom</label> : <label id = "nom"></label> 
+                <label>Description</label> : <label id = "desc"></label> 
+                <label>Quantité</label> : <label id = "qte"></label> 
+                <label>Prix</label> : <label id = "prix"></label> 
+                <button class="btn btn-primary" type="submit" onclick="executerRequete(lireSuivant)"><span class="glyphicon glyphicon-play"> </span> Lecture avant</button> 
+                <button class="btn btn-primary" type="submit" onclick="executerRequete(lirePrecedent)"><span class="glyphicon glyphicon-step-backward"> </span> Lecture arrière</button> 
+            </article> 
+        </section> 
+    </body> 
+</html>

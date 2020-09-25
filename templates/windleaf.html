@@ -19,6 +19,15 @@
                     if ((x1-x0)>0)
                         {capi=capi+180}
                 return capi }   
+                function pos_dec_mn(pos)
+                    {   abs=Math.abs(pos)
+                        deg=Math.floor(abs)
+                        min=Math.floor((abs-deg)*60)
+                        sec=Math.round(((abs-deg)*60-min)*60)
+                        return deg+'°'+min+'mn'+sec+'s'
+                    }     
+
+
     // Fonction zezo                
         function crsdist(lat1, lon1, lat2, lon2) {
 		var a = crsdist_num(lat1, lon1, lat2, lon2);
@@ -60,6 +69,11 @@
 		return [crs,d];
 }
 
+        function latdec_to_latdeg(lat) 
+        {}
+
+
+
         // pour formater les dates
             var intl=new Intl.DateTimeFormat("en-US",{month:"2-digit",day:"2-digit", hour12: false,hour:"2-digit", minute:"2-digit" });
          // on recupere les donnees postées
@@ -77,7 +91,7 @@
             
             for ( var i=0 ; i<comment.length ; i++ )
             {
-            tooltip[i]='<b>'+intl.format(1000*comment[i][2])+' - Isochrone  '+ i +' <br> Lat : '+arrondi(comment[i][0],4) +'° - Lng : ' +arrondi(comment[i][1],4)+'°<br> TWS : ' +arrondi(comment[i][3],2)
+            tooltip[i]='<b>'+intl.format(1000*comment[i][2])+' - Isochrone  '+ i +' <br> Lat : '+arrondi(comment[i][0],4) +'° ('+pos_dec_mn(comment[i][0])+')<br>Lng : ' +arrondi(comment[i][1],4)+'° (' +pos_dec_mn(comment[i][1])+')<br> TWS : ' +arrondi(comment[i][3],2)
                 +' Noeuds  -  TWD : ' +arrondi(comment[i][4],0)+'° <br>  Cap ' +arrondi(comment[i][5],1)+'°     -  TWA ' +arrondi(comment[i][6],1)+'° <br> Vitesse :  ' +arrondi(comment[i][7],2)+' Noeuds'}    
             
              // centrage de la carte 

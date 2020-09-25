@@ -1,0 +1,32 @@
+[
+    {
+        "nom": "marteau",
+        "desc": "pour enfoncer des clous",
+        "qte": 87,
+        "prix": 9
+    },
+    {
+        "nom": "cle de 12",
+        "desc": "pour les boulons du camion",
+        "qte": 25,
+        "prix": 12
+    },
+    {
+        "nom" : "tournevis" , 
+        "desc" : "pour démonter la table" , 
+        "qte" : 26 , 
+        "prix" : 6
+    },
+    {
+        "nom": "pinces multiples",
+        "desc": "pour bricoler le dimanche",
+        "qte": 2,
+        "prix": 17
+    },
+    {
+        "nom" : "scie à métaux" , 
+        "desc" : "pour couper la barrière" , 
+        "qte" : 78 , 
+        "prix" : 41
+    }
+]

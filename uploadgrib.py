@@ -201,6 +201,11 @@ def prevision(tig, GR, tp, latitude, longitude):
     angle_vent = (270 - np.angle(vcplx, deg=True)) % 360
     return vit_vent_n, angle_vent
 
+
+
+
+
+
 def prevision_tableau (tig,GR,tp,points):
     '''Le tableau des points est un tableau de points complexes'''
     '''retourne un tableau des previsions angles et vitesses '''
@@ -291,8 +296,8 @@ if __name__ == '__main__':
 
 
     # Depart
-    latitude_d = '051-38-17-N'
-    longitude_d = '000-46-19-W'
+    latitude_d = '045-00-00-N'
+    longitude_d = '003-00-00-W'
     d = chaine_to_dec(latitude_d, longitude_d)  # co
     print ('latitude et longitude',d)
     
@@ -303,7 +308,7 @@ if __name__ == '__main__':
     print ('\nPrévision à date et heure données \
             \n---------------------------------')
     print('\nLatitude {:6.2f} et Longitude{:6.2f} '.format( d[1], d[0]))
-    dateprev=datetime(2020 , 9 , 20, 18, 0 ,  0)
+    dateprev=datetime(2020 , 9 , 25, 20, 0,  0)
     print ('\nDateprev : ',dateprev , ' local')
     # je peux la transformer en secondes mais ce sont des secondes locales
     dateprev_s=time.mktime(dateprev.timetuple())

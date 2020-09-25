@@ -1,0 +1,186 @@
+<!doctype html>
+	<html lang="fr">
+		<head>
+			<meta charset="utf-8">
+			<title>Page test javascript</title>
+			<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+		</head>
+		<body>
+			<!-- Solution ou on charge le fichier par XMLHttprequest on doit attendre que onload soit bon pour executer la fonction 
+			
+			<script type="text/javascript" >
+			var requestURL = 'vents.json';
+			var request = new XMLHttpRequest();
+			request.open('GET', requestURL);
+			request.responseType = 'json';
+			request.send();
+			request.onload = function() {
+				var vents=request.response;
+				console.log (vents)
+			}
+			//console.log(vents["latini"]) ne marche pas car vents pas encore chargé
+						</script> -->
+
+
+
+		<!-- <script type="text/javascript" >    // test format date 
+			var intl=new Intl.DateTimeFormat("en-US",{month:"2-digit",day:"2-digit", hour12: false,hour:"2-digit", minute:"2-digit" });
+			var temps = new Date(1598917919.3*1000);
+			console.log( intl.format(temps));
+		</script>	 -->
+
+		<script type="text/javascript" >   // ici on charge directement les valeurs, il n'y a pas a ateendre
+
+			U10   = {{ U10 }}
+			V10   = {{ V10 }}
+			tig=	{{ tig    }};
+
+			latini= {{ latini }};
+			latfin= {{ latfin }};
+			lngini= {{ lngini }};
+			lngfin= {{ lngfin }}; 
+
+			console.log ('tig : ' + tig )
+			console.log ('latini : '+ latini)
+			console.log ('latfin : '+ latfin)
+			console.log ( 'lngini : '+ lngini)
+			console.log ('lngfin : '+ lngfin)
+			//console.log ('U10'+ U10)
+			//console.log ('V10' + V10)
+
+
+
+
+
+
+			function cvent(u,v) //retourne la vitesse du vent et sa force a partir de u et v
+			{
+				vit = Math.sqrt(u*u + v*v)
+				angle= Math.acos(v/vit)*180/Math.PI+180;
+				if (u<0)
+				{angle=360-angle}
+				vit*= 1.94384     // Vitesse en noeuds
+				return [vit,angle]				
+			} 
+
+			function interpol2d(XX,t0,i_lat,i_lng)
+			{			
+				lat0    = Math.floor(i_lat)       // partie entiere
+				lng0    = Math.floor(i_lng)
+				//t0    = Math.floor(i_t)       // t0 est censé être un indice entier
+				dec_lat = i_lat%1    				// partie decimale
+				dec_lng = i_lng%1
+				fx1y1   = XX[t0][lat0][lng0]
+				fx2y1   = XX[t0][lat0+1][lng0]
+				fx1y2   = XX[t0][lat0][lng0+1]
+				fx2y2   = XX[t0][lat0+1][lng0+1]
+				dfx     = fx2y1-fx1y1
+				dfy     = fx1y2-fx1y1
+				dfxy    = fx1y1+fx2y2-fx2y1-fx1y2
+				fxy     = dfx*dec_lat  + dfy*dec_lng + dfxy*dec_lat*dec_lng + fx1y1
+				return fxy
+			}
+
+			function interpol3d(XX,i_t,i_lat,i_lng)
+			{
+				lat0    = Math.floor(i_lat)       // partie entiere
+				lng0    = Math.floor(i_lng)
+				t0      = Math.floor(i_t)
+				dec_t   = i_t%1						// partie decimale				
+				dec_lat = i_lat%1
+				dec_lng = i_lng%1
+				r1      = interpol2d(XX,t0,i_lat,i_lng)
+				r2      = interpol2d(XX,t0+1,i_lat,i_lng)
+				r       = r1+(r2-r1)*dec_t
+				return r
+			}
+
+
+
+
+		
+
+			var t= tig+21600;
+			var lat=-46;
+			var lng=357;
+
+			i_lat=lat-latini       // ecart avec la latitude du grib chargé
+			i_lng=lng-lngini
+			i_t=(t-tig)/3600/3     // Ecart en heures avec le tig  modulo 3h
+			
+			console.log ('************* i_t : '+i_t)
+			console.log ('************* Latitude  '+lat+' i_lat : '+i_lat)
+			console.log ('************* Longitude ' +lng+' i_lng : '+i_lng)
+			//test
+			
+			u10=interpol3d(U10,i_t,i_lat,i_lng)
+			v10=interpol3d(V10,i_t,i_lat,i_lng)
+			
+			console.log(' vitesse : '+ cvent(u10,v10)[0])
+			console.log(' angle : '+ cvent(u10,v10)[1])
+
+			// fonction globale recuperation du vent en lat et long
+
+			function gvent (lat,lng ,t)
+			{
+			i_lat=lat-latini       // ecart avec la latitude du grib chargé
+			i_lng=lng-lngini
+			console.log(' ')	
+			console.log ('************* Latitude  '+lat+' i_lat : '+i_lat)
+			console.log ('************* Longitude ' +lng+' i_lng : '+i_lng)
+			console.log(' ')
+			i_t=(t-tig)/3600/3     // Ecart en heures avec le tig  modulo 3h
+			u10=interpol3d(U10,i_t,i_lat,i_lng)	
+			v10=interpol3d(V10,i_t,i_lat,i_lng)	
+			res=cvent(u10,v10) 		// vitesse=res[0], angle=res[1] 
+			console.log('resultat'+ res)
+			return res	
+
+			}
+
+
+			
+
+
+			// function vent(t,lat,lng)
+			// {	var i_t      = t-tig ;
+			// 	var i_lat    = lat-latini ;
+			// 	var i_lng    = lng-lngini ;
+			// 	var vit_vent = Math.sqrt(
+			// 		Math.pow(U10[i_t][i_lat][i_lng],2)
+			// 		+Math.pow(V10[i_t][i_lat][i_lng],2)
+			// 		)
+			// 	return vit_vent
+			// }
+
+
+			//console.log('1,1',vent(t,1,1))
+			console.log ('valeur U 0 0 0 ' +U10[0][0][0]);
+			console.log ('valeur V 0 0 0 ' +V10[0][0][0]);
+			console.log ('latini  ' + latini);
+			console.log ('lngini  ' + lngini);
+			console.log ('latfin  ' + latfin);
+			console.log ('lngfin  ' + lngfin);
+			console.log ('tig'   + tig);
+			
+			gvent (lat,lng ,t)
+
+			
+			
+			
+			//var vit=  vent(t,lat,lng)
+			//console.log ('Vitesse du vent '+ vent(tig,40,350))	
+
+			
+
+		</script>	
+
+		<h5> javascript.html </h5><br>
+		<h3> Test de fonctions js </h3>
+			
+
+					<div id ='test'>Test </div> 
+			</form>
+		</body>
+	</html>
+

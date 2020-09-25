@@ -221,19 +221,18 @@ instant        = time.time()
 tig, GR        = chargement_grib()
 temps          = instant
 #Depart
-latitude_d     = '047-39-09-N'
-longitude_d    = '003-53-09-W'
+latitude_d     = '046-57-47-N'
+longitude_d    = '002-50-26-W'
 #Point Arrivee 
-latitude_a     = '049-30-00-N'
-longitude_a    = '005-06-00-W'
+latitude_a     = '047-01-25-N'
+longitude_a    = '002-52-50-W'
 
 
 
 
 d  = chaine_to_dec(latitude_d, longitude_d)  # conversion des latitudes et longitudes en tuple
 ar = chaine_to_dec(latitude_a, longitude_a)
-ar=d
-d=(-73.62,-40.46)
+
 print(d)
 D = cplx(d)  # transformation des tuples des points en complexes
 A = cplx(ar)
@@ -258,7 +257,7 @@ vit_vent_n, TWD = prevision(tig, GR, instant, D.imag, D.real)
 
 # Impression des resultats au depart
 print('Date et Heure du grib  en UTC  :', time.strftime(" %d %b %Y %H:%M:%S ", time.gmtime(tig)))
-print('\nLe {} heure locale Pour latitude {:6.2f} et longitude{:6.2f} '.format(instant_formate, D.real, D.imag))
+print('\nLe {} heure locale Pour latitude {:6.2f} et longitude{:6.2f} '.format(instant_formate, D.imag, D.real))
 print('\tVitesse du vent {:6.3f} Noeuds'.format(vit_vent_n))
 print('\tAngle du vent   {:6.1f} °'.format(TWD))
 print()

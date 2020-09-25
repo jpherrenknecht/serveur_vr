@@ -8,6 +8,9 @@ import matplotlib.pyplot as plt
 import xarray as xr
 import pandas as pd
 import json
+from json import dumps
+from json import JSONEncoder
+
 import folium
 import webbrowser
 from uploadgrib import *
@@ -18,7 +21,7 @@ exec('from '+val+ ' import *')
 
 from global_land_mask import globe
 import pickle
-from flask import Flask, redirect, url_for,render_template, request , session , flash
+from flask import Flask, redirect, url_for,render_template, request , session , flash , jsonify
 from flask_sqlalchemy import SQLAlchemy
 
 tic=time.time()
@@ -37,6 +40,50 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] =False
 db = SQLAlchemy(app)
 
 tic=time.time()
+tig, GR        = chargement_grib()
+
+
+class NumpyArrayEncoder(JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, np.ndarray):
+            return obj.tolist()
+        return JSONEncoder.default(self, obj)
+
+
+tig, GR = chargement_grib()
+latini=-50      # latitude la plus au nord en premier et latitude nord negative
+latfin=-40
+longini=350
+longfin=360
+
+
+def vents_encode(latini,latfin,longini,longfin):
+    ''' extrait du grib GR les donnees entre ini et fin sur 24 h et l'exporte en json'''
+    ilatini=90+latini    # les latitudes Nord doivent être négatives
+
+    ilatfin=90+latfin
+    print ()
+    U10=GR[0:8,ilatini:ilatfin,longini:longfin].real
+    V10=GR[0:8,ilatini:ilatfin,longini:longfin].imag
+    numpyData = {"latini":latini,"latfin":latfin,"longini":longini,"longfin":longfin,"u10": U10,"v10":V10}
+    a=json.dumps(numpyData, cls=NumpyArrayEncoder)
+    #b=jsonify(numpyData)
+    return a 
+
+
+
+def vents_encode2(latini,latfin,longini,longfin):
+    ''' extrait du grib GR les donnees entre ini et fin sur 24 h et l'exporte en json'''
+    ilatini=90+latini    # les latitudes Nord doivent être négatives
+
+    ilatfin=90+latfin
+    U10=GR[0:8,ilatini:ilatfin,longini:longfin].real
+    V10=GR[0:8,ilatini:ilatfin,longini:longfin].imag
+     
+    u10=[arr.tolist() for arr in U10]
+    v10=[arr.tolist() for arr in V10]
+    return u10,v10
+
 
 
 
@@ -44,6 +91,9 @@ class user(db.Model):                                              # creation du
     id     = db.Column(db.Integer, primary_key=True)
     nom    = db.Column(db.String(100))
     prenom = db.Column(db.String(100))
+
+
+
 
 
 def f_isochrone2(l2, temps_initial_iso):
@@ -217,7 +267,15 @@ def fonction_routeur(xn,yn,x1,y1,t0=time.time()):
     print('Heure UTC du dernier Grib             ',tig_formate_utc)
     print('Heure Locale de depart de la prevision',tic_formate_local)
     print ('Ecart en heures ( = ecart - ecartUTC ) ', (tic-tig)/3600)
-    print() 
+
+ 
+    vit_vent_n, TWD = prevision(tig, GR, temps, y0,x0)
+    temps_formate = time.strftime(" %d %b %Y %H:%M:%S ", time.localtime(temps))
+    # Impression des resultats au depart
+    print('Date et Heure du grib  en UTC  :', time.strftime(" %d %b %Y %H:%M:%S ", time.gmtime(tig)))
+    print('\nLe {} heure locale Pour latitude {:6.2f} et longitude{:6.2f} '.format(temps_formate, x0, y0))
+    print('\tVitesse du vent {:6.3f} Noeuds'.format(vit_vent_n))
+    print('\tAngle du vent   {:6.1f} °'.format(TWD))
 
 #********************************************************************************************************************
 
@@ -246,7 +304,7 @@ def fonction_routeur(xn,yn,x1,y1,t0=time.time()):
     temps_cum2 = np.copy(temps_cumules[:l2])
     temps_cum2[-1] = temps_cum2[-2] + temps_mini2 * 3600  # le dernier terme est le temps entre le dernier isochrone et l'arrive
     #print ('shape temps cum et temps_cum2.shape',temps_cum2.shape,chemin2.shape)
-    #print('temps_cum2',temps_cum2)
+    print('temps_cum2',temps_cum2)
     TWS_ch2, TWD_ch2 = prevision_tableau2(GR, temps_cum2, chemin2)# previsions meteo aux differents points pour reconstitution 
    
    
@@ -281,8 +339,10 @@ def fonction_routeur(xn,yn,x1,y1,t0=time.time()):
         # twaroute = str(round(chem[i, 6], 0))
         # Vt  = str(round(chem[i, 7], 2))
         route32.append([-chem2[i, 1],chem2[i, 0]])   # dans la version leaflet on a le temps en trois
-        comment2.append([-chem2[i, 1],chem2[i, 0],chem2[i, 2],chem2[i, 3],chem2[i, 4],chem2[i, 5],chem2[i, 6],chem2[i, 7]])
+        comment2.append([-chem2[i, 1],chem2[i, 0],chem2[i, 2]+tig,chem2[i, 3],chem2[i, 4],chem2[i, 5],chem2[i, 6],chem2[i, 7]])
     #Confection de la multipolyline pour le trace des isochrones 
+
+        print('chem2 i 2 ',chem2[i, 2])    
     X2=isochrone2[:,0].reshape(-1,1)
     Y2=isochrone2[:,1].reshape(-1,1)
     N2=isochrone2[:,2].reshape(-1,1)
@@ -296,7 +356,7 @@ def fonction_routeur(xn,yn,x1,y1,t0=time.time()):
     print ("Heure d'arrivée v2",time.strftime(" %d %b %Y %H:%M:%S ", time.localtime(chem2[-1, 2])))
     
     duree2 = (temps_cum2[-1] - t0)
-    #print('temps total2 en s ', duree2)
+    print('temps total2 en s ', duree2)
     j2 = duree2 // (3600 * 24)
     h2 = (duree2-(j2*3600*24))//3600
     mn2 = (duree2 - (j2 * 3600 * 24)-(h2*3600))//60 
@@ -355,6 +415,15 @@ def resultat():
   #frouteur (latdep,longdep,latar,longar) 
   return render_template("resultat.html", total=add(latdep,longdep) , result=request.form)
 
+@app.route('/vents.json')
+def jsoni():
+  return render_template("vents.json")
+
+
+# @app.route('/outils.json')
+# def outils():
+#   return render_template("outils.json")
+
 
 
 @app.route('/resultat2',methods = ['POST'])
@@ -376,6 +445,34 @@ def resultat3():
     lngdep                 = float(result['lngdep'])
     #polyline=test()
     return render_template("resultat3.html", polyline=fonction_routeur(x0,y0,x1,y1), result=request.form)
+
+@app.route('/javascript')
+def javascript(): 
+    global tig, GR
+    latini=-50      # latitude la plus au nord en premier et latitude nord negative
+    latfin=-40
+    lngini=350
+    lngfin=360
+
+    u10,v10=vents_encode2(latini,latfin,lngini,lngfin)
+
+    
+    #vents2=vents_encode(latini,latfin,longini,longfin)
+    return render_template("javascript.html",tig=tig,latini=latini,lngini=lngini,latfin=latfin,lngfin=lngfin,U10=u10, V10=v10 )
+
+
+
+
+
+
+@app.route('/outils')
+def outilshtml():  
+    return render_template("outils.html")    
+
+
+@app.route('/vents')
+def vents():  
+    return render_template("vents.html")
 
 
 
@@ -479,15 +576,6 @@ def windleaf():
   
     multipolyline,route,comment=fonction_routeur(lngdep,latdep,x1,y1,t0)
    
-    # print ( '\n(295)(main) multipolyline[0]\n',multipolyline[0])
-    # print ('\n             multipolyline[1]\n',multipolyline[1])
-    
-    # print ('\npoint0\n',route[0])
-    # print ('point1\n',route[1])
-
-
-    #print ( '\nmultipolyline[0]\n',multipolyline[0])
-    #print ('\nmultipolyline[1]\n',multipolyline[1])
     red=[]
     black=[]
     for i in range(len(multipolyline)):
@@ -513,4 +601,5 @@ if __name__ == "__main__" :
     db.create_all()                 #creation de la base de donnees
     app.debug=True
     app.config['JSON_AS_ASCII']=False
+    
     app.run(host='127.0.0.1', port=8080, debug=True)
