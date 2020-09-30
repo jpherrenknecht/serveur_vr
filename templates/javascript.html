@@ -23,35 +23,85 @@
 
 
 
-		<!-- <script type="text/javascript" >    // test format date 
-			var intl=new Intl.DateTimeFormat("en-US",{month:"2-digit",day:"2-digit", hour12: false,hour:"2-digit", minute:"2-digit" });
-			var temps = new Date(1598917919.3*1000);
-			console.log( intl.format(temps));
-		</script>	 -->
-
-		<script type="text/javascript" >   // ici on charge directement les valeurs, il n'y a pas a ateendre
+		<script type="text/javascript" >    // test format date 
+			var intl=new Intl.DateTimeFormat("fr-EU",{month:"2-digit",day:"2-digit", hour12: false,hour:"2-digit", minute:"2-digit" });
+		   // ici on charge directement les valeurs, il n'y a pas a attendre
 
 			U10   = {{ U10 }}
 			V10   = {{ V10 }}
 			tig=	{{ tig    }};
+			tsimul=	{{ tsimul  }};
 
-			latini= {{ latini }};
+			latini= {{ latini }};      // donnees de la portion de grib transmise
 			latfin= {{ latfin }};
 			lngini= {{ lngini }};
 			lngfin= {{ lngfin }}; 
 
-			console.log ('tig : ' + tig )
-			console.log ('latini : '+ latini)
-			console.log ('latfin : '+ latfin)
-			console.log ( 'lngini : '+ lngini)
-			console.log ('lngfin : '+ lngfin)
-			//console.log ('U10'+ U10)
-			//console.log ('V10' + V10)
+			l1={{ l1 }};
+			l2={{ l2 }};
+			polairesjs= {{ polairesjs }};
 
 
 
+			// def twa(cap, dvent):
+			// twa = 180 - abs(((360 - dvent + cap) % 360) - 180)
+			// return twa
+			
+			function ftwa(cap,dvent)
+			{
+			return 180-Math.abs(((cap-dvent+360)%360)-180)
+			}
+
+			function pos_dec_mn(pos)
+			{  // transforme les degres decimaux en mn sec
+			 	abs=Math.abs(pos)
+				deg=Math.floor(abs)
+				min=Math.floor((abs-deg)*60)
+				sec=Math.round(((abs-deg)*60-min)*60)
+				return deg+'°'+min+'mn'+sec+'s'
+			}    
+
+			function polinterpol2d(bateau,twa,tws)
+			{	// parametres : polaires du bateau twa et tws
+			    var i_sup=l2.findIndex(element => element > twa);
+				var j_sup=l1.findIndex(element => element > tws);				
+				var twa_inf=l2[i_sup-1]
+				var twa_sup=l2[i_sup]
+				var tws_inf=l1[j_sup-1]
+				var tws_sup=l1[j_sup]
+				dx = twa-twa_inf 				// Ecart avec la valeur d'indice mini
+				dy = tws-tws_inf
+				deltax=twa_sup-twa_inf
+				deltay=tws_sup-tws_inf
+				fx1y1   = bateau[i_sup-1][j_sup-1]
+				fx2y1   = bateau[i_sup][j_sup-1]			
+				fx1y2   = bateau[i_sup-1][j_sup]			
+				fx2y2   = bateau[i_sup][j_sup]			
+				dfx     = fx2y1-fx1y1			
+				dfy     = fx1y2-fx1y1			
+				dfxy    = fx1y1+fx2y2-fx2y1-fx1y2				
+				fxy     = dfx*dx/deltax  + dfy*dy/deltay + dfxy*dx*dy/deltax/deltay + fx1y1
+				return fxy
+			}
 
 
+			function gvent (lat,lng ,t)
+			{
+			i_lat=-lat-latini       // ecart avec la latitude du grib chargé
+			i_lng=360+lng-lngini
+			i_t=(t-tig)/3600/3     // Ecart en heures avec le tig  modulo 3h
+				
+			console.log ('**** Temps depuis le grib en h '+i_t*3+ ' Indice '+i_t)
+			console.log ('**** latini : '+latini+' ********* Latitude  '+lat+' i_lat : '+i_lat)
+			console.log ('**** lngini : '+lngini+' ********* Longitude ' +lng+' i_lng : '+i_lng)
+					
+			u10=interpol3d(U10,i_t,i_lat,i_lng)	
+			v10=interpol3d(V10,i_t,i_lat,i_lng)	
+			res=cvent(u10,v10) 		// vitesse=res[0], angle=res[1] 
+			// console.log('resultat'+ res)
+			return res	
+
+			}
 
 			function cvent(u,v) //retourne la vitesse du vent et sa force a partir de u et v
 			{
@@ -95,76 +145,201 @@
 				return r
 			}
 
+            function crsdist_num(lat1, lon1, lat2, lon2)
+			{
+			lat1 = lat1 * Math.PI/180;
+			lon1 = lon1 * Math.PI/180;
+			lat2 = lat2 * Math.PI/180;
+			lon2 = lon2 * Math.PI/180;
+			var crs;        
+			var d=Math.acos(Math.sin(lat1)*Math.sin(lat2)+Math.cos(lat1)*Math.cos(lat2)*Math.cos(lon1-lon2));
+			var argacos=(Math.sin(lat2)-Math.sin(lat1)*Math.cos(d))/(Math.sin(d)*Math.cos(lat1));
+			if (Math.sin(lon2-lon1) > 0){   
+					crs=Math.acos(argacos); 
+			} else {
+					crs=2*Math.PI-Math.acos(argacos); 
+			}
+			return [crs,d];
+			}
 
+
+
+
+			function dist_cap_ortho(lati,lngi,latf,lngf)
+			{// latitude origine equateur positive vers le nord
+			//longitude greenwich positive vers l'est 
+			latirad = lati*Math.PI/180
+			latfrad = latf*Math.PI/180
+			lb_m_la=(lngf-lngi)*Math.PI/180
+			cosfia=Math.cos(latirad)
+			sinfia=Math.sin(latirad)
+			sinfib=Math.sin(latfrad)
+			cosfib=Math.cos(latfrad)
+			cos_lb_m_la=Math.cos(lb_m_la)
+			sin_lb_m_la=Math.sin(lb_m_la)
+			cap= Math.atan(cosfib*sin_lb_m_la/(cosfia*sinfib-sinfia*cosfib*cos_lb_m_la))*180/Math.PI
+			if( (latf-lati)<0)
+			{cap=180+cap}
+			else {cap=(cap+360)%360}
+			dist= Math.acos(sinfia*sinfib+cosfia*cosfib*cos_lb_m_la)/Math.PI*180*60
+			return [dist,cap]
+			}
+
+			function deplacement(latinit,lnginit,dt,vitesse,cap)
+			{		
+				cap_r=cap*Math.PI/180
+				latf=latinit+vitesse*dt/3600/60*Math.cos(cap_r)
+				lngf=lnginit-vitesse*dt/3600/60*Math.sin(cap_r)/Math.cos(latinit*Math.PI/180)
+				arrivee=[latf,lngf]
+				return arrivee 
+
+			}
+
+			
+
+
+
+
+			// lati=0
+			// lngi=0
+			// latf=-20
+			// lngf=-5
+
+			// r1=dist_cap_ortho(lati,lngi,latf,lngf)
+			// r2=crsdist_num(lati,lngi,latf,lngf)
+			
+
+			console.log('***************Verification des donnéées transmises************************************')
+			console.log()
+			console.log('tig : '+ tig )  
+			console.log('tsimul: '+  tsimul.toFixed(0))
+			console.log('Ecart en h avec le grib : ' +((tsimul-tig)/3600).toFixed(2))
+			console.log('latini: '+  latini)
+			console.log('latfin : '+ latfin)
+			console.log('lngini: '+  lngini)
+			console.log('lngfin: '+  lngfin )
+			console.log('tig    : '+ intl.format(tig*1000));
+			console.log('tsimul : '+ intl.format(tsimul*1000));
+			console.log(' ')
+			
+
+			console.log('***************************************************************************************')
+			console.log ('Test de la fonction deplacement')
+			latinidep=44.43336083333
+			lnginidep=13.7150111
+			dt=300
+			vitesse=9.83
+			cap=225.5
+			dep=deplacement(latinidep,lnginidep,dt,vitesse,cap)
+			latf=dep[0]
+			lngf=dep[1]
+			console.log ('DEPLACEMENT Cap :'+cap+ ' Vitesse : '+vitesse+ ' latini : '+latini.toFixed(4)+
+			' Durée '+dt+' lngini '+lngini.toFixed(4) +' latfin '+ latf.toFixed(4)+' Lngfin : '+lngf.toFixed(4))
+			console.log(' ')
+
+
+			console.log('***************************************************************************************')
+			console.log ('Test de la fonction gvent')
+			lat= 44.9926
+			lng=-12.691
+			// latgrib=-lat00
+			// lnggrib=360+lng00
+			res=gvent (lat,lng,tsimul)
+			console.log('Vent en lat :'+ lat + ' lng'+ lng+ ' tws '+res[0]+' twd '+res[1] )
+			console.log('')
+
+
+			console.log('***************************************************************************************')
+			console.log ('Test de la fonction polaires')
+			twa= 63;tws= 7.5;
+			res=polinterpol2d(polairesjs,twa,tws)
+			console.log(' Polaire pour twa : '+twa+ ' tws  '+ tws +'  Vitesse '+res.toFixed(3)  )
+			
+
+
+
+
+
+			lat00=44.9926
+			lng00=-12.691
+			latf=44.8427
+			lngf=-13.0991
+			twa=45
+
+			function polyline_twa(lat00,lng00,latf,lngf,tsimul,twa)
+			{   latgrib=-lat00
+				lnggrib=360+lng00
+				cap_ini=dist_cap_ortho(lat00,lng00,latf,lngf)[1]
+
+				
+
+			
+			// 	res=gvent (latgrib,lnggrib,tsimul)
+			// 	console.log('resultat de gvent en lat :'  vitesse '+res[0]+' Angle vent '+res[1] )
+			// //console.log('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx    Recherche vent '+res) 
+				polyline= [[lat00,lng00],[46.23,-4.11],[latf,lngf]]
+				// console.log('polyline tableau '+Array.isArray(polyline))
+				// console.log ('------------------------ polyline '+ polyline)  
+
+
+			return polyline    
+			}
+
+			
+			polyline_twa(lat00,lng00,latf,lngf,tsimul,twa)
+
+//verification des recuperations
+			// console.log('tig : ' + tig )
+			// console.log('latini : '+ latini)
+			// console.log('latfin : '+ latfin)
+			// console.log( 'lngini : '+ lngini)
+			// console.log('lngfin : '+ lngfin)
+			// console.log ('l1 [5] : '+l1[5])
+			// console.log (' test sur fichier polaires' + polairesjs )
+			// console.log (' test polaires : '+ polairesjs[2][2])
+		
+
+
+			
+			//test polaires
+
+			
 
 
 		
 
-			var t= tig+21600;
-			var lat=-46;
-			var lng=357;
+			// var t= tig+21600;
+			// var lat=-46;
+			// var lng=357;
 
-			i_lat=lat-latini       // ecart avec la latitude du grib chargé
-			i_lng=lng-lngini
-			i_t=(t-tig)/3600/3     // Ecart en heures avec le tig  modulo 3h
+			// i_lat=lat-latini       // ecart avec la latitude du grib chargé
+			// i_lng=lng-lngini
+			// i_t=(t-tig)/3600/3     // Ecart en heures avec le tig  modulo 3h
 			
-			console.log ('************* i_t : '+i_t)
-			console.log ('************* Latitude  '+lat+' i_lat : '+i_lat)
-			console.log ('************* Longitude ' +lng+' i_lng : '+i_lng)
-			//test
+			// console.log ('************* i_t : '+i_t)
+			// console.log ('************* Latitude  '+lat+' i_lat : '+i_lat)
+			// console.log ('************* Longitude ' +lng+' i_lng : '+i_lng)
+			// //test
 			
-			u10=interpol3d(U10,i_t,i_lat,i_lng)
-			v10=interpol3d(V10,i_t,i_lat,i_lng)
+			// u10=interpol3d(U10,i_t,i_lat,i_lng)
+			// v10=interpol3d(V10,i_t,i_lat,i_lng)
 			
-			console.log(' vitesse : '+ cvent(u10,v10)[0])
-			console.log(' angle : '+ cvent(u10,v10)[1])
+			// console.log(' vitesse : '+ cvent(u10,v10)[0].toFixed(3))
+			// console.log(' angle : '+ cvent(u10,v10)[1].toFixed(3))
+			// //console.log('1,1',vent(t,1,1))
+			// console.log ('valeur U 0 0 0 : ' +U10[0][0][0].toFixed(3));
+			// console.log ('valeur V 0 0 0 : ' +V10[0][0][0].toFixed(3));
+			// console.log ('latini  ' + latini);
+			// console.log ('lngini  ' + lngini);
+			// console.log ('latfin  ' + latfin);
+			// console.log ('lngfin  ' + lngfin);
+			// console.log ('tig     : ' + tig);
+			// console.log ('tsimul  : ' + tsimul);
+			// console.log ('Soit en h ' + (tsimul-tig)/3600)
 
-			// fonction globale recuperation du vent en lat et long
-
-			function gvent (lat,lng ,t)
-			{
-			i_lat=lat-latini       // ecart avec la latitude du grib chargé
-			i_lng=lng-lngini
-			console.log(' ')	
-			console.log ('************* Latitude  '+lat+' i_lat : '+i_lat)
-			console.log ('************* Longitude ' +lng+' i_lng : '+i_lng)
-			console.log(' ')
-			i_t=(t-tig)/3600/3     // Ecart en heures avec le tig  modulo 3h
-			u10=interpol3d(U10,i_t,i_lat,i_lng)	
-			v10=interpol3d(V10,i_t,i_lat,i_lng)	
-			res=cvent(u10,v10) 		// vitesse=res[0], angle=res[1] 
-			console.log('resultat'+ res)
-			return res	
-
-			}
-
-
-			
-
-
-			// function vent(t,lat,lng)
-			// {	var i_t      = t-tig ;
-			// 	var i_lat    = lat-latini ;
-			// 	var i_lng    = lng-lngini ;
-			// 	var vit_vent = Math.sqrt(
-			// 		Math.pow(U10[i_t][i_lat][i_lng],2)
-			// 		+Math.pow(V10[i_t][i_lat][i_lng],2)
-			// 		)
-			// 	return vit_vent
-			// }
-
-
-			//console.log('1,1',vent(t,1,1))
-			console.log ('valeur U 0 0 0 ' +U10[0][0][0]);
-			console.log ('valeur V 0 0 0 ' +V10[0][0][0]);
-			console.log ('latini  ' + latini);
-			console.log ('lngini  ' + lngini);
-			console.log ('latfin  ' + latfin);
-			console.log ('lngfin  ' + lngfin);
-			console.log ('tig'   + tig);
-			
-			gvent (lat,lng ,t)
-
+			// res= gvent (lat,lng ,t)
+			// tps = (tsimul-tig)/3600	
+			// console.log('resultat de gvent en lat :'+lat +' et lng '+lng+' et a t +'+tps+'h vitesse '+res[0].toFixed(2)+' Angle vent '+res[1].toFixed(1) )
 			
 			
 			

@@ -16,7 +16,7 @@ import webbrowser
 from uploadgrib import *
 from fonctions_vr import *
 
-val='polaires.polaires_figaro2'
+val='polaires.polaires_imoca'
 exec('from '+val+ ' import *')
 
 from global_land_mask import globe
@@ -49,7 +49,7 @@ class NumpyArrayEncoder(JSONEncoder):
             return obj.tolist()
         return JSONEncoder.default(self, obj)
 
-
+# pour chargement du grib pour le js  a automatiser en fonction de la lat et lng
 tig, GR = chargement_grib()
 latini=-50      # latitude la plus au nord en premier et latitude nord negative
 latfin=-40
@@ -304,7 +304,7 @@ def fonction_routeur(xn,yn,x1,y1,t0=time.time()):
     temps_cum2 = np.copy(temps_cumules[:l2])
     temps_cum2[-1] = temps_cum2[-2] + temps_mini2 * 3600  # le dernier terme est le temps entre le dernier isochrone et l'arrive
     #print ('shape temps cum et temps_cum2.shape',temps_cum2.shape,chemin2.shape)
-    print('temps_cum2',temps_cum2)
+    #print('temps_cum2',temps_cum2)
     TWS_ch2, TWD_ch2 = prevision_tableau2(GR, temps_cum2, chemin2)# previsions meteo aux differents points pour reconstitution 
    
    
@@ -342,7 +342,7 @@ def fonction_routeur(xn,yn,x1,y1,t0=time.time()):
         comment2.append([-chem2[i, 1],chem2[i, 0],chem2[i, 2]+tig,chem2[i, 3],chem2[i, 4],chem2[i, 5],chem2[i, 6],chem2[i, 7]])
     #Confection de la multipolyline pour le trace des isochrones 
 
-        print('chem2 i 2 ',chem2[i, 2])    
+        #print('chem2 i 2 ',chem2[i, 2])    
     X2=isochrone2[:,0].reshape(-1,1)
     Y2=isochrone2[:,1].reshape(-1,1)
     N2=isochrone2[:,2].reshape(-1,1)
@@ -365,9 +365,6 @@ def fonction_routeur(xn,yn,x1,y1,t0=time.time()):
     print('Temps total      v2 {:2.0f}j {:2.0f}h {:2.0f}mn {:2.0f}s'.format(j2, h2, mn2 ,s2 ))
 
     return multipolyline2,route32,comment2
-
-
-
 
 
 
@@ -449,16 +446,20 @@ def resultat3():
 @app.route('/javascript')
 def javascript(): 
     global tig, GR
-    latini=-50      # latitude la plus au nord en premier et latitude nord negative
-    latfin=-40
-    lngini=350
+    latini=-50      # latitude la plus au nord en premier et latitude nord negative pour charger le grib pour jzvzscript
+    latfin=-40      # Il faudrait mettra une formule pour que la bonne portion de grib soit chargée
+    lngini=340
     lngfin=360
 
-    u10,v10=vents_encode2(latini,latfin,lngini,lngfin)
+    u10,v10=vents_encode2(latini,latfin,lngini,lngfin)   
+    l1=list(tab_tws_imoca)
+    l2=list(tab_twa_imoca)
+    polairesjs=[arr.tolist() for arr in polaires]
+    tsimul=time.time()
 
-    
+
     #vents2=vents_encode(latini,latfin,longini,longfin)
-    return render_template("javascript.html",tig=tig,latini=latini,lngini=lngini,latfin=latfin,lngfin=lngfin,U10=u10, V10=v10 )
+    return render_template("javascript.html",tig=tig,tsimul=tsimul,latini=latini,lngini=lngini,latfin=latfin,lngfin=lngfin,U10=u10, V10=v10,l1=l1,l2=l2,polairesjs=polairesjs )
 
 
 
@@ -523,28 +524,20 @@ def leaflet():
 @app.route('/windleaf',methods =["GET", "POST"])
 def windleaf():
     global x0,y0,x1,y1
-    latitude_d     = '044-23-12-N'
-    longitude_d    = '008-55-00-E' 
-    x0,y0=chaine_to_dec(latitude_d, longitude_d)  # conversion des latitudes et longitudes en tuple
     
-    #Point Arrivee 
-     #Point Arrivee 
-    latitude_a     = '043-01-00-N'
-    longitude_a    = '009-24-00-E'
-
 # Extraction de donnees du fichier json
      # Extraction de donnees du fichier json
     with open('courses.json', 'r') as fichier:
         data = json.load(fichier)
-    n_course='4634'
+    n_course='429'
     bateau=(data[n_course]["bateau"])
     print('\nBateau : ',bateau)
     fichier_polaires='polaires.'+(data[n_course]["polaires"])
 
-    latdep = (data[n_course]["position"]["lat"])
-    lngdep = (data[n_course]["position"]["lng"])
-    latar  = (data[n_course]["bouee_2"]["lat"])
-    lngar  = (data[n_course]["bouee_2"]["lng"])
+    latdep = (data[n_course]["depart"]["lat"])
+    lngdep = (data[n_course]["depart"]["lng"])
+    latar  = (data[n_course]["bouee_1"]["lat"])
+    lngar  = (data[n_course]["bouee_1"]["lng"])
     x0,y0=chaine_to_dec(latdep, lngdep)  # conversion des latitudes et longitudes en tuple
     x1,y1=chaine_to_dec(latar, lngar)
     print ('x0,y0',x0,y0)
@@ -553,6 +546,7 @@ def windleaf():
     lngar=x1
 
     t0=time.time() 
+    tsimul=time.time()
     print ('(401) temps t0',time.strftime(" %d %b %Y %H:%M:%S ", time.localtime(t0)))
 
  
@@ -563,19 +557,30 @@ def windleaf():
     y0=latdep
 
 
-# #Depart force les 3 lignes seront à supprimer
+# #Si on veut forcer la position de depart     3 lignes seront à supprimer
 #     latitude_d     = '043-17-12-N'
 #     longitude_d    = '010-07-49-E'
 #     x0,y0=chaine_to_dec(latitude_d, longitude_d)  # conversion des latitudes et longitudes en tuple
     
-#     latdep=-y0
-#     lngdep=x0
-#     lngar=x1
-#     latar=-y1
+# #Si on veut forcer la position d'arrivee (reste à tester )
+#     latitude_d     = '043-17-12-N'
+#     longitude_d    = '010-07-49-E'
+#     x1,y1=chaine_to_dec(latitude_d, longitude_d)  # conversion des latitudes et longitudes en tuple
     
   
+    # chargement du grib partiel pour utilisation ulterieure en js
+    global tig, GR
+    latini=-50      # latitude la plus au nord en premier et latitude nord negative pour charger le grib pour jzvzscript
+    latfin=-40
+    lngini=340
+    lngfin=360
+    u10,v10=vents_encode2(latini,latfin,lngini,lngfin)   
+    l1=list(tab_tws_imoca)   
+    l2=list(tab_twa_imoca)   
+    polairesjs=[arr.tolist() for arr in polaires]
+
+    # calcul de la route et de la multipolyline des isochrones
     multipolyline,route,comment=fonction_routeur(lngdep,latdep,x1,y1,t0)
-   
     red=[]
     black=[]
     for i in range(len(multipolyline)):
@@ -584,7 +589,10 @@ def windleaf():
         else:
                 red.append(multipolyline[i]) 
 
-    return render_template("windleaf.html", multipolyred=red,multipolyblack=black,route=route,comment=comment,lngdep=lngdep,latdep=latdep,lngar=lngar,latar=latar, result=request.form)
+
+
+    print('tsimul',tsimul)
+    return render_template("windleaf.html", multipolyred=red,multipolyblack=black,route=route,comment=comment,l1=l1,l2=l2,polairesjs=polairesjs,lngdep=lngdep,latdep=latdep,lngar=lngar,latar=latar, t0=tsimul ,tig=tig,latini=latini,lngini=lngini,latfin=latfin,lngfin=lngfin,U10=u10, V10=v10 ,result=request.form)
 
 
     

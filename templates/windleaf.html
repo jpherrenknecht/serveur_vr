@@ -25,7 +25,93 @@
                         min=Math.floor((abs-deg)*60)
                         sec=Math.round(((abs-deg)*60-min)*60)
                         return deg+'°'+min+'mn'+sec+'s'
-                    }     
+                    }    
+
+            function polinterpol2d(bateau,twa,tws)
+			{	// parametres : polaires du bateau twa et tws
+			    var i_sup=l2.findIndex(element => element > twa);
+				var j_sup=l1.findIndex(element => element > tws);				
+				var twa_inf=l2[i_sup-1]
+				var twa_sup=l2[i_sup]
+				var tws_inf=l1[j_sup-1]
+				var tws_sup=l1[j_sup]
+				dx = twa-twa_inf 				// Ecart avec la valeur d'indice mini
+				dy = tws-tws_inf
+				deltax=twa_sup-twa_inf
+				deltay=tws_sup-tws_inf
+				fx1y1   = bateau[i_sup-1][j_sup-1]
+				fx2y1   = bateau[i_sup][j_sup-1]			
+				fx1y2   = bateau[i_sup-1][j_sup]			
+				fx2y2   = bateau[i_sup][j_sup]			
+				dfx     = fx2y1-fx1y1			
+				dfy     = fx1y2-fx1y1			
+				dfxy    = fx1y1+fx2y2-fx2y1-fx1y2				
+				fxy     = dfx*dx/deltax  + dfy*dy/deltay + dfxy*dx*dy/deltax/deltay + fx1y1
+				return fxy
+			}
+            function cvent(u,v) //retourne la vitesse du vent et sa force a partir de u et v
+			{
+				vit = Math.sqrt(u*u + v*v)
+				angle= Math.acos(v/vit)*180/Math.PI+180;
+				if (u<0)
+				{angle=360-angle}
+				vit*= 1.94384     // Vitesse en noeuds
+				return [vit,angle]				
+			} 
+
+			function interpol2d(XX,t0,i_lat,i_lng)
+			{			
+				lat0    = Math.floor(i_lat)       // partie entiere
+				lng0    = Math.floor(i_lng)
+				//t0    = Math.floor(i_t)       // t0 est censé être un indice entier
+				dec_lat = i_lat%1    				// partie decimale
+				dec_lng = i_lng%1
+				fx1y1   = XX[t0][lat0][lng0]
+				fx2y1   = XX[t0][lat0+1][lng0]
+				fx1y2   = XX[t0][lat0][lng0+1]
+				fx2y2   = XX[t0][lat0+1][lng0+1]
+				dfx     = fx2y1-fx1y1
+				dfy     = fx1y2-fx1y1
+				dfxy    = fx1y1+fx2y2-fx2y1-fx1y2
+				fxy     = dfx*dec_lat  + dfy*dec_lng + dfxy*dec_lat*dec_lng + fx1y1
+				return fxy
+			}
+
+			function interpol3d(XX,i_t,i_lat,i_lng)
+			{
+				lat0    = Math.floor(i_lat)       // partie entiere
+				lng0    = Math.floor(i_lng)
+				t0      = Math.floor(i_t)
+				dec_t   = i_t%1						// partie decimale				
+				dec_lat = i_lat%1
+				dec_lng = i_lng%1
+				r1      = interpol2d(XX,t0,i_lat,i_lng)
+				r2      = interpol2d(XX,t0+1,i_lat,i_lng)
+				r       = r1+(r2-r1)*dec_t
+				return r
+			}
+
+            function gvent (lat,lng ,t)
+			{
+			i_lat=lat-latini       // ecart avec la latitude du grib chargé
+			i_lng=lng-lngini
+			console.log(' ')	
+			console.log ('************* Latitude  '+lat+' i_lat : '+i_lat)
+			console.log ('************* Longitude ' +lng+' i_lng : '+i_lng)
+			console.log(' ')
+			i_t=(t-tig)/3600/3     // Ecart en heures avec le tig  modulo 3h
+			u10=interpol3d(U10,i_t,i_lat,i_lng)	
+			v10=interpol3d(V10,i_t,i_lat,i_lng)	
+			res=cvent(u10,v10) 		// vitesse=res[0], angle=res[1] 
+			console.log('resultat'+ res)
+			return res	
+
+			}
+
+
+
+
+
 
 
     // Fonction zezo                
@@ -53,7 +139,7 @@
             }
         
             function crsdist_num(lat1, lon1, lat2, lon2)
-{
+        {
         lat1 = lat1 * Math.PI/180;
         lon1 = lon1 * Math.PI/180;
         lat2 = lat2 * Math.PI/180;
@@ -67,7 +153,7 @@
                 crs=2*Math.PI-Math.acos(argacos); 
         }
 		return [crs,d];
-}
+        }
 
         function latdec_to_latdeg(lat) 
         {}
@@ -86,6 +172,26 @@
             polylineblack = {{  multipolyblack }}
             polylineblue  = {{  route }}
             comment       = {{  comment }}
+            l1            = {{ l1 }}           // cles pour lire les tableaux de polaire
+            l2            = {{ l2 }}
+            polairesjs    = {{ polairesjs }}; 
+            
+            U10 = {{ U10 }};
+			V10 = {{ V10 }};
+			tig = {{ tig   }};
+            tsimul  = {{ t0    }};
+
+			latini= {{ latini }};
+			latfin= {{ latfin }};
+			lngini= {{ lngini }};
+			lngfin= {{ lngfin }}; 
+            
+
+			console.log('tig : ' + tig )
+			console.log('latini : '+ latini)
+			console.log('latfin : '+ latfin)
+			console.log( 'lngini : '+ lngini)
+			console.log('lngfin : '+ lngfin)
          
             var tooltip = new Array();
             
@@ -99,34 +205,57 @@
             var lngmap=(lngdep+lngar)/2;
 
             dist=((latdep-latar)**2+(lngdep-lngar)**2)**.5;
-            console.log(dist);
+            console.log('***************dist : '+dist);
             if(dist<5)
-                {zoom=7}
+                {zoomp=7}
             else if (dist<10)
-                {zoom=6}
+                {zoomp=6}
             else if (dist<20)
-                {zoom=5}  
+                {zoomp=5}  
             else if (dist<70)
-                {zoom=5}  
-            else {zoom=4}
+                {zoomp=5}  
+            else {zoomp=4}
+
+            console.log('***************zoom : '+zoomp);
+            // test polaires    
+
+            twa= 63	
+			tws= 7.5
+            console.log('-------------',tsimul)
+
+			res=polinterpol2d(polairesjs,twa,tws)
+			console.log('*******resultat pour twa par fonction = '+twa+ '  tws  '+ tws +'  resultat  '+res   )
+
+        function trace_polyline(lat00,lng00,latclick2,lngclick2,tsimul,twa)
+        { 
+            // le cap initial est donné avec les coordonnes du curseur 
+            //latclick=e.latlng.lat
+            //lngclick=e.latlng.lng
+            //latclick2=45.848
+            //lngclick2=-4.5071
+
+            latgrib=-lat00
+            lnggrib=360+lng00
+            res=gvent (latgrib,lnggrib,tsimul)
+          console.log('resultat de gvent en lat :'+latgrib+' et lng '+lnggrib+'  vitesse '+res[0]+' Angle vent '+res[1] )
+          //console.log('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx    Recherche vent '+res) 
+          polyline= [[lat00,lng00],[46.23,-4.11],[latclick2,lngclick2]]
+          console.log('polyline tableau '+Array.isArray(polyline))
+          console.log ('------------------------ polyline '+ polyline)  
 
 
-
-
+        return polyline    
+        }
 
 
 
         function initialize()
         {            
-            
-            
             document.formu.latdep.value=arrondi(latdep,4)
             document.formu.lngdep.value=arrondi(lngdep,4)
             document.formu.latar.value =arrondi( latar,4)
             document.formu.lngar.value=arrondi(lngar,4)
             //document.formu.test.value=dist
-
-
         }
    
 
@@ -137,7 +266,7 @@
         // Optional: Initial state of the map
         lat: (latdep+latar)/2,
         lon: (lngdep+lngar)/2,
-        zoom: 10,
+        zoom: zoomp,
         };
 
     // Initialize Windy API
@@ -169,6 +298,16 @@
             color: 'blue',
             weight:2,
             }).addTo(map);
+
+            var test= trace_polyline(latdep,lngdep,45.848,-4.5071,tsimul)
+
+            console.log('test is tableau '+Array.isArray(test))
+           console.log ('------------------------ test '+ test)  
+
+            // L.polyline(test).setStyle({
+            // color: 'green',
+            // weight:2,
+            // }).addTo(map);
 
 
     // classes pour les icones
@@ -250,6 +389,7 @@
     var popup = L.popup();
     var poly
     poly= new L.Polyline ([[0,0],[1,1]]).setStyle({color:'red',weight:1,});
+    poly2= new L.Polyline ([[0,0],[1,1]]).setStyle({color:'red',weight:1,});
 
  
     map.on('click', function(e) {
@@ -267,13 +407,27 @@
         document.formu.test3.value =crsdist( latdep ,lngdep,latclick, lngclick);
      
         map.removeLayer(poly);
+        map.removeLayer(poly2);
+
         ligne=[[latdep,lngdep],[latclick,lngclick]]
+
         poly=new L.polyline(ligne).setStyle({
             color: 'red',
             weight:2,
             opacity:0.5,
             }).addTo(map);
 
+            twa=135
+
+        var ligne2= trace_polyline(latdep,lngdep,latclick,lngclick,tsimul,twa) 
+
+        console.log('xxxxxxxxxxxxxxxxxxxxxxxxx  Ligne2 :   '+ ligne2)  
+        poly2= new L.polyline(ligne2).setStyle({
+            color: 'black',
+            weight:2,
+            opacity:0.5,
+            }).addTo(map);
+   
 
     // alert("Latitude : " + e.latlng.lat + " Longitude : " + e.latlng.lng)
         });

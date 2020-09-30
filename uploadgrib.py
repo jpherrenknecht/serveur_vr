@@ -308,7 +308,7 @@ if __name__ == '__main__':
     print ('\nPrévision à date et heure données \
             \n---------------------------------')
     print('\nLatitude {:6.2f} et Longitude{:6.2f} '.format( d[1], d[0]))
-    dateprev=datetime(2020 , 9 , 25, 20, 0,  0)
+    dateprev=datetime(2020 , 9 , 28, 20, 0,  0)
     print ('\nDateprev : ',dateprev , ' local')
     # je peux la transformer en secondes mais ce sont des secondes locales
     dateprev_s=time.mktime(dateprev.timetuple())

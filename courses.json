@@ -119,7 +119,16 @@
                          }   ,
 
 
-
+                    "429":   
+                         {"numero"  : "429" ,
+                             "nom":"Vendée globe prologue",
+                             "bateau":"imoca",
+                             "polaires":"polaires_imoca.py",
+                             "depart":{"nom":"Les Sables d'Olonne","lat":"046-29-00-N" ,"lng":"001-47-00-W"},
+                             "bouee_1":{"nom":"Santa Maria","lat":"036-56-12-N" ,"lng":"025-01-50-W"}, 
+                             "bouee_2":{"nom":"ilha das flores","lat":"039-27-00-N" ,"lng":"031-10-00-W"},
+                             "arrivee":{"nom":"Les Sables d'Olonne","lat":"046-29-00-N" ,"lng":"001-49-00-W"}
+                            }   ,
 
 
 
