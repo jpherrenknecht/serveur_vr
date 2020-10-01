@@ -328,6 +328,7 @@ def fonction_routeur(xn,yn,x1,y1,t0=time.time()):
     temps_cum2 += tig
     route32=[]
     comment2=[]
+
     for i in range (0,len(chem2),1):
         temps2=time.strftime(" %d %b %Y %H:%M:%S ", time.localtime(chem2[i, 2]))
         # heures=str(((chem[i, 2])- t0)//3600)
@@ -339,6 +340,7 @@ def fonction_routeur(xn,yn,x1,y1,t0=time.time()):
         # twaroute = str(round(chem[i, 6], 0))
         # Vt  = str(round(chem[i, 7], 2))
         route32.append([-chem2[i, 1],chem2[i, 0]])   # dans la version leaflet on a le temps en trois
+        # indice 0 :lat 1:lng 2:temps  3:vitesse 4:twd   5:cap   6 :twa  7 :vpol
         comment2.append([-chem2[i, 1],chem2[i, 0],chem2[i, 2]+tig,chem2[i, 3],chem2[i, 4],chem2[i, 5],chem2[i, 6],chem2[i, 7]])
     #Confection de la multipolyline pour le trace des isochrones 
 
@@ -447,8 +449,8 @@ def resultat3():
 def javascript(): 
     global tig, GR
     latini=-50      # latitude la plus au nord en premier et latitude nord negative pour charger le grib pour jzvzscript
-    latfin=-40      # Il faudrait mettra une formule pour que la bonne portion de grib soit chargée
-    lngini=340
+    latfin=-35      # Il faudrait mettra une formule pour que la bonne portion de grib soit chargée
+    lngini=330
     lngfin=360
 
     u10,v10=vents_encode2(latini,latfin,lngini,lngfin)   
@@ -571,8 +573,8 @@ def windleaf():
     # chargement du grib partiel pour utilisation ulterieure en js
     global tig, GR
     latini=-50      # latitude la plus au nord en premier et latitude nord negative pour charger le grib pour jzvzscript
-    latfin=-40
-    lngini=340
+    latfin=-35
+    lngini=330
     lngfin=360
     u10,v10=vents_encode2(latini,latfin,lngini,lngfin)   
     l1=list(tab_tws_imoca)   

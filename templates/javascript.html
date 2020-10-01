@@ -52,6 +52,16 @@
 			return 180-Math.abs(((cap-dvent+360)%360)-180)
 			}
 
+			function ftwao(cap,dvent)
+			{
+			twa1=(cap-dvent+360)%360
+			if (twa1<180)
+			{twao=twa1}
+			else{twao=twa1-360}
+			return twao	
+
+			}
+
 			function pos_dec_mn(pos)
 			{  // transforme les degres decimaux en mn sec
 			 	abs=Math.abs(pos)
@@ -59,10 +69,21 @@
 				min=Math.floor((abs-deg)*60)
 				sec=Math.round(((abs-deg)*60-min)*60)
 				return deg+'°'+min+'mn'+sec+'s'
-			}    
+			}  
+
+			function h_mn(sec)
+			{
+				h=Math.floor(sec/3600)	
+				mn=Math.floor((sec-3600*h)/60)
+				s=sec-3600*h-60*mn
+				res=h+'h '+mn+'mn '+s+'s'
+				return res
+			}
+
 
 			function polinterpol2d(bateau,twa,tws)
 			{	// parametres : polaires du bateau twa et tws
+				twa=Math.abs(twa)
 			    var i_sup=l2.findIndex(element => element > twa);
 				var j_sup=l1.findIndex(element => element > tws);				
 				var twa_inf=l2[i_sup-1]
@@ -85,15 +106,15 @@
 			}
 
 
-			function gvent (lat,lng ,t)
+			function vit_angle_vent (lat,lng ,t)
 			{
 			i_lat=-lat-latini       // ecart avec la latitude du grib chargé
 			i_lng=360+lng-lngini
 			i_t=(t-tig)/3600/3     // Ecart en heures avec le tig  modulo 3h
 				
-			console.log ('**** Temps depuis le grib en h '+i_t*3+ ' Indice '+i_t)
-			console.log ('**** latini : '+latini+' ********* Latitude  '+lat+' i_lat : '+i_lat)
-			console.log ('**** lngini : '+lngini+' ********* Longitude ' +lng+' i_lng : '+i_lng)
+			// console.log ('**** Temps depuis le grib en h '+i_t*3+ ' Indice '+i_t)
+			// console.log ('**** latini : '+latini+' ********* Latitude  '+lat+' i_lat : '+i_lat)
+			// console.log ('**** lngini : '+lngini+' ********* Longitude ' +lng+' i_lng : '+i_lng)
 					
 			u10=interpol3d(U10,i_t,i_lat,i_lng)	
 			v10=interpol3d(V10,i_t,i_lat,i_lng)	
@@ -185,11 +206,12 @@
 			return [dist,cap]
 			}
 
+
 			function deplacement(latinit,lnginit,dt,vitesse,cap)
 			{		
 				cap_r=cap*Math.PI/180
 				latf=latinit+vitesse*dt/3600/60*Math.cos(cap_r)
-				lngf=lnginit-vitesse*dt/3600/60*Math.sin(cap_r)/Math.cos(latinit*Math.PI/180)
+				lngf=lnginit+vitesse*dt/3600/60*Math.sin(cap_r)/Math.cos(latinit*Math.PI/180)
 				arrivee=[latf,lngf]
 				return arrivee 
 
@@ -222,6 +244,16 @@
 			console.log('tsimul : '+ intl.format(tsimul*1000));
 			console.log(' ')
 			
+			console.log('***************Données seront recupérées du serveur dans windleaf************************************')
+			latdep=39.4218
+			lngdep=-21.074
+			// Coordonnées du curseur
+			latf=39.3019
+			lngf=-21.2915
+
+			console.log('latdep : '+ latdep)
+			console.log('lngdep: '+  lngdep)
+
 
 			console.log('***************************************************************************************')
 			console.log ('Test de la fonction deplacement')
@@ -239,12 +271,12 @@
 
 
 			console.log('***************************************************************************************')
-			console.log ('Test de la fonction gvent')
-			lat= 44.9926
-			lng=-12.691
+			console.log ('Test de la fonction vit_angle_vent')
+			lat= latdep
+			lng=lngdep
 			// latgrib=-lat00
 			// lnggrib=360+lng00
-			res=gvent (lat,lng,tsimul)
+			res=vit_angle_vent (lat,lng,tsimul)
 			console.log('Vent en lat :'+ lat + ' lng'+ lng+ ' tws '+res[0]+' twd '+res[1] )
 			console.log('')
 
@@ -256,37 +288,120 @@
 			console.log(' Polaire pour twa : '+twa+ ' tws  '+ tws +'  Vitesse '+res.toFixed(3)  )
 			
 
-
-
-
-
-			lat00=44.9926
-			lng00=-12.691
-			latf=44.8427
-			lngf=-13.0991
-			twa=45
-
-			function polyline_twa(lat00,lng00,latf,lngf,tsimul,twa)
-			{   latgrib=-lat00
-				lnggrib=360+lng00
-				cap_ini=dist_cap_ortho(lat00,lng00,latf,lngf)[1]
-
-				
-
+			console.log('***************************************************************************************')
+			console.log ('Test de la fonction h_mn(sec)')
+			res=h_mn(12550)
+			console.log('res '+res)
 			
-			// 	res=gvent (latgrib,lnggrib,tsimul)
-			// 	console.log('resultat de gvent en lat :'  vitesse '+res[0]+' Angle vent '+res[1] )
-			// //console.log('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx    Recherche vent '+res) 
-				polyline= [[lat00,lng00],[46.23,-4.11],[latf,lngf]]
-				// console.log('polyline tableau '+Array.isArray(polyline))
-				// console.log ('------------------------ polyline '+ polyline)  
+			// console.log('***************************************************************************************')
+			// console.log ('Test de la fonction ftwao(cap dvent) ')
+			// cap=30;dvent=10;twao=ftwao(cap,dvent)
+			// //console.log('cap'+cap+' dVent : '+dvent + ' twao : '+ftwao(cap,dvent) +' Verification '+(dvent+ twao+360)%360)
+
+			// cap=30;dvent=350;twao=ftwao(cap,dvent)
+			// console.log('cap'+cap+' dVent : '+dvent + ' twao : '+ftwao(cap,dvent)+' Verification '+(dvent+ twao+360)%360)
+			// cap=350;dvent=30;twao=ftwao(cap,dvent)
+			// console.log('cap'+cap+' dVent : '+dvent + ' twao : '+ftwao(cap,dvent)+' Verification '+(dvent+ twao+360)%360)
 
 
-			return polyline    
+			// cap=30;dvent=200;twao=ftwao(cap,dvent)
+			// console.log('cap'+cap+' dVent : '+dvent + ' twao : '+ftwao(cap,dvent)+' Verification '+(dvent+ twao+360)%360)
+			
+			// cap=30;dvent=220;twao=ftwao(cap,dvent)
+			// console.log('cap'+cap+' dVent : '+dvent + ' twao : '+ftwao(cap,dvent)+' Verification '+(dvent+ twao+360)%360)
+
+			// cap=350;dvent=30;twao=ftwao(cap,dvent)
+			// console.log('cap'+cap+' dVent : '+dvent + ' twao : '+ftwao(cap,dvent)+' Verification '+(dvent+ twao+360)%360)
+			
+
+			function polyline_twa(latdep,lngdep,latf,lngf,tsimul,twa)
+			{  
+				// latgrib=-latdep
+				//lnggrib=360+lngdep
+				hdg_ini=dist_cap_ortho(latf,lngf,latdep,lngdep)[1]
+				//conditions meteo au point de depart
+				vent_ini=vit_angle_vent (latdep,lngdep,tsimul)
+				tws_ini=vent_ini[0]
+				twd_ini=vent_ini[1]				
+				twa_ini=ftwao(hdg_ini,twd_ini)
+
+				// // calcul du point suivant
+				// //calcul de la polaire au point de depart 
+				// vitesse=polinterpol2d(polairesjs,twa_ini,tws_ini)
+				// // calcul du deplacement
+				// dt=600
+				// cap=hdg_ini
+				// pt2=deplacement(latdep,lngdep,dt,vitesse,cap)
+				// lat_pt2=pt2[0]
+				// lng_pt2=pt2[1]
+
+
+				// console.log('hdg_ini : '+hdg_ini)
+				// console.log('twd_ini : '+twd_ini)
+				// console.log('tws_ini : '+tws_ini)
+				// console.log('twa_ini : '+twa_ini)
+				// console.log('vitesse : '+vitesse)
+				// console.log('***********Nouveau point Lat:'+lat_pt2+ 'Lng : '+lng_pt2) 
+
+			// // 	res=vit_angle_vent (latgrib,lnggrib,tsimul)
+			// // 	console.log('resultat de vit_angle_vent en lat :'  vitesse '+res[0]+' Angle vent '+res[1] )
+			// // //console.log('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx    Recherche vent '+res) 
+			// 	polyline= [[latdep,lngdep]]
+			// 	console.log('Polyline : ' + polyline)
+			// 	polyline.push(pt2)
+			// 	console.log('Polyline après push: ' + polyline)
+
+
+			// 	//calcul du deplacement suivant
+			// 	// extraction de la meteo
+			// 	tsimul=tsimul+dt
+			// 	vent_i=vit_angle_vent (pt2[0],pt2[1],tsimul)
+			// 	cap_i=(vent_i[1]+ twa_ini+360)%360                   // le cap est determine par la twa de base et par la direction du vent 
+
+			// 	console.log('Direction du vent' +vent_i[1]+' Twa ini'+ twa_ini)
+			// 	vitesse=polinterpol2d(polairesjs,twa_ini,vent_i[0])
+			// 	pt3=deplacement(pt2[0],pt2[1],dt,vitesse,cap_i)
+
+			// 	console.log('Vitesse polaire' + vitesse +'cap ' +cap_i )
+			// 	polyline.push(pt3)
+			// 	console.log('Polyline après push pt3: ' + polyline)
+			// 	// console.log('polyline tableau '+Array.isArray(polyline))
+			// 	// console.log ('------------------------ polyline '+ polyline)  
+
+			// 	// booucle sur les points
+			// 	// tsimul , latdep,lngdep parametres de la fonction 
+				
+				polyline2= [[latdep,lngdep]]
+				dt=600   //intervalle entre deux points =10 mn
+				lat = latdep
+				lng= lngdep
+				twa=twa_ini    // la twa est celle donnée initialement par le curseur
+				cap=hdg_ini
+				t=tsimul
+
+				for (var i=0;i<=10;i++)
+				{tsimul = t+i*dt
+				meteo=vit_angle_vent (lat,lng,tsimul)
+				vit_polaire=polinterpol2d(polairesjs,twa_ini,meteo[0])	
+				point=deplacement(lat,lng,dt,vit_polaire,cap)     //calcul du nouveau point 
+				lat=point[0];lng=point[1];
+				polyline2.push(point)	
+				}
+
+				console.log (' polyline '+polyline2)
+
+			return polyline2   
 			}
 
+			//latdep et lng dep sont les coordonnées du point de depart renvoyés par l'esxtension chrome
 			
-			polyline_twa(lat00,lng00,latf,lngf,tsimul,twa)
+			lat_curseur=41.125
+			lng_curseur=-18.0052
+
+			twa=45
+
+
+			res=polyline_twa(latdep,lngdep,lat_curseur,lng_curseur,tsimul,twa)
 
 //verification des recuperations
 			// console.log('tig : ' + tig )
@@ -337,9 +452,9 @@
 			// console.log ('tsimul  : ' + tsimul);
 			// console.log ('Soit en h ' + (tsimul-tig)/3600)
 
-			// res= gvent (lat,lng ,t)
+			// res= vit_angle_vent (lat,lng ,t)
 			// tps = (tsimul-tig)/3600	
-			// console.log('resultat de gvent en lat :'+lat +' et lng '+lng+' et a t +'+tps+'h vitesse '+res[0].toFixed(2)+' Angle vent '+res[1].toFixed(1) )
+			// console.log('resultat de vit_angle_vent en lat :'+lat +' et lng '+lng+' et a t +'+tps+'h vitesse '+res[0].toFixed(2)+' Angle vent '+res[1].toFixed(1) )
 			
 			
 			

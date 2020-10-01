@@ -13,7 +13,36 @@
     <script>
         function arrondi(a,n)
             {return(Math.round(a*10**n)/10**n);}
+
+
+            function h_mn(sec)
+			{   sec=sec+15
+				h=Math.floor(sec/3600)	
+				mn=Math.ceil((sec-3600*h)/60)
+				s=sec-3600*h-60*mn 
+				res=h+'h '+mn+'mn'
+				return res
+			}
         
+            function deg_mn_(sec)
+			{   sec=sec+15
+				h=Math.floor(sec/3600)	
+				mn=Math.ceil((sec-3600*h)/60)
+				s=sec-3600*h-60*mn 
+				res=h+'h '+mn+'mn'
+				return res
+			}
+
+            function pos_dec_mn(pos)
+			{  // transforme les degres decimaux en mn sec
+			 	abs=Math.abs(pos)
+				deg=Math.floor(abs)
+				min=Math.floor((abs-deg)*60)
+				sec=Math.round(((abs-deg)*60-min)*60)
+				return deg+'°'+min+'mn'+sec+'s'
+			}  
+
+
             function cap(x0,y0,x1,y1)
                 {capi=90-(Math.atan((y1-y0)/(x1-x0+0.0000001))*180/3.1416);
                     if ((x1-x0)>0)
@@ -197,7 +226,10 @@
             
             for ( var i=0 ; i<comment.length ; i++ )
             {
-            tooltip[i]='<b>'+intl.format(1000*comment[i][2])+' - Isochrone  '+ i +' <br> Lat : '+arrondi(comment[i][0],4) +'° ('+pos_dec_mn(comment[i][0])+')<br>Lng : ' +arrondi(comment[i][1],4)+'° (' +pos_dec_mn(comment[i][1])+')<br> TWS : ' +arrondi(comment[i][3],2)
+             // secondes depuis le depart    
+             sec= comment[i][2]-tsimul
+             sec=sec-(sec%60)
+            tooltip[i]='<b>'+intl.format(1000*comment[i][2])+' soit +  '+ h_mn(sec)+  '<br> Lat : '+arrondi(comment[i][0],4) +'° ('+pos_dec_mn(comment[i][0])+')<br>Lng : ' +arrondi(comment[i][1],4)+'° (' +pos_dec_mn(comment[i][1])+')<br> TWS : ' +arrondi(comment[i][3],2)
                 +' Noeuds  -  TWD : ' +arrondi(comment[i][4],0)+'° <br>  Cap ' +arrondi(comment[i][5],1)+'°     -  TWA ' +arrondi(comment[i][6],1)+'° <br> Vitesse :  ' +arrondi(comment[i][7],2)+' Noeuds'}    
             
              // centrage de la carte 
@@ -398,7 +430,7 @@
         cap_dist=crsdist( latdep ,lngdep,latclick, lngclick);
     popup
         .setLatLng(e.latlng)
-        .setContent("Latitude      : " +arrondi(e.latlng.lat,4) +" <br> Longitude : " +arrondi(e.latlng.lng,4) +'<br> ' +cap_dist )
+        .setContent("Latitude  &nbsp; &nbsp;   : " +arrondi(e.latlng.lat,4) +" ("+ pos_dec_mn(e.latlng.lat) + ") <br> Longitude : " +arrondi(e.latlng.lng,4) +" ("+ pos_dec_mn(e.latlng.lng) + ")<br> " +cap_dist )
         .openOn(map);
         
         document.formu.test2.value=arrondi(latclick,4);
