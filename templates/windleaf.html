@@ -11,7 +11,7 @@
 
 
     <script>
-        function arrondi(a,n)
+            function arrondi(a,n)
             {return(Math.round(a*10**n)/10**n);}
 
 
@@ -137,6 +137,196 @@
 
 			}
 
+            function ftwa(cap,dvent)
+			{//twa en valeur absolue
+			return 180-Math.abs(((cap-dvent+360)%360)-180)
+			}
+
+			function ftwao(cap,dvent)
+			{ // twa orientée
+			twa1=(cap-dvent+360)%360
+			if (twa1<180)
+			{twao=twa1}
+			else{twao=twa1-360}
+			return twao	
+			}
+
+			function pos_dec_mn(pos)
+			{  // transforme les degres decimaux en mn sec
+			 	abs=Math.abs(pos)
+				deg=Math.floor(abs)
+				min=Math.floor((abs-deg)*60)
+				sec=Math.round(((abs-deg)*60-min)*60)
+				return deg+'°'+min+'mn'+sec+'s'
+			}  
+
+			function h_mn(sec)
+			{
+				h=Math.floor(sec/3600)	
+				mn=Math.floor((sec-3600*h)/60)
+				s=sec-3600*h-60*mn
+				res=h+'h '+mn+'mn '+s+'s'
+				return res
+			}
+
+
+			function polinterpol2d(bateau,twa,tws)
+			{	// parametres : polaires du bateau twa et tws
+				twa=Math.abs(twa)
+			    var i_sup=l2.findIndex(element => element > twa);
+
+				var j_sup=l1.findIndex(element => element > tws);				
+				var twa_inf=l2[i_sup-1]
+				var twa_sup=l2[i_sup]
+				var tws_inf=l1[j_sup-1]
+				var tws_sup=l1[j_sup]
+				console.log('isup : '+ i_sup)
+                dx = twa-twa_inf 				// Ecart avec la valeur d'indice mini
+				dy = tws-tws_inf
+
+				deltax=twa_sup-twa_inf
+				deltay=tws_sup-tws_inf
+				fx1y1   = bateau[i_sup-1][j_sup-1]
+				fx2y1   = bateau[i_sup][j_sup-1]			
+				fx1y2   = bateau[i_sup-1][j_sup]			
+				fx2y2   = bateau[i_sup][j_sup]			
+				dfx     = fx2y1-fx1y1			
+				dfy     = fx1y2-fx1y1			
+				dfxy    = fx1y1+fx2y2-fx2y1-fx1y2				
+				fxy     = dfx*dx/deltax  + dfy*dy/deltay + dfxy*dx*dy/deltax/deltay + fx1y1
+				return fxy
+			}
+
+
+			function vit_angle_vent (lat,lng ,t)
+			{
+			i_lat=-lat-latini       // ecart avec la latitude du grib chargé
+			i_lng=360+lng-lngini
+			i_t=(t-tig)/3600/3     // Ecart en heures avec le tig  modulo 3h
+				
+			// console.log ('**** Temps depuis le grib en h '+i_t*3+ ' Indice '+i_t)
+			// console.log ('**** latini : '+latini+' ********* Latitude  '+lat+' i_lat : '+i_lat)
+			// console.log ('**** lngini : '+lngini+' ********* Longitude ' +lng+' i_lng : '+i_lng)
+					
+			u10=interpol3d(U10,i_t,i_lat,i_lng)	
+			v10=interpol3d(V10,i_t,i_lat,i_lng)	
+			res=cvent(u10,v10) 		// vitesse=res[0], angle=res[1] 
+			// console.log('resultat'+ res)
+			return res	
+
+			}
+
+			function cvent(u,v) //retourne la vitesse du vent et sa force a partir de u et v
+			{
+				vit = Math.sqrt(u*u + v*v)
+				angle= Math.acos(v/vit)*180/Math.PI+180;
+				if (u<0)
+				{angle=360-angle}
+				vit*= 1.94384     // Vitesse en noeuds
+				return [vit,angle]				
+			} 
+
+			
+
+            
+			function dist_cap_ortho(lati,lngi,latfi,lngfi)
+			{// latitude origine equateur positive vers le nord
+			//longitude greenwich positive vers l'est 
+			latirad = lati*Math.PI/180
+			latfrad = latfi*Math.PI/180
+			lb_m_la=(lngfi-lngi)*Math.PI/180
+			cosfia=Math.cos(latirad)
+			sinfia=Math.sin(latirad)
+			sinfib=Math.sin(latfrad)
+			cosfib=Math.cos(latfrad)
+			cos_lb_m_la=Math.cos(lb_m_la)
+			sin_lb_m_la=Math.sin(lb_m_la)
+			capo= Math.atan(cosfib*sin_lb_m_la/(cosfia*sinfib-sinfia*cosfib*cos_lb_m_la))*180/Math.PI
+			if( (latfi-lati)<0)
+			{capo=180+capo}
+			else {capo=(capo+360)%360}
+			dist= Math.acos(sinfia*sinfib+cosfia*cosfib*cos_lb_m_la)/Math.PI*180*60
+			return [dist,capo]
+			}
+
+
+			function deplacement(latinit,lnginit,dt,vitesse,cap)
+			{		
+				cap_r=cap*Math.PI/180
+				latfdep=latinit+vitesse*dt/3600/60*Math.cos(cap_r)
+				lngfdep=lnginit+vitesse*dt/3600/60*Math.sin(cap_r)/Math.cos(latinit*Math.PI/180)
+				arrivee=[latfdep,lngfdep]
+				return arrivee 
+
+			}
+
+            function polyline_twa(latdep,lngdep,latf,lngf,tsimul)
+			{  
+				console.log ('latdep dans polyline twa :' +latdep+ ' lngdep : ' +lngdep +' latf : ' +latf +' lngf : '+lngf +' tsimul : '+tsimul)
+				//Cap généré par le curseur recherche du vent et twa en consequence 
+				hdg_ini=dist_cap_ortho(latdep,lngdep,latf,lngf,)[1]
+                console.log( 'cap initial :' + hdg_ini)
+				vent_ini=vit_angle_vent (latdep,lngdep,tsimul)
+				tws_ini=vent_ini[0]
+				twd_ini=vent_ini[1]				
+				twa_ini=ftwao(hdg_ini,twd_ini)
+				polyline= [[latdep,lngdep]]  //initialisation de la polyline
+				dt=600   //intervalle entre deux points =10 mn
+
+				lat6 = latdep
+				lng6= lngdep
+				
+                twa=twa_ini    // la twa est celle donnée initialement par le curseur
+				capa=hdg_ini
+				t=tsimul
+				for (var i=0;i<=72;i++)
+				{tsimul = t+i*dt
+				meteo=vit_angle_vent (lat6,lng6,tsimul)
+				vit_polaire=polinterpol2d(polairesjs,twa_ini,meteo[0])	
+                capa=twa_ini+meteo[1]
+				point=deplacement(lat6,lng6,dt,vit_polaire,capa)     //calcul du nouveau point 
+				lat6=point[0];lng6=point[1];
+				polyline.push(point)	
+				}
+				//console.log (' polyline '+polyline)
+			return [polyline,twa_ini]  
+			}
+
+            function polyline_cap(latdep,lngdep,latf,lngf,tsimul)
+			{  
+				console.log ('latdep dans polyline cap :' +latdep+ ' lngdep : ' +lngdep +' latf : ' +latf +' lngf : '+lngf +' tsimul : '+tsimul)
+				//Cap généré par le curseur recherche du vent et twa en consequence 
+				hdg_ini=dist_cap_ortho(latdep,lngdep,latf,lngf,)[1]
+
+                console.log( 'cap initial :' + hdg_ini)
+				vent_ini=vit_angle_vent (latdep,lngdep,tsimul)
+				tws_ini=vent_ini[0]
+				twd_ini=vent_ini[1]				
+				twa_ini=ftwao(hdg_ini,twd_ini)
+				polyline2= [[latdep,lngdep]]  //initialisation de la polyline
+				dt=600   //intervalle entre deux points =10 mn
+				lat7 = latdep
+				lng7= lngdep
+				twa=twa_ini    // la twa est celle donnée initialement par le curseur
+				capi=hdg_ini
+
+				 t=tsimul
+				 for (var i=0;i<=72;i++)
+                    {tsimul = t+i*dt
+                     meteo=vit_angle_vent (lat7,lng7,tsimul)
+                     twa=ftwa(hdg_ini,meteo[1])
+                     console.log ('hdg_ini ' + hdg_ini + ' meteo 1 '+meteo[1] )
+                     console.log( 'test dans polyline_cap   twa : '+ twa + 'cap : ' +capi+' dirvent :'+meteo[1] + 'vit_vent :' + meteo[0]) 
+
+                     vit_polaire=polinterpol2d(polairesjs,twa,meteo[0])	                
+                    console.log('cap dans polylinecap'+capi )
+                    point=deplacement(lat7,lng7,dt,vit_polaire,capi)     //calcul du nouveau point 
+                    lat7=point[0];lng7=point[1];
+                    polyline2.push(point)	
+                    }
+				console.log (' polyline '+polyline2)
+			return [polyline2,capi]  
+			}
 
 
 
@@ -144,48 +334,53 @@
 
 
     // Fonction zezo                
-        function crsdist(lat1, lon1, lat2, lon2) {
-		var a = crsdist_num(lat1, lon1, lat2, lon2);
-		   var dist = Math.round(a[1] * 34377.4)/10;
-        if (dist.toString().indexOf('.') < 0) {
-                dist += '.0';
-        }
-        var dir = Math.round(a[0] * (180/Math.PI) * 10)/10;
-        if (dir.toString().indexOf('.') < 0) {
+        function crsdist(lat1, lon1, lat2, lon2)
+         {
+            var a = crsdist_num(lat1, lon1, lat2, lon2);
+            var dist = Math.round(a[1] * 34377.4)/10;
+            if (dist.toString().indexOf('.') < 0)
+             {
+                    dist += '.0';
+             }
+            var dir = Math.round(a[0] * (180/Math.PI) * 10)/10;
+            if (dir.toString().indexOf('.') < 0) 
+            {
                 dir += '.0';
-        }
-        dir = dir.toString();
-        dist = dist.toString();
-                while (dir.length < 5) {
-                dir = " " + dir;
-        }
-        while (dist.length < 6) {
-                dist = " " + dist;
-        }
-        //var res = dist + 'nm ' + dir + '°';
-        var res = 'Cap :'+dir +'° Distance :'+dist+'M';
-        return res;
             }
+            dir = dir.toString();
+            dist = dist.toString();
+                while (dir.length < 5) 
+            {
+                dir = " " + dir;
+            }
+            while (dist.length < 6) {
+                dist = " " + dist;
+            }
+            //var res = dist + 'nm ' + dir + '°';
+            var res = 'Cap :'+dir +'° Distance :'+dist+'M';
+        return res;
+        }
         
+
+
             function crsdist_num(lat1, lon1, lat2, lon2)
         {
-        lat1 = lat1 * Math.PI/180;
-        lon1 = lon1 * Math.PI/180;
-        lat2 = lat2 * Math.PI/180;
-        lon2 = lon2 * Math.PI/180;
-        var crs;        
-        var d=Math.acos(Math.sin(lat1)*Math.sin(lat2)+Math.cos(lat1)*Math.cos(lat2)*Math.cos(lon1-lon2));
-        var argacos=(Math.sin(lat2)-Math.sin(lat1)*Math.cos(d))/(Math.sin(d)*Math.cos(lat1));
-        if (Math.sin(lon2-lon1) > 0){   
-                crs=Math.acos(argacos); 
-        } else {
-                crs=2*Math.PI-Math.acos(argacos); 
-        }
-		return [crs,d];
+            lat1 = lat1 * Math.PI/180;
+            lon1 = lon1 * Math.PI/180;
+            lat2 = lat2 * Math.PI/180;
+            lon2 = lon2 * Math.PI/180;
+            var crs;        
+            var d=Math.acos(Math.sin(lat1)*Math.sin(lat2)+Math.cos(lat1)*Math.cos(lat2)*Math.cos(lon1-lon2));
+            var argacos=(Math.sin(lat2)-Math.sin(lat1)*Math.cos(d))/(Math.sin(d)*Math.cos(lat1));
+            if (Math.sin(lon2-lon1) > 0){   
+                    crs=Math.acos(argacos); 
+            } else {
+                    crs=2*Math.PI-Math.acos(argacos); 
+            }
+            return [crs,d];
         }
 
-        function latdec_to_latdeg(lat) 
-        {}
+        
 
 
 
@@ -229,8 +424,8 @@
              // secondes depuis le depart    
              sec= comment[i][2]-tsimul
              sec=sec-(sec%60)
-            tooltip[i]='<b>'+intl.format(1000*comment[i][2])+' soit +  '+ h_mn(sec)+  '<br> Lat : '+arrondi(comment[i][0],4) +'° ('+pos_dec_mn(comment[i][0])+')<br>Lng : ' +arrondi(comment[i][1],4)+'° (' +pos_dec_mn(comment[i][1])+')<br> TWS : ' +arrondi(comment[i][3],2)
-                +' Noeuds  -  TWD : ' +arrondi(comment[i][4],0)+'° <br>  Cap ' +arrondi(comment[i][5],1)+'°     -  TWA ' +arrondi(comment[i][6],1)+'° <br> Vitesse :  ' +arrondi(comment[i][7],2)+' Noeuds'}    
+            tooltip[i]='<b>'+intl.format(1000*comment[i][2])+' soit +  '+ h_mn(sec)+  '<br> Lat : '+comment[i][0].toFixed(4) +'° ('+pos_dec_mn(comment[i][0])+')<br>Lng : ' +comment[i][1].toFixed(4) +'° (' +pos_dec_mn(comment[i][1])+')<br> TWS : ' +comment[i][3].toFixed(2)
+                +' Noeuds  -  TWD : ' +comment[i][4].toFixed(0)+'° <br>  Cap ' +comment[i][5].toFixed(1) +'°     -  TWA ' +comment[i][6].toFixed(1) +'° <br> Vitesse :  ' +comment[i][7].toFixed(2) +' Noeuds'}    
             
              // centrage de la carte 
              var latmap=(latdep+latar)/2;           
@@ -258,35 +453,16 @@
 			res=polinterpol2d(polairesjs,twa,tws)
 			console.log('*******resultat pour twa par fonction = '+twa+ '  tws  '+ tws +'  resultat  '+res   )
 
-        function trace_polyline(lat00,lng00,latclick2,lngclick2,tsimul,twa)
-        { 
-            // le cap initial est donné avec les coordonnes du curseur 
-            //latclick=e.latlng.lat
-            //lngclick=e.latlng.lng
-            //latclick2=45.848
-            //lngclick2=-4.5071
-
-            latgrib=-lat00
-            lnggrib=360+lng00
-            res=gvent (latgrib,lnggrib,tsimul)
-          console.log('resultat de gvent en lat :'+latgrib+' et lng '+lnggrib+'  vitesse '+res[0]+' Angle vent '+res[1] )
-          //console.log('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx    Recherche vent '+res) 
-          polyline= [[lat00,lng00],[46.23,-4.11],[latclick2,lngclick2]]
-          console.log('polyline tableau '+Array.isArray(polyline))
-          console.log ('------------------------ polyline '+ polyline)  
-
-
-        return polyline    
-        }
+       
 
 
 
         function initialize()
         {            
-            document.formu.latdep.value=arrondi(latdep,4)
-            document.formu.lngdep.value=arrondi(lngdep,4)
-            document.formu.latar.value =arrondi( latar,4)
-            document.formu.lngar.value=arrondi(lngar,4)
+            document.formu.latdep.value = latdep.toFixed(4)
+            document.formu.lngdep.value = lngdep.toFixed(4)
+            document.formu.latar.value  = latar.toFixed(4)
+            document.formu.lngar.value  = lngar.toFixed(4)
             //document.formu.test.value=dist
         }
    
@@ -331,10 +507,10 @@
             weight:2,
             }).addTo(map);
 
-            var test= trace_polyline(latdep,lngdep,45.848,-4.5071,tsimul)
+        //     var test= trace_polyline(latdep,lngdep,45.848,-4.5071,tsimul)
 
-            console.log('test is tableau '+Array.isArray(test))
-           console.log ('------------------------ test '+ test)  
+        //     console.log('test is tableau '+Array.isArray(test))
+        //    console.log ('------------------------ test '+ test)  
 
             // L.polyline(test).setStyle({
             // color: 'green',
@@ -418,51 +594,126 @@
 
 
 
-    var popup = L.popup();
+
+
+//initialisation des figures
+
+
+    var popup = L.popup({ offset: L.point(120, 100) });
     var poly
+    var circle=new Array();
+    var circle1=new Array();
     poly= new L.Polyline ([[0,0],[1,1]]).setStyle({color:'red',weight:1,});
     poly2= new L.Polyline ([[0,0],[1,1]]).setStyle({color:'red',weight:1,});
+    for ( var i=0 ; i<74 ; i++ )
+       {      circle[i] = new L.circle([1][1], {
+                color: 'yellow',
+                fillColor: '#f03',
+                opacity:0.9,
+                fillOpacity: 0.3,
+                radius: 200,
+            });
+       }
 
- 
-    map.on('click', function(e) {
+       for ( var i=0 ; i<74 ; i++ )
+       {      circle1[i] = new L.circle([1][1], {
+                color: 'yellow',
+                fillColor: '#f03',
+                opacity:0.9,
+                fillOpacity: 0.3,
+                radius: 200,
+            });
+       }
+
+
+    map.on('click', function(e)
+    {
         latclick=e.latlng.lat
         lngclick=e.latlng.lng
         cap_dist=crsdist( latdep ,lngdep,latclick, lngclick);
-    popup
+        latf= latclick
+        lngf=lngclick   
+
+        polytwa=polyline_twa(latdep,lngdep,latf,lngf,tsimul)
+
+        polycap=polyline_cap(latdep,lngdep,latf,lngf,tsimul)
+        
+        popup
         .setLatLng(e.latlng)
-        .setContent("Latitude  &nbsp; &nbsp;   : " +arrondi(e.latlng.lat,4) +" ("+ pos_dec_mn(e.latlng.lat) + ") <br> Longitude : " +arrondi(e.latlng.lng,4) +" ("+ pos_dec_mn(e.latlng.lng) + ")<br> " +cap_dist )
+        .setContent("Latitude  &nbsp; &nbsp;   : " +e.latlng.lat.toFixed(4) +" ("+ pos_dec_mn(e.latlng.lat) + ") <br> Longitude : " +arrondi(e.latlng.lng,4) +" ("+ pos_dec_mn(e.latlng.lng) + ")<br> " +cap_dist +'<br> TWA :'+(polytwa[1]).toFixed(1))
         .openOn(map);
         
-        document.formu.test2.value=arrondi(latclick,4);
-        document.formu.test.value=arrondi(lngclick,4);
-        document.formu.cap.value =arrondi(cap(lngclick,latclick,lngdep,latdep),2);
+        document.formu.test2.value=latclick.toFixed(4);
+        document.formu.test.value=lngclick.toFixed(4);
+      //  document.formu.cap.value =cap(lngclick,latclick,lngdep,latdep);
         document.formu.test3.value =crsdist( latdep ,lngdep,latclick, lngclick);
      
         map.removeLayer(poly);
         map.removeLayer(poly2);
-
+        for ( var j=0 ; j<74 ; j++ )
+       {map.removeLayer(circle[j]);
+        map.removeLayer(circle1[j]);
+       }
+       
+       //ligne droite
         ligne=[[latdep,lngdep],[latclick,lngclick]]
-
         poly=new L.polyline(ligne).setStyle({
             color: 'red',
             weight:2,
             opacity:0.5,
             }).addTo(map);
 
-            twa=135
 
-        var ligne2= trace_polyline(latdep,lngdep,latclick,lngclick,tsimul,twa) 
 
-        console.log('xxxxxxxxxxxxxxxxxxxxxxxxx  Ligne2 :   '+ ligne2)  
-        poly2= new L.polyline(ligne2).setStyle({
-            color: 'black',
+        // Nouvelle fonction     
+       
+            
+        for ( var i=0 ; i<polytwa[0].length ; i++ )
+       {      circle[i] = L.circle(polytwa[0][i], {
+                color: 'yellow',
+                fillColor: '#f03',
+                opacity:0.9,
+                fillOpacity: 0.3,
+                radius: 200,
+            }).addTo(map);
+       }   
+
+       poly3= new L.polyline(polycap[0])
+
+
+
+       for ( var i=0 ; i<polycap[0].length ; i++ )
+       {      circle1[i] = L.circle(polycap[0][i], {
+                color: 'red',
+                fillColor: '#f03',
+                opacity:0.9,
+                fillOpacity: 0.3,
+                radius: 200,
+            }).addTo(map);
+       }   
+
+
+
+
+       // var ligne2= trace_polyline(latdep,lngdep,latclick,lngclick,tsimul) 
+
+       // console.log('xxxxxxxxxxxxxxxxxxxxxxxxx  Ligne2 :   '+ ligne2)  
+        poly2= new L.polyline(polytwa[0])
+        .setStyle
+            ({
+            color: 'yellow',
             weight:2,
             opacity:0.5,
             }).addTo(map);
-   
 
-    // alert("Latitude : " + e.latlng.lat + " Longitude : " + e.latlng.lng)
-        });
+
+
+
+
+
+
+   
+    });
 
 
 

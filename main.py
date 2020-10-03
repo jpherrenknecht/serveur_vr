@@ -134,7 +134,7 @@ def f_isochrone2(l2, temps_initial_iso):
     if numero_iso2==1:
         penalite=0
     else:    
-        penalite=10
+        penalite=0
     
     for i in range(l2):
        # twa precedente
@@ -535,11 +535,14 @@ def windleaf():
     bateau=(data[n_course]["bateau"])
     print('\nBateau : ',bateau)
     fichier_polaires='polaires.'+(data[n_course]["polaires"])
+    depart="bouee_2"
+    arrivee="arrivee"
 
-    latdep = (data[n_course]["depart"]["lat"])
-    lngdep = (data[n_course]["depart"]["lng"])
-    latar  = (data[n_course]["bouee_1"]["lat"])
-    lngar  = (data[n_course]["bouee_1"]["lng"])
+
+    latdep = (data[n_course][depart]["lat"])
+    lngdep = (data[n_course][depart]["lng"])
+    latar  = (data[n_course][arrivee]["lat"])
+    lngar  = (data[n_course][arrivee]["lng"])
     x0,y0=chaine_to_dec(latdep, lngdep)  # conversion des latitudes et longitudes en tuple
     x1,y1=chaine_to_dec(latar, lngar)
     print ('x0,y0',x0,y0)
@@ -573,8 +576,8 @@ def windleaf():
     # chargement du grib partiel pour utilisation ulterieure en js
     global tig, GR
     latini=-50      # latitude la plus au nord en premier et latitude nord negative pour charger le grib pour jzvzscript
-    latfin=-35
-    lngini=330
+    latfin=-30
+    lngini=320
     lngfin=360
     u10,v10=vents_encode2(latini,latfin,lngini,lngfin)   
     l1=list(tab_tws_imoca)   

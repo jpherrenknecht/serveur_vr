@@ -314,64 +314,17 @@
 			// console.log('cap'+cap+' dVent : '+dvent + ' twao : '+ftwao(cap,dvent)+' Verification '+(dvent+ twao+360)%360)
 			
 
-			function polyline_twa(latdep,lngdep,latf,lngf,tsimul,twa)
+			function polyline_twa(latdep,lngdep,latf,lngf,tsimul)
 			{  
-				// latgrib=-latdep
-				//lnggrib=360+lngdep
+				
+				//Cap généré par le curseur recherche du vent et twa en consequence 
 				hdg_ini=dist_cap_ortho(latf,lngf,latdep,lngdep)[1]
-				//conditions meteo au point de depart
 				vent_ini=vit_angle_vent (latdep,lngdep,tsimul)
 				tws_ini=vent_ini[0]
 				twd_ini=vent_ini[1]				
 				twa_ini=ftwao(hdg_ini,twd_ini)
-
-				// // calcul du point suivant
-				// //calcul de la polaire au point de depart 
-				// vitesse=polinterpol2d(polairesjs,twa_ini,tws_ini)
-				// // calcul du deplacement
-				// dt=600
-				// cap=hdg_ini
-				// pt2=deplacement(latdep,lngdep,dt,vitesse,cap)
-				// lat_pt2=pt2[0]
-				// lng_pt2=pt2[1]
-
-
-				// console.log('hdg_ini : '+hdg_ini)
-				// console.log('twd_ini : '+twd_ini)
-				// console.log('tws_ini : '+tws_ini)
-				// console.log('twa_ini : '+twa_ini)
-				// console.log('vitesse : '+vitesse)
-				// console.log('***********Nouveau point Lat:'+lat_pt2+ 'Lng : '+lng_pt2) 
-
-			// // 	res=vit_angle_vent (latgrib,lnggrib,tsimul)
-			// // 	console.log('resultat de vit_angle_vent en lat :'  vitesse '+res[0]+' Angle vent '+res[1] )
-			// // //console.log('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx    Recherche vent '+res) 
-			// 	polyline= [[latdep,lngdep]]
-			// 	console.log('Polyline : ' + polyline)
-			// 	polyline.push(pt2)
-			// 	console.log('Polyline après push: ' + polyline)
-
-
-			// 	//calcul du deplacement suivant
-			// 	// extraction de la meteo
-			// 	tsimul=tsimul+dt
-			// 	vent_i=vit_angle_vent (pt2[0],pt2[1],tsimul)
-			// 	cap_i=(vent_i[1]+ twa_ini+360)%360                   // le cap est determine par la twa de base et par la direction du vent 
-
-			// 	console.log('Direction du vent' +vent_i[1]+' Twa ini'+ twa_ini)
-			// 	vitesse=polinterpol2d(polairesjs,twa_ini,vent_i[0])
-			// 	pt3=deplacement(pt2[0],pt2[1],dt,vitesse,cap_i)
-
-			// 	console.log('Vitesse polaire' + vitesse +'cap ' +cap_i )
-			// 	polyline.push(pt3)
-			// 	console.log('Polyline après push pt3: ' + polyline)
-			// 	// console.log('polyline tableau '+Array.isArray(polyline))
-			// 	// console.log ('------------------------ polyline '+ polyline)  
-
-			// 	// booucle sur les points
-			// 	// tsimul , latdep,lngdep parametres de la fonction 
 				
-				polyline2= [[latdep,lngdep]]
+				polyline= [[latdep,lngdep]]  //initialisation de la polyline
 				dt=600   //intervalle entre deux points =10 mn
 				lat = latdep
 				lng= lngdep
@@ -385,12 +338,12 @@
 				vit_polaire=polinterpol2d(polairesjs,twa_ini,meteo[0])	
 				point=deplacement(lat,lng,dt,vit_polaire,cap)     //calcul du nouveau point 
 				lat=point[0];lng=point[1];
-				polyline2.push(point)	
+				polyline.push(point)	
 				}
 
-				console.log (' polyline '+polyline2)
+				console.log (' polyline '+polyline)
 
-			return polyline2   
+			return polyline   
 			}
 
 			//latdep et lng dep sont les coordonnées du point de depart renvoyés par l'esxtension chrome
@@ -401,7 +354,7 @@
 			twa=45
 
 
-			res=polyline_twa(latdep,lngdep,lat_curseur,lng_curseur,tsimul,twa)
+			res=polyline_twa(latdep,lngdep,lat_curseur,lng_curseur,tsimul)
 
 //verification des recuperations
 			// console.log('tig : ' + tig )
