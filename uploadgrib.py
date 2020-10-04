@@ -125,6 +125,8 @@ def chargement_grib():
     filename="gribs/grib_gfs_" + date +"-"+strhour+".hdf5"
     filenamehdf5 = os.path.join(basedir,filename)
 
+    print ('dategrib_tpl',dategrib_tpl)
+
     if os.path.exists(filenamehdf5) == False:        #si ce fichier n'existe pas deja
         leftlon, rightlon, toplat, bottomlat = 0, 360, 90, -90
         iprev = ()

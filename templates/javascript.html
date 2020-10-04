@@ -4,8 +4,7 @@
 			<meta charset="utf-8">
 			<title>Page test javascript</title>
 			<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
-		</head>
-		<body>
+		
 			<!-- Solution ou on charge le fichier par XMLHttprequest on doit attendre que onload soit bon pour executer la fonction 
 			
 			<script type="text/javascript" >
@@ -355,74 +354,18 @@
 
 
 			res=polyline_twa(latdep,lngdep,lat_curseur,lng_curseur,tsimul)
-
-//verification des recuperations
-			// console.log('tig : ' + tig )
-			// console.log('latini : '+ latini)
-			// console.log('latfin : '+ latfin)
-			// console.log( 'lngini : '+ lngini)
-			// console.log('lngfin : '+ lngfin)
-			// console.log ('l1 [5] : '+l1[5])
-			// console.log (' test sur fichier polaires' + polairesjs )
-			// console.log (' test polaires : '+ polairesjs[2][2])
-		
-
-
-			
-			//test polaires
-
-			
-
-
-		
-
-			// var t= tig+21600;
-			// var lat=-46;
-			// var lng=357;
-
-			// i_lat=lat-latini       // ecart avec la latitude du grib chargé
-			// i_lng=lng-lngini
-			// i_t=(t-tig)/3600/3     // Ecart en heures avec le tig  modulo 3h
-			
-			// console.log ('************* i_t : '+i_t)
-			// console.log ('************* Latitude  '+lat+' i_lat : '+i_lat)
-			// console.log ('************* Longitude ' +lng+' i_lng : '+i_lng)
-			// //test
-			
-			// u10=interpol3d(U10,i_t,i_lat,i_lng)
-			// v10=interpol3d(V10,i_t,i_lat,i_lng)
-			
-			// console.log(' vitesse : '+ cvent(u10,v10)[0].toFixed(3))
-			// console.log(' angle : '+ cvent(u10,v10)[1].toFixed(3))
-			// //console.log('1,1',vent(t,1,1))
-			// console.log ('valeur U 0 0 0 : ' +U10[0][0][0].toFixed(3));
-			// console.log ('valeur V 0 0 0 : ' +V10[0][0][0].toFixed(3));
-			// console.log ('latini  ' + latini);
-			// console.log ('lngini  ' + lngini);
-			// console.log ('latfin  ' + latfin);
-			// console.log ('lngfin  ' + lngfin);
-			// console.log ('tig     : ' + tig);
-			// console.log ('tsimul  : ' + tsimul);
-			// console.log ('Soit en h ' + (tsimul-tig)/3600)
-
-			// res= vit_angle_vent (lat,lng ,t)
-			// tps = (tsimul-tig)/3600	
-			// console.log('resultat de vit_angle_vent en lat :'+lat +' et lng '+lng+' et a t +'+tps+'h vitesse '+res[0].toFixed(2)+' Angle vent '+res[1].toFixed(1) )
-			
-			
-			
-			//var vit=  vent(t,lat,lng)
-			//console.log ('Vitesse du vent '+ vent(tig,40,350))	
-
-			
+			document.getElementById('test2').style.color='blue'
+			document.getElementById('test2').innerhtml='taratata'
 
 		</script>	
-
+</head>
+<body>
 		<h5> javascript.html </h5><br>
 		<h3> Test de fonctions js </h3>
 			
 
 					<div id ='test'>Test </div> 
+					<div id ="test2">Test2 </div> 
 			</form>
 		</body>
 	</html>

@@ -1,0 +1,32 @@
+<!doctype html>
+	<html lang="fr">
+		<head>
+			<meta charset="utf-8">
+			<title>Dom test Jp</title>
+            	
+        </head>
+
+		<body>
+		
+        <h1> Comprendre le dom</h1>
+        <div id = "container">
+            <p>Paragraphe 1 </p>
+            <div id="bloc">
+                <span class="span">Bloc</span>
+                    <p class= "para">paragraphe A dans bloc</p>
+                    <p class= "para">paragraphe B dans bloc</p>
+                    <p class= "para paraBold">paragraphe C dans bloc</p>
+            </div>
+
+
+        </div>    
+		
+		<script type="text/javascript" >
+
+            console.log(document.getElementsByTagName("p")); 
+            console.log(document.querySelector("div#bloc").childNodes)
+
+		    </script>
+
+		</body>
+	</html>

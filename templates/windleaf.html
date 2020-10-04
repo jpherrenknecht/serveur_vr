@@ -95,6 +95,7 @@
 				//t0    = Math.floor(i_t)       // t0 est censé être un indice entier
 				dec_lat = i_lat%1    				// partie decimale
 				dec_lng = i_lng%1
+             //   console.log( 'lat0 '+ lat0 +' Lng0 '+lng0 +' t0 ' + t0) 
 				fx1y1   = XX[t0][lat0][lng0]
 				fx2y1   = XX[t0][lat0+1][lng0]
 				fx1y2   = XX[t0][lat0][lng0+1]
@@ -262,10 +263,10 @@
 
             function polyline_twa(latdep,lngdep,latf,lngf,tsimul)
 			{  
-				console.log ('latdep dans polyline twa :' +latdep+ ' lngdep : ' +lngdep +' latf : ' +latf +' lngf : '+lngf +' tsimul : '+tsimul)
+				//console.log ('latdep dans polyline twa :' +latdep+ ' lngdep : ' +lngdep +' latf : ' +latf +' lngf : '+lngf +' tsimul : '+tsimul)
 				//Cap généré par le curseur recherche du vent et twa en consequence 
 				hdg_ini=dist_cap_ortho(latdep,lngdep,latf,lngf,)[1]
-                console.log( 'cap initial :' + hdg_ini)
+                //console.log( 'cap initial :' + hdg_ini)
 				vent_ini=vit_angle_vent (latdep,lngdep,tsimul)
 				tws_ini=vent_ini[0]
 				twd_ini=vent_ini[1]				
@@ -298,7 +299,7 @@
 				//Cap généré par le curseur recherche du vent et twa en consequence 
 				hdg_ini=dist_cap_ortho(latdep,lngdep,latf,lngf,)[1]
 
-                console.log( 'cap initial :' + hdg_ini)
+                // console.log( 'cap initial :' + hdg_ini)
 				vent_ini=vit_angle_vent (latdep,lngdep,tsimul)
 				tws_ini=vent_ini[0]
 				twd_ini=vent_ini[1]				
@@ -315,16 +316,16 @@
                     {tsimul = t+i*dt
                      meteo=vit_angle_vent (lat7,lng7,tsimul)
                      twa=ftwa(hdg_ini,meteo[1])
-                     console.log ('hdg_ini ' + hdg_ini + ' meteo 1 '+meteo[1] )
-                     console.log( 'test dans polyline_cap   twa : '+ twa + 'cap : ' +capi+' dirvent :'+meteo[1] + 'vit_vent :' + meteo[0]) 
+                    //  console.log ('hdg_ini ' + hdg_ini + ' meteo 1 '+meteo[1] )
+                    //  console.log( 'test dans polyline_cap   twa : '+ twa + 'cap : ' +capi+' dirvent :'+meteo[1] + 'vit_vent :' + meteo[0]) 
 
                      vit_polaire=polinterpol2d(polairesjs,twa,meteo[0])	                
-                    console.log('cap dans polylinecap'+capi )
+                    // console.log('cap dans polylinecap'+capi )
                     point=deplacement(lat7,lng7,dt,vit_polaire,capi)     //calcul du nouveau point 
                     lat7=point[0];lng7=point[1];
                     polyline2.push(point)	
                     }
-				console.log (' polyline '+polyline2)
+			//	console.log (' polyline '+polyline2)
 			return [polyline2,capi]  
 			}
 
@@ -432,7 +433,7 @@
             var lngmap=(lngdep+lngar)/2;
 
             dist=((latdep-latar)**2+(lngdep-lngar)**2)**.5;
-            console.log('***************dist : '+dist);
+            //console.log('***************dist : '+dist);
             if(dist<5)
                 {zoomp=7}
             else if (dist<10)
@@ -459,10 +460,10 @@
 
         function initialize()
         {            
-            document.formu.latdep.value = latdep.toFixed(4)
-            document.formu.lngdep.value = lngdep.toFixed(4)
-            document.formu.latar.value  = latar.toFixed(4)
-            document.formu.lngar.value  = lngar.toFixed(4)
+            document.formu.latdep.value = latdep.toFixed(4)+' ( '+pos_dec_mn(latdep) +' )'
+            document.formu.lngdep.value = lngdep.toFixed(4)+' ( '+pos_dec_mn(lngdep) +' )'
+            document.formu.latar.value  = latar.toFixed(4)+' ( '+pos_dec_mn(latar) +' )'
+            document.formu.lngar.value  = lngar.toFixed(4)+' ( '+pos_dec_mn(lngar) +' )'
             //document.formu.test.value=dist
         }
    
@@ -591,7 +592,30 @@
 
     //     map.on('click',onMapClick)
 
+    
+    map.on('mousemove', function(e)
+    
+    {
+        meteo=vit_angle_vent (e.latlng.lat,e.latlng.lng ,tsimul)
+        direction=dist_cap_ortho(latdep,lngdep,e.latlng.lat,e.latlng.lng)
+        twac=ftwao(direction[0],meteo[1])
+       // console.log('Test direction ' + direction[1]) 
+//console.log(e.latlng);
+document.getElementById('latlng').style.color='blue'
+document.getElementById('latlng').value=e.latlng.lat
+document.formu.latm.value=e.latlng.lat.toFixed(4)+' soit  '+pos_dec_mn(e.latlng.lat)
+document.formu.lngm.value=e.latlng.lng.toFixed(4)+' soit  '+pos_dec_mn(e.latlng.lng)
+document.formu.twsm.value=meteo[0].toFixed(2)
+document.formu.twdm.value=meteo[1].toFixed(2)
+document.formu.capm.value=direction[1].toFixed(1)
+document.formu.twam.value=twac.toFixed(1)
+document.formu.dism.value=direction[0].toFixed(1)
 
+// document.getElementById("latlng'").innerhtml="<h2>Toto</h2>"
+    });
+
+
+   
 
 
 
@@ -635,7 +659,6 @@
         lngf=lngclick   
 
         polytwa=polyline_twa(latdep,lngdep,latf,lngf,tsimul)
-
         polycap=polyline_cap(latdep,lngdep,latf,lngf,tsimul)
         
         popup
@@ -656,12 +679,12 @@
        }
        
        //ligne droite
-        ligne=[[latdep,lngdep],[latclick,lngclick]]
-        poly=new L.polyline(ligne).setStyle({
-            color: 'red',
-            weight:2,
-            opacity:0.5,
-            }).addTo(map);
+        // ligne=[[latdep,lngdep],[latclick,lngclick]]
+        // poly=new L.polyline(ligne).setStyle({
+        //     color: 'red',
+        //     weight:2,
+        //     opacity:0.5,
+        //     }).addTo(map);
 
 
 
@@ -746,14 +769,15 @@
  
     <body onload="initialize()">
         <div text-align='right' id='sur' >
+            <div id= "latlng" > Latlng </div>
+                  <div id= "toto" >albert</div>
             <form action="http://localhost:8080/windleaf" method="get" name='formu'>
 
-               <label><b>Depart</b></label> Latitude</label> :
+               <label><b>Depart</b></label> Latitude :</label> :
                             <input type="text" name="latdep"  value = "" />
-                <label>Longitude</label> :
+                <label>Longitude :</label> :
                             <input type="text" name="lngdep"  value="" />
-                            <br>
-
+                          
                 <label><b>Arrivee</b></label> Latitude</label> : 
                             <input type="text" name="latar" />
                 <label>Longitude</label> : 
@@ -761,13 +785,20 @@
                             <input type="submit" value="Ok" />
 
                   Latitude :   <input type="text" name="test" /> 
-                  Longitude : <input type="text" name="test2" />
-                  Cap     : <input type="text" name="cap" />
+                  Longitude : <input type="text" name="test2" /><br>
+                  Curseur   Latitude  : <input type="text" name="latm" />
+                            Longitude : <input type="text" name="lngm" />
 
-
+                            TWS : <input type="text" name="twsm" size='8'/>
+                            TWD : <input type="text" name="twdm" size='8'/>
+                            HDG : <input type="text" name="capm" size="8"/>
+                            TWA : <input type="text" name="twam" size="8"/>
+                            Dist: <input type="text" name="dism" size="8"/>
                   Test :<input type="text" name="test3" />
-
-            </form>
+                  GFS :<input type="text" name="gfs" />
+                </form>
+                  
+            
         </div>
 
         <div id="windy">

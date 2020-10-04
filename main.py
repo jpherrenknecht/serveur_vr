@@ -50,7 +50,7 @@ class NumpyArrayEncoder(JSONEncoder):
         return JSONEncoder.default(self, obj)
 
 # pour chargement du grib pour le js  a automatiser en fonction de la lat et lng
-tig, GR = chargement_grib()
+#tig, GR = chargement_grib()
 latini=-50      # latitude la plus au nord en premier et latitude nord negative
 latfin=-40
 longini=350
@@ -77,8 +77,8 @@ def vents_encode2(latini,latfin,longini,longfin):
     ilatini=90+latini    # les latitudes Nord doivent être négatives
 
     ilatfin=90+latfin
-    U10=GR[0:8,ilatini:ilatfin,longini:longfin].real
-    V10=GR[0:8,ilatini:ilatfin,longini:longfin].imag
+    U10=GR[0:12,ilatini:ilatfin,longini:longfin].real
+    V10=GR[0:12,ilatini:ilatfin,longini:longfin].imag
      
     u10=[arr.tolist() for arr in U10]
     v10=[arr.tolist() for arr in V10]
@@ -232,7 +232,7 @@ def fonction_routeur(xn,yn,x1,y1,t0=time.time()):
    
     
 # Definition des variables pour le routage
-    tig, GR        = chargement_grib()
+    #tig, GR        = chargement_grib()
     A= x1+y1*1j                         # Arrivee sous forme complexe
     pt1_np=np.array([[xn,yn]])          # isochrone de depart (1 point)
     l=pt1_np.shape[0]                   # longueur de l'isochrone de depart (1)
@@ -384,6 +384,9 @@ def fonction_routeur(xn,yn,x1,y1,t0=time.time()):
 def index():
   return render_template('index.html')
 
+@app.route('/dom')
+def dom():
+  return render_template('dom.html')
 
 
 @app.route('/map2')
