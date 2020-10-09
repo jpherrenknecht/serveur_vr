@@ -1,0 +1,6 @@
+body{padding:0;margin:0;background:#fff;behavior:url(csshover.htc)}
+H1{font-size:30pt;font-family:Lucida Grande,Lucida Sans,Arial,sans-serif;color:rgb(43, 199, 82);font-weight:800;text-align:left}
+H2{font-size:20pt;font-family:Lucida Grande,Lucida Sans,Arial,sans-serif;color:#000;font-weight:800;text-align:left}
+H3{font-size:20pt;font-family:Lucida Grande,Lucida Sans,Arial,sans-serif;color:rgb(20, 12, 94);font-weight:800;text-align:left}
+#spinner_twa  {width: 50px ; height :8px;}
+#twaspin      {width: 50px ; height :8px;}

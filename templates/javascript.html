@@ -4,7 +4,10 @@
 			<meta charset="utf-8">
 			<title>Page test javascript</title>
 			<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
-		
+			<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
+			
+			<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+			<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/base.css') }}">
 			<!-- Solution ou on charge le fichier par XMLHttprequest on doit attendre que onload soit bon pour executer la fonction 
 			
 			<script type="text/javascript" >
@@ -354,18 +357,75 @@
 
 
 			res=polyline_twa(latdep,lngdep,lat_curseur,lng_curseur,tsimul)
-			document.getElementById('test2').style.color='blue'
-			document.getElementById('test2').innerhtml='taratata'
+			//document.getElementById('test2').style.color='blue'
+			//document.getElementById('test2').innerhtml='taratata'
 
 		</script>	
+
+<script>
+	$( function() {
+	  $( "#spinner_twa" ).spinner(
+	  { value: 45 ,
+	  	min :40 ,
+	  	max :160
+
+	  });
+
+	  $("#spinner_twa").spinner().spinner("value", 45); 
+
+	  $("#valeur").click(function() 
+	  { 
+		console.log("La valeur est "+ $("#spinner_twa").spinner().spinner("value")
+		);
+		}); 
+	
+	
+	
+	
+	//   $( "#disable" ).on( "click", function() {
+	// 	if ( spinner.spinner( "option", "disabled" ) ) {
+	// 	  spinner.spinner( "enable" );
+	// 	} else {
+	// 	  spinner.spinner( "disable" );
+	// 	}
+	//   });
+	//   $( "#destroy" ).on( "click", function() {
+	// 	if ( spinner.spinner( "instance" ) ) {
+	// 	  spinner.spinner( "destroy" );
+	// 	} else {
+	// 	  spinner.spinner();
+	// 	}
+	//   });
+	//   $( "#getvalue" ).on( "click", function() {
+	// 	alert( spinner.spinner( "value" ) );
+	//   });
+	//   $( "#setvalue" ).on( "click", function() {
+	// 	spinner.spinner( "value", 5 );
+	//   });
+   
+	//   $( "button" ).button();
+	} );
+	</script>
+
+
+
 </head>
 <body>
 		<h5> javascript.html </h5><br>
 		<h3> Test de fonctions js </h3>
-			
+		<h1> Test CSS </h3>
 
 					<div id ='test'>Test </div> 
 					<div id ="test2">Test2 </div> 
+
+					<p>
+						<label for="spinner">TWA:</label>
+						<input id="spinner_twa" name="value">
+					
+					  </p>
+					  <button id="valeur">Valeur ?</button> 
+
+
 			</form>
 		</body>
 	</html>

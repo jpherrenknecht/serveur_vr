@@ -7,8 +7,8 @@ angle_twa_pres = 36
 angle_twa_ar = 20
 angle_pres = 36
 angle_var = 20
-x1=np.array([0,4,6,8,10,12,14,16,20,25,30,35,40,50,60,70])
-y1=np.array([0,10,30,36,40,44,45,50,52,60,70,80,90,95,100,105,110,120,125,130,135,140,143,146,150,155,158,160,165,170,180])
+tab_tws=np.array([0,4,6,8,10,12,14,16,20,25,30,35,40,50,60,70])
+tab_twa=np.array([0,10,30,36,40,44,45,50,52,60,70,80,90,95,100,105,110,120,125,130,135,140,143,146,150,155,158,160,165,170,180])
 polaires=np.array([[
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[
@@ -62,7 +62,7 @@ def twa(cap, dvent):
 
 def polaire(polaires, vit_vent, twa): # polaire simple
     donnees= [twa, vit_vent]
-    valeur = interpn((y1, x1), polaires, donnees, method='linear')
+    valeur = interpn((tab_twa,tab_tws), polaires, donnees, method='linear')
     return valeur
 
 
@@ -75,8 +75,21 @@ def polaire2_vect(polaires,tws,twd,HDG):
     TWA = (180 - np.abs(((360 - TWD + HDG) % 360) - 180)).reshape((-1, 1))
     TWS = (np.ones(l) * tws).reshape((-1, 1))
     donnees = np.concatenate((TWA, TWS), axis=1)
-    valeurs = interpn((y1, x1), polaires, donnees, method='linear')
+    valeurs = interpn((tab_twa,tab_tws), polaires, donnees, method='linear')
     return valeurs
+
+def polaire2_vectv2(polaires,vit_vent,angle_vent,tableau_caps):
+    '''il n'y a qu'une vitesse et un angle mais plusieurs caps '''
+    ''' 20% plus performant que la fonction de base'''
+    #transformation tableau de caps en un point en tableau de donnees (twa , vit_vent)
+    l=len(tableau_caps)
+    twax = 180 - np.abs(((360 - angle_vent + tableau_caps) % 360) - 180)  # broadcasting
+    twa  = twax.reshape(-1,1)
+    vvent = (np.ones(l)*vit_vent).reshape(-1,1)
+    donnees= np.concatenate((twa,vvent), axis = 1) 
+    valeurs = interpn((tab_twa, tab_tws), polaires, donnees, method='linear')
+    return valeurs
+
 
 def polaire4_vect(polaires,tws,twd,HDG):
     '''ici un seul point avec une seule tws twd
@@ -104,7 +117,7 @@ def polaire3_vect(polaires,TWS,TWD,HDG):
     TWA=(180 - np.abs(((360 - TWD + HDG) % 360) - 180)).reshape((-1, 1))
     TWS2=TWS.reshape((-1, 1))
     donnees=np.concatenate((TWA,TWS2),axis=1)
-    valeurs = interpn((y1, x1), polaires, donnees, method='linear')
+    valeurs = interpn((tab_twa,tab_tws), polaires, donnees, method='linear')
     return valeurs
 
 

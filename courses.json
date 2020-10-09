@@ -35,7 +35,7 @@
        "447":   
        {"numero"  : "447" ,
            "nom":"Eurosaf",
-           "bateau":"mono_mini_650_v2",
+           "bateau":"mini650",
            "polaires":"polaires_mono_mini_650_v2.py",
            "depart":{"lat":"043-28-20-N" ,"lng":"009-28-58-E"},
            "bouee1":{"lat":"043-01-00-N" ,"lng":"009-24-00-E"},
@@ -125,12 +125,21 @@
                              "bateau":"imoca",
                              "polaires":"polaires_imoca.py",
                              "depart":{"nom":"Les Sables d'Olonne","lat":"046-29-00-N" ,"lng":"001-47-00-W"},
-                             "bouee_1":{"nom":"Santa Maria","lat":"036-55-38-N" ,"lng":"025-00-57-W"}, 
-                             "bouee_2":{"nom":"ilha das flores","lat":"039-22-31-N" ,"lng":"031-15-17-W"},
+                             "bouee1":{"nom":"Santa Maria","lat":"036-55-38-N" ,"lng":"025-00-57-W"}, 
+                             "bouee2":{"nom":"ilha das flores","lat":"039-22-31-N" ,"lng":"031-15-17-W"},
                              "arrivee":{"nom":"Les Sables d'Olonne","lat":"046-29-00-N" ,"lng":"001-49-00-W"}
                             }   ,
 
-
+        "438":   
+        {"numero"  : "438" ,
+            "nom":"La Mauricienne",
+            "bateau":"maxitrix",
+            "polaires":"polaires_maxitrix.py",
+            "depart":{"nom":"Port louis","lat":"047-41-36-N" ,"lng":"003-23-12-W"},
+            "bouee1":{"nom":"Equateur","lat":"000-00-00-N" ,"lng":"025-00-00-W"}, 
+            "bouee2":{"nom":"Cap de bonne esperance","lat":"034-56-02-S" ,"lng":"020-00-00-E"},
+            "arrivee":{"nom":"Port Louis Maurice","lat":"020-15-00-N" ,"lng":"057-30-00-E"}
+        }   ,
 
 
 

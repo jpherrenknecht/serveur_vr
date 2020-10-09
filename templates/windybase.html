@@ -3,8 +3,7 @@
 <head>
     <meta
         name="viewport"
-        content="width=device-width, initial-scale=1.0, shrink-to-fit=no"
-    />
+        content="width=device-width, initial-scale=1.0, shrink-to-fit=no"    />
     <script src="https://unpkg.com/leaflet@1.4.0/dist/leaflet.js"></script>
     <script src="https://api.windy.com/assets/map-forecast/libBoot.js"></script>
 
@@ -20,15 +19,15 @@
 </head>
 <body>
     <div id="windy"></div>
+
 <script>
-    
-    
     const options = {
         key: 'ydO74Xuxv2WWOEShDpel1kaiae8zCnLO',
         verbose: true,
         lat: 50.4,
         lon: 14.3,
         zoom: 5,
+       // timestamp: Date.now() + 3 * 24 * 60 * 60 * 1000,
     };
     
     // Initialize Windy API
@@ -42,7 +41,7 @@
         aa=store.get('timestamp')
 
         console.log(W.store.getAll());
-
+        console.log('  date.now  : '+ Date.now())
 
 
         picker.on('pickerOpened', latLon => {
@@ -76,12 +75,9 @@
         broadcast.on('redrawFinished', params => {
     // Wow Windy has finished rendering.
 
-            console.log ("Hourrah")
-            console.log('AAAAAAAAAA    '+store.get('timestamp'))
-            console.log('AAAAAAAAAA    '+aa)
-            console.log('cccccc'+((aa-store.get('timestamp'))/3600/600))
-            console.log('ddddddddddd   ' +((store.get('path'))))
-
+            console.log ("Test ecart en h")
+            console.log (' Ecart en h ' +(store.get('timestamp')-Date.now())/3600/1000)
+            console.log (' Ecart en mn ' +(store.get('timestamp')-Date.now())/60/1000)
          })
         
 

@@ -12,6 +12,9 @@ import folium
 import webbrowser
 from uploadgrib import *
 from fonctions_vr import *
+import numba
+from numba import jit
+
 
 val='polaires.polaires_figaro2'
 exec('from '+val+ ' import *')

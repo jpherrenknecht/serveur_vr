@@ -1,5 +1,6 @@
 
 import numpy as np
+from scipy.interpolate import RegularGridInterpolator,interp2d,interpn
 import math
 import time
 import datetime
@@ -7,21 +8,33 @@ import os
 import folium
 tic = time.time()
 basedir = os.path.abspath(os.path.dirname(__file__))
-
-
-val='polaires.polaires_figaro2'
-exec('from '+val+ ' import *')
-
-
-
-
+import numba
+from numba import jit
 
 # **************************************   Fonctions   ******************************************************************
+
+
+def cabs(a):
+    if a<0 :
+       a=-a
+    return a    
+
+
+def twa(cap, dvent):
+    twa = 180 - abs(((360 - dvent + cap) % 360) - 180)
+    return twa    
 
 def Twao( HDG,TWD):
     '''retourne un ndarray de twa orientees babord<0 tribord>0 à partir de ndarray HDG et TWD'''
     A=np.mod((HDG-TWD+360),360)
     return np.where(A<180,-A,360-A)
+
+@jit(nopython=True)
+def ftwaov2( HDG,TWD):
+    '''retourne une twa orientee babord<0 tribord>0 à partir de ndarray '''
+    ''' le temps est divise par 4 avec @jit'''
+    A=np.mod((HDG-TWD+360),360)
+    return np.where(A<180,-A,360-A)    
 
 
 def test_virement(HDG,TWD,tribord_init):
@@ -30,10 +43,6 @@ def test_virement(HDG,TWD,tribord_init):
     Voir jupyter notebook pour explications'''
     Virement= np.where( np.where(np.mod((HDG-TWD+360),360)<180,False,True) ==tribord_init,False,True)
     return Virement
-
-
-
-
 
 
 def chaine_to_dec(latitude, longitude):
@@ -79,23 +88,36 @@ def cplx(d):
     return D
 
 
-def twa(cap, dvent):
-    twa = 180 - abs(((360 - dvent + cap) % 360) - 180)
-    return twa
+
     
-def deplacement2(D, d_t, HDG, VT):
+def deplacement21(D, d_t, HDG, VT):
     '''D Depart point complexe ,d_t duree en s  , HDG tableau de caps en° ,vT Tableau de vitesses Polaires en Noeuds'''
     '''Fonctionne avec des np.array, un pointy de depart  tableau de points en arrivee'''
     HDG_R = HDG * math.pi / 180
     A = D + (d_t / 3600 / 60 * VT * (np.sin(HDG_R) / math.cos(D.imag * math.pi / 180) - np.cos(HDG_R) * 1j))
     return A
 
+
+
 def deplacement_x_y(x0,y0,d_t,HDG,VT):
     ''' fonction donnant le tuple point d arrivée en fonction des coordonnées du point de depart ''' 
+    '''HDG et VT sont des np.array '''
     HDG_R = HDG * math.pi / 180     # cap en radians
     x= x0+ d_t / 3600 / 60 * VT * (np.sin(HDG_R) / math.cos(y0 * math.pi / 180)) 
     y= y0- d_t / 3600 / 60 * VT * np.cos(HDG_R)
     return x,y
+
+@jit(nopython=True)
+def deplacement_x_y_v2(x0,y0,d_t,HDG,VT):
+    ''' fonction donnant le tuple point d arrivée en fonction des coordonnées du point de depart ''' 
+    '''HDG et VT sont des np.array  acceleration 30% avec numba @jit'''
+    HDG_R = HDG * math.pi / 180     # cap en radians
+    x= x0+ d_t / 3600 / 60 * VT * (np.sin(HDG_R) / math.cos(y0 * math.pi / 180)) 
+    y= y0- d_t / 3600 / 60 * VT * np.cos(HDG_R)
+    return x,y
+
+
+
 
 
 def deplacement_x_y_tab_ar(x0,y0,d_t,HDG,VT,A):
@@ -147,7 +169,7 @@ def deplacement(x0,y0,d_t,HDG,TWD,VT,A,twa,penalite):
    
     TWAO=Twao( HDG,TWD)
     Virement=np.where(TWAO*twa>0,False,True)
-    TWA=np.abs(TWAO)
+    #TWA=np.abs(TWAO)
     #print(TWAO)
     #VT=polaire2_vect(HDG,TWD)
     #print (VT)
@@ -161,6 +183,29 @@ def deplacement(x0,y0,d_t,HDG,TWD,VT,A,twa,penalite):
     Di,Ca=dist_cap(Pointscpx, A)
 
     return X,Y,Di,Ca
+
+#@jit(nopython=True)
+def deplacement2(x0,y0,d_t,HDG,TWD,VT,A,twa,penalite):
+    ''' fonction donnant le tuple point d arrivée en fonction des coordonnées du point de depart ''' 
+    ''' c'est cette fonction qui sert dans le calcul des isochrones '''
+    ''' ameliore deplacement de 30% '''
+    # integre une penalite si la nouvelle twa est de signe inverse de la nouvelle
+    if penalite !=0 :   
+        TWAO=ftwaov2( HDG,TWD)
+        Virement=np.where(TWAO*twa>0,False,True)
+        DT=np.ones(len(VT))*d_t-Virement*penalite
+        HDG_R = HDG * math.pi / 180     # cap en radians
+        X= x0+ DT / 3600 / 60 * VT * (np.sin(HDG_R) / math.cos(y0 * math.pi / 180)) 
+        Y= y0- DT / 3600 / 60 * VT * np.cos(HDG_R)
+    else :
+        HDG_R = HDG * math.pi / 180     # cap en radians
+        X= x0+ d_t / 3600 / 60 * VT * (np.sin(HDG_R) / math.cos(y0 * math.pi / 180)) 
+        Y= y0- d_t / 3600 / 60 * VT * np.cos(HDG_R)
+
+    Di,Ca=dist_cap(X+Y*1j, A)
+    return X,Y,Di,Ca
+
+
 
 
 def calcul_points(D, tp, d_t, TWD, vit_vent, ranged, polaires):
@@ -209,8 +254,10 @@ def dist_cap4(points,A):
     C = A - D
     return np.abs(C), (450 + np.angle(C, deg=True)) % 360
 
-
+#@jit(nopython=True)
 def rangenavi(capa, capb):
+    '''@jit ralentit la fonction'''
+
     if capb > capa:
         range = np.arange(capa, capb, 1)
     else:
@@ -221,13 +268,13 @@ def rangenavi(capa, capb):
 def range_cap(direction_objectif, direction_vent, a_vue_objectif, angle_pres, angle_var):
     # print ('direction_vent indice i',direction_vent)
     # print('direction_objectif indice i', direction_objectif)
+    '''pas d'acceleration avec @jit '''
     direction_vent, direction_objectif = int(direction_vent), int(direction_objectif)
     cap1 = (direction_vent + angle_pres) % 360
     cap2 = (direction_vent - angle_pres + 1) % 360
     cap3 = (180 + direction_vent + angle_var) % 360
     cap4 = (180 + direction_vent - angle_var + 1) % 360
     cap5 = (direction_objectif - a_vue_objectif) % 360
-
     cap6 = (direction_objectif + a_vue_objectif) % 360
 
     z1 = rangenavi(cap1, cap4)
@@ -272,6 +319,28 @@ def trace_points_folium (points_cpx):
 
     return None
 
+def polaire2_vectv2(polaires,tab_twa, tab_tws,vit_vent,angle_vent,tableau_caps):
+    '''il n'y a qu'une vitesse et un angle mais plusieurs caps '''
+    ''' 20% plus performant que la fonction de base'''
+    #transformation tableau de caps en un point en tableau de donnees (twa , vit_vent)
+    l=len(tableau_caps)
+    twax = 180 - np.abs(((360 - angle_vent + tableau_caps) % 360) - 180)  # broadcasting
+    twa  = twax.reshape(-1,1)
+    vvent = (np.ones(l)*vit_vent).reshape(-1,1)
+    donnees= np.concatenate((twa,vvent), axis = 1) 
+    valeurs = interpn((tab_twa, tab_tws), polaires, donnees, method='linear')
+    return valeurs
+
+def polaire3_vect(polaires,tab_twa, tab_tws,TWS,TWD,HDG):
+    '''Retourne un tableau de polaires en fonction des polaires bateau  de TWS TWD et HDG'''
+    '''TWS true Wind speed, TWD true wind direction , HDG caps'''
+    '''Les trois tableaux doivent avoir la meme dimension'''
+    TWA=(180 - np.abs(((360 - TWD + HDG) % 360) - 180)).reshape((-1, 1))
+    TWS2=TWS.reshape((-1, 1))
+    donnees=np.concatenate((TWA,TWS2),axis=1)
+    valeurs = interpn((tab_twa, tab_tws), polaires, donnees, method='linear')
+    return valeurs
+
 # def polaire2_vect(polaires,tws,twd,HDG):
 #     '''ici un seul point avec une seule tws twd
 #      mais plusieurs caps'''
@@ -288,76 +357,171 @@ def trace_points_folium (points_cpx):
 
 
 if __name__ == '__main__':
-#    print ('Test')
-    import numpy as np
-        # test de distance et cap tableau de complexes pour les point de de part et complexe pour l'arrivee
-
-    #Depart
-    latitude_d     = '047-39-09-N'
-    longitude_d    = '003-53-09-W'
-    #Point Arrivee 
-    latitude_a     = '049-30-00-N'
-    longitude_a    = '005-06-00-W'
 
 
 
-
-    d  = chaine_to_dec(latitude_d, longitude_d)  # conversion des latitudes et longitudes en tuple
-    ar = chaine_to_dec(latitude_a, longitude_a)
-    ar=d
-    d=(-73.62,-40.46)
-    print(d)
-    D = cplx(d)  # transformation des tuples des points en complexes
-    A = cplx(ar)
-    print ('Arrivee',A)
-
-    HDG = np.array( [ 0,1,2,3,4,5])
-    VT =  np.array( [2.94700956 ,2.89013849, 2.83244379 ,2.77321923, 2.71399466 ,2.6547701 ])
-
-    a=np.array([[2+5*1j,3+4*1j,7+8*1j]])
-    delta_temps=600
-    i=0
-    n_pts_x = deplacement2(a[0][i], delta_temps, HDG, VT)
-    print('base')
-    print ('HDG : ',HDG )
-    print('resultat n _pts_x',n_pts_x)
+   #test de rangenavi
+   # 
+    capa=30
+    capb=50
+    angle_twa_pres = 36
+    angle_twa_ar = 20
+   
+    angle_pres = 36
+    angle_var = 20
+    direction_objectif=130
+    direction_vent=80
+    a_vue_objectif=180
 
 
-# meme chose avec un tableau de points
+
+    tic = time.time()
+    for i in range (10000):
+        res=range_cap(direction_objectif, direction_vent, a_vue_objectif, angle_pres, angle_var)
+
+    tac=time.time()  
+
     print()
-    print('Variante')
-    points=np.concatenate((a.real.reshape(-1,1),a.imag.reshape(-1,1)),axis=1).tolist()
-    print('points',points)
-    d_t=600
-    i=0
-    X,Y,Da,Ca=deplacement_x_y_tab_ar(points[i][0],points[i][1],d_t,HDG,VT,A)
-
-    print('x depart',points[i][0])
-    print('y depart',points[i][i])
-    print('X',X)
-    print('Y',Y)
-    print('Da',Da)
-    print('Ca',Ca)
-
-    X.reshape(-1,1)
-    Y.reshape(-1,1)
+    print (res)
+    print('temps execution base en secondes',tac-tic)
+    print()
+    
+  
 
 
-        # # test deplacement_x_y
-    # res=range_cap( 291,3,90,40,20)
-    # print (res)
-    # res=range_cap( 291,359,90,40,20)
-    # print (res)
+    # #test de deplacement
+
+    # HDG = np.array( [ 0,1,2,3,4,5])
+
+    # VT =  np.array( [2.94700956 ,2.89013849, 2.83244379 ,2.77321923, 2.71399466 ,2.6547701 ])
+    # TWD=  np.array( [300 ,305, 315 ,80, 27.5 ,2.65 ])
+    # d_t=600
+    # x0,y0=-73.62,-40.46
+    # twa=30
+    # penalite=0
+    # # Point Arrivee 
+    # latitude_a     = '049-30-00-N'
+    # longitude_a    = '005-06-00-W'
+    # ar = chaine_to_dec(latitude_a, longitude_a)
+    # A = cplx(ar)
 
 
-    # x0=-5.811
-    # y0=-46.0594
-    # d_t=300
-    # HDG=254.9
-    # VT=6.87
+    # tic = time.time()
+    # for i in range (100000):
+
+    #     #res=deplacement_x_y_v2(x0,y0,d_t,HDG,VT)
+    #     res=deplacement(x0,y0,d_t,HDG,TWD,VT,A,twa,penalite)
+    # tac=time.time()   
+    # print('temps execution base en secondes',tac-tic)
+    # print (res[0])
+    # print (res[1])
+
+    # tic = time.time()
+    # for i in range (100000):
+    #     res=deplacement2(x0,y0,d_t,HDG,TWD,VT,A,twa,penalite)
+    #     # #res=deplacement_x_y_v2(x0,y0,d_t,HDG,VT)
+    #     # if penalite !=0 :
+    #     #     res=deplacement2(x0,y0,d_t,HDG,TWD,VT,A,twa,penalite)
+    #     # else :
+    #     #     res=deplacement_x_y_v2(x0,y0,d_t,HDG,VT)
+
+    #     Di,Ca=dist_cap(res[0]+res[1]*1j, A)
+
+    # tac=time.time()   
+    # print('temps execution variante en secondes',tac-tic)
+    # print (res[0])
+    # print (res[1])
 
 
-    # deplacement_x_y(x0,y0, d_t, HDG, VT)
-    # print()
-    # print (x,y)
-    # print()
+
+    # tic = time.time()
+    # for i in range (100000):
+    #     res=deplacement_x_y_v2(x0,y0,d_t,HDG,VT)
+    #     Di,Ca=dist_cap(res[0]+res[1]*1j, A)
+
+
+    # tac=time.time()   
+    # print('\ntemps execution solution simple',tac-tic)
+    # print (res[0])
+    # print (res[1])
+    # print ()
+
+
+    
+
+
+# #    print ('Test')
+#     import numpy as np
+#         # test de distance et cap tableau de complexes pour les point de de part et complexe pour l'arrivee
+
+#     #Depart
+#     latitude_d     = '047-39-09-N'
+#     longitude_d    = '003-53-09-W'
+#     #Point Arrivee 
+#     latitude_a     = '049-30-00-N'
+#     longitude_a    = '005-06-00-W'
+
+
+
+
+#     d  = chaine_to_dec(latitude_d, longitude_d)  # conversion des latitudes et longitudes en tuple
+#     ar = chaine_to_dec(latitude_a, longitude_a)
+#     ar=d
+#     d=(-73.62,-40.46)
+#     print(d)
+#     D = cplx(d)  # transformation des tuples des points en complexes
+#     A = cplx(ar)
+#     print ('Arrivee',A)
+
+#     HDG = np.array( [ 0,1,2,3,4,5])
+#     VT =  np.array( [2.94700956 ,2.89013849, 2.83244379 ,2.77321923, 2.71399466 ,2.6547701 ])
+
+#     a=np.array([[2+5*1j,3+4*1j,7+8*1j]])
+#     delta_temps=600
+#     i=0
+#     n_pts_x = deplacement2(a[0][i], delta_temps, HDG, VT)
+#     print('base')
+#     print ('HDG : ',HDG )
+#     print('resultat n _pts_x',n_pts_x)
+
+
+# # meme chose avec un tableau de points
+#     print()
+#     print('Variante')
+#     points=np.concatenate((a.real.reshape(-1,1),a.imag.reshape(-1,1)),axis=1).tolist()
+#     print('points',points)
+#     d_t=600
+#     i=0
+#     X,Y,Da,Ca=deplacement_x_y_tab_ar(points[i][0],points[i][1],d_t,HDG,VT,A)
+
+#     print('x depart',points[i][0])
+#     print('y depart',points[i][i])
+#     print('X',X)
+#     print('Y',Y)
+#     print('Da',Da)
+#     print('Ca',Ca)
+
+#     X.reshape(-1,1)
+#     Y.reshape(-1,1)
+
+
+#     print()
+
+#         # # test deplacement_x_y
+#     # res=range_cap( 291,3,90,40,20)
+#     # print (res)
+#     # res=range_cap( 291,359,90,40,20)
+#     # print (res)
+
+
+#     # x0=-5.811
+#     # y0=-46.0594
+#     # d_t=300
+#     # HDG=254.9
+#     # VT=6.87
+
+
+#     # deplacement_x_y(x0,y0, d_t, HDG, VT)
+#     # print()
+#     # print (x,y)
+#     # print()

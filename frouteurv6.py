@@ -1,95 +1,19 @@
-
+# coding: utf-8
 import os
 import time
-from datetime import timedelta
 import math
 import numpy as np
-import matplotlib.pyplot as plt
 import xarray as xr
-import pandas as pd
 import json
-from json import dumps
-from json import JSONEncoder
 import folium
 import webbrowser
 from uploadgrib import *
 from fonctions_vr import *
 from global_land_mask import globe
-import pickle
-from flask import Flask, redirect, url_for,render_template, request , session , flash , jsonify
-from flask_sqlalchemy import SQLAlchemy
-
-tic=time.time()
-
-
 from flask import Flask, redirect, url_for,render_template, request , session , flash
 from flask_sqlalchemy import SQLAlchemy
-#from frouteur import frouteur
-
-
-app = Flask(__name__)
-app.secret_key="Hello"
-app.permanent_session_lifetime = timedelta(days=1)     
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///user.sqlite3'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] =False
-db = SQLAlchemy(app)
-
 tic=time.time()
-tig, GR        = chargement_grib()
 
-
-class NumpyArrayEncoder(JSONEncoder):
-    def default(self, obj):
-        if isinstance(obj, np.ndarray):
-            return obj.tolist()
-        return JSONEncoder.default(self, obj)
-
-# pour chargement du grib pour le js  a automatiser en fonction de la lat et lng
-#tig, GR = chargement_grib()
-latini=-50      # latitude la plus au nord en premier et latitude nord negative
-latfin=-40
-longini=350
-longfin=360
-
-
-def vents_encode(latini,latfin,longini,longfin):
-    ''' extrait du grib GR les donnees entre ini et fin sur 24 h et l'exporte en json'''
-    ilatini=90+latini    # les latitudes Nord doivent être négatives
-
-    ilatfin=90+latfin
-    print ()
-    U10=GR[0:8,ilatini:ilatfin,longini:longfin].real
-    V10=GR[0:8,ilatini:ilatfin,longini:longfin].imag
-    numpyData = {"latini":latini,"latfin":latfin,"longini":longini,"longfin":longfin,"u10": U10,"v10":V10}
-    a=json.dumps(numpyData, cls=NumpyArrayEncoder)
-    #b=jsonify(numpyData)
-    return a 
-
-
-
-def vents_encode2(latini,latfin,longini,longfin):
-    ''' extrait du grib GR les donnees entre ini et fin sur 24 h et l'exporte en json'''
-    ilatini=90+latini    # les latitudes Nord doivent être négatives
-
-    ilatfin=90+latfin
-    U10=GR[0:12,ilatini:ilatfin,longini:longfin].real
-    V10=GR[0:12,ilatini:ilatfin,longini:longfin].imag
-     
-    u10=[arr.tolist() for arr in U10]
-    v10=[arr.tolist() for arr in V10]
-    return u10,v10
-
-
-
-
-class user(db.Model):                                              # creation du modele de base de donnée
-    id     = db.Column(db.Integer, primary_key=True)
-    nom    = db.Column(db.String(100))
-    prenom = db.Column(db.String(100))
-
-
-#*******************************************************************************************************
-#*******************************************************************************************************
 
 def f_isochrone2(l, temps_initial_iso):
 
@@ -223,7 +147,25 @@ def f_isochrone2(l, temps_initial_iso):
 
 
 
-#*******************************************************************************************************
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # ************************************   Fin de la fonction       **********************************************************
 
 
@@ -257,12 +199,9 @@ def fonction_routeur(course,depart,arrivee,t0=time.time()):
     
     angle_twa_pres=data2[bateau]["pres_mini"]
     angle_twa_ar= data2[bateau]["var_mini"]
-    l1=data2[bateau]["tab_tws"]
-    l2=data2[bateau]["tab_twa"]
-    polairesj1=data2[bateau]["polaires"]
-    tab_tws=np.array(l1)
-    tab_twa=np.array(l2)
-    polaires=np.array(polairesj1)
+    tab_tws=np.array(data2[bateau]["tab_tws"])
+    tab_twa=np.array(data2[bateau]["tab_twa"])
+    polaires=np.array(data2[bateau]["polaires"])
 
     x0,y0=chaine_to_dec(latdep, lngdep)  # conversion des latitudes et longitudes en tuple
     x1,y1=chaine_to_dec(latar, lngar)
@@ -422,7 +361,7 @@ def fonction_routeur(course,depart,arrivee,t0=time.time()):
     print('Temps total      v {:2.0f}j {:2.0f}h {:2.0f}mn {:2.0f}s'.format(j, h, mn ,s ))
 
 
-    return multipolyline,route3,comment,x0,y0,x1,y1,l1,l2,polairesj1
+    return multipolyline,route3,comment,x0,y0,x1,y1,tab_tws,tab_twa,polaires
 
 
 
@@ -435,211 +374,97 @@ def fonction_routeur(course,depart,arrivee,t0=time.time()):
 
 
 
-##partie serveur web
-
-
-@app.route('/')
-def index():
-  return render_template('index.html')
-
-@app.route('/dom')
-def dom():
-  return render_template('dom.html')
-
-@app.route('/leafletbase')
-def leafletbase():
-  return render_template("leafletbase.html")
-
-@app.route('/windybase')
-def windybase():
-  return render_template("windybase.html")
-
-
-@app.route('/resultat',methods = ['POST'])
-def resultat():
-  resultat1 = request.form                                    # dictionnaire avec les resultats de la requete
-                                                              # resultat = request.args dans le cas d'une requete 'GET'
-  latdep                 = resultat1['lat']
-  longdep                = resultat1['long']
-  #frouteur (latdep,longdep,latar,longar) 
-  return render_template("resultat.html", total=add(latdep,longdep) , result=request.form)
-
-@app.route('/vents.json')
-def jsoni():
-  return render_template("vents.json")
-
-
-# @app.route('/outils.json')
-# def outils():
-#   return render_template("outils.json")
-
-
-@app.route('/javascript')
-def javascript(): 
-    global tig, GR
-    latini=-50      # latitude la plus au nord en premier et latitude nord negative pour charger le grib pour jzvzscript
-    latfin=-35      # Il faudrait mettra une formule pour que la bonne portion de grib soit chargée
-    lngini=330
-    lngfin=360
-
-    u10,v10=vents_encode2(latini,latfin,lngini,lngfin)   
-    l1=list(tab_tws_imoca)
-    l2=list(tab_twa_imoca)
-    polairesjs=[arr.tolist() for arr in polaires]
-    tsimul=time.time()
-
-
-    #vents2=vents_encode(latini,latfin,longini,longfin)
-    return render_template("javascript.html",tig=tig,tsimul=tsimul,latini=latini,lngini=lngini,latfin=latfin,lngfin=lngfin,U10=u10, V10=v10,l1=l1,l2=l2,polairesjs=polairesjs )
-
-
-
-
-@app.route('/leaflet',methods = ["GET", "POST"])
-def leaflet():
-    global x0,y0,x1,y1
-    latitude_d     = '049-54-17-N'
-    longitude_d    = '006-46-01-W' 
-    x0,y0=chaine_to_dec(latitude_d, longitude_d)  # conversion des latitudes et longitudes en tuple
-    
-    #Point Arrivee 
-    latitude_a     = '051-21-00-N'
-    longitude_a    = '009-39-00-W'
-    t0=time.time() 
-    x1,y1=chaine_to_dec(latitude_a, longitude_a)
-# on tient compte des valeurs retournees par get
-    latdep        = float(request.args['latdep'])
-    lngdep        = float(request.args['lngdep'])
-    x0=lngdep
-    y0=-latdep
-    lngar=x1
-    latar=-y1
-    
-    print ('latar',latar)
-    print ('lngar',latar)
-
-
-
-    multipolyline,route,comment=fonction_routeur(lngdep,latdep,x1,y1)
-    #print ('route',route)
-
-    red=[]
-    black=[]
-
-    print (multipolyline[0:1])
-
-    for i in range(len(multipolyline)):
-        if (i+1)%6==0:
-                black.append(multipolyline[i])
-        else:
-                red.append(multipolyline[i])  
-    return render_template("leaflet.html", multipolyred=red,multipolyblack=black,route=route,comment=comment,lngdep=lngdep,latdep=latdep,lngar=lngar,latar=latar, result=request.form)
 
 
 
 
 
-
-
-
-
-
-@app.route('/windleaf',methods =["GET", "POST"])
-def windleaf():
-    global x0,y0,x1,y1
-    
-# Extraction de donnees du fichier json
-     # Extraction de donnees du fichier json
-
-   
-
-    # with open('courses.json', 'r') as fichier:
-    #     data = json.load(fichier)
-    # n_course='429'
-    # bateau=(data[n_course]["bateau"])
-    # print('\nBateau : ',bateau)
-    # fichier_polaires='polaires.'+(data[n_course]["polaires"])
-    # depart="bouee_2"
-    # arrivee="arrivee"
-
-
-    # latdep = (data[n_course][depart]["lat"])
-    # lngdep = (data[n_course][depart]["lng"])
-    # latar  = (data[n_course][arrivee]["lat"])
-    # lngar  = (data[n_course][arrivee]["lng"])
-    # x0,y0=chaine_to_dec(latdep, lngdep)  # conversion des latitudes et longitudes en tuple
-    # x1,y1=chaine_to_dec(latar, lngar)
-    # print ('x0,y0',x0,y0)
-    # print ('x1,y1',x1,y1)
-    # latar=y1
-    # lngar=x1
-
-    t0=time.time() 
-    tsimul=time.time()
-    print ('(401) temps t0',time.strftime(" %d %b %Y %H:%M:%S ", time.localtime(t0)))
-
- 
-# on tient compte des valeurs retournees par get
-    latdep        = -float(request.args['latdep'])
-    lngdep        = float(request.args['lngdep'])
-    x0=lngdep
-    y0=latdep
-
-
-# #Si on veut forcer la position de depart     3 lignes seront à supprimer
-#     latitude_d     = '043-17-12-N'
-#     longitude_d    = '010-07-49-E'
-#     x0,y0=chaine_to_dec(latitude_d, longitude_d)  # conversion des latitudes et longitudes en tuple
-    
-# #Si on veut forcer la position d'arrivee (reste à tester )
-#     latitude_d     = '043-17-12-N'
-#     longitude_d    = '010-07-49-E'
-#     x1,y1=chaine_to_dec(latitude_d, longitude_d)  # conversion des latitudes et longitudes en tuple
-    
+if __name__ == '__main__':
   
-    # chargement du grib partiel pour utilisation ulterieure en js
-    global tig, GR
-    latini=-50      # latitude la plus au nord en premier et latitude nord negative pour charger le grib pour jzvzscript
-    latfin=-30
-    lngini=320
-    lngfin=360
-    u10,v10=vents_encode2(latini,latfin,lngini,lngfin)   
-    #provisoire
 
-    
+#*******************************************************************************************
+#*******************************************************************************************
+# Fonction_routeur  elle retourne les isochrones (multipolyline) et la route ,
+    multipolyline,route,comment,x0,y0,x1,y1=fonction_routeur("438","depart","bouee1")
+#*******************************************************************************************
+#*******************************************************************************************
 
-    # calcul de la route et de la multipolyline des isochrones
+
+# pour des raisons de mise au point on va l'afficher directement dans folium
+ # Initialisation carte folium **************************************************************
+    t0=time.time()
+    lat1=  -(y0+y1)/2
+    lng1=   (x0+x1)/2  
+    m = folium.Map( location=[lat1,lng1],  zoom_start=9)
+    folium.LatLngPopup().add_to(m)   # popup lat long
+#*******************************************************************************************
    
-    multipolyline,route,comment,x0,y0,x1,y1,l1,l2,polairesjs=fonction_routeur("438","depart","bouee1")
-    latar=y1
-    lngar=x1
-    red=[]
-    black=[]
+  
+
+# Variante
+    green=[]
+    orange=[]
     for i in range(len(multipolyline)):
         if (i+1)%6==0:
-                black.append(multipolyline[i])
+                green.append(multipolyline[i])
         else:
-                red.append(multipolyline[i]) 
+                orange.append(multipolyline[i]) 
+    #trace des isochrones           
+    folium.PolyLine(green,color='black',weight=1 , popup='Isochrone %6 ').add_to(m) 
+    folium.PolyLine(orange,color='red',weight=1 , popup='Isochrone ').add_to(m)   
 
 
 
-    print('tsimul',tsimul)
-    return render_template("windleaf.html", multipolyred=red,multipolyblack=black,route=route,comment=comment,l1=l1,l2=l2,polairesjs=polairesjs,lngdep=lngdep,latdep=latdep,lngar=lngar,latar=latar, t0=tsimul ,tig=tig,latini=latini,lngini=lngini,latfin=latfin,lngfin=lngfin,U10=u10, V10=v10 ,result=request.form)
+
+
 
 
     
+    #trace de la route variante
+    folium.PolyLine(route, color="blue", weight=2.5, popup='Route calculée ',opacity=0.8).add_to(m)
 
 
 
-
-
-
-
-
-
-if __name__ == "__main__" :
-    db.create_all()                 #creation de la base de donnees
-    app.debug=True
-    app.config['JSON_AS_ASCII']=False
+    # Creation de points sur la route avec tooltips pour folium
     
-    app.run(host='127.0.0.1', port=8080, debug=True)
+
+
+    # VARIANTE
+    tooltip=[]
+    popup=[]
+    for i in range (0,len(comment),1):
+        temps=time.strftime(" %d %b %Y %H:%M:%S ", time.localtime(comment[i][2]))
+        delta_t   = comment[i][2]- t0 +30   #(les 30s sont pour le temps dexecution du programme)
+        delta_t_h = delta_t//3600
+        delta_t_mn=(delta_t-delta_t_h*3600)//60
+        heures=str(delta_t_h)+'H '+str(delta_t_mn)+'mn'
+        lng= str(-round(comment[i][0], 2))
+        lat = str(-round(comment[i][1], 2))
+        tws = str(round(comment[i][3], 1))
+        twd = str(round(comment[i][4], 0))
+        cap = str(round(comment[i][5], 0))
+        twa = str(round(comment[i][6], 0))
+        Vt  = str(round(comment[i][7], 2))
+        tooltip.append('<b>'+temps+'<br>Iso N°:'+str(i) +'  +' +heures+'<br> Lat :'+lat+'° - Long :'+lng+'°<br>TWD :' +twd+'°-  TWS :'
+                    + tws +'N<br> Cap :' + cap + '° TWA :' +twa +'°<br>Vitesse :' +Vt+'Noeuds</b>')
+        popup.append( folium.Popup(folium.Html(tooltip[i], script=True), max_width=200,min_width=150))
+    
+ 
+    for i in range( len(comment)):
+        folium.Circle([comment[i][0],comment[i][1]],color='black', radius=200,tooltip=tooltip[i], popup=popup[i],fill=True).add_to(m)
+
+
+
+
+
+
+    #*******************************************************************************************
+    # Sauvegarde carte et affichage dans browser
+    filecarte='map.html'
+    filepath = 'templates/'+filecarte
+    m.save(filepath)
+    webbrowser.open( filepath)
+
+        #   ****************************************Controle du temps d'execution **********************************
+    tac = time.time()
+    print('\nDuree d\'execution:  {:4.2f} s'.format(tac - tic))

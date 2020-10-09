@@ -1,4 +1,4 @@
-
+# coding: utf-8
 import os
 import time
 from datetime import timedelta
@@ -8,88 +8,23 @@ import matplotlib.pyplot as plt
 import xarray as xr
 import pandas as pd
 import json
-from json import dumps
-from json import JSONEncoder
 import folium
 import webbrowser
 from uploadgrib import *
 from fonctions_vr import *
+import numba
+from numba import jit
+
+#Cette version est une version simple pour voir l'effet des optimisations"
+val='polaires.polaires_figaro2'
+exec('from '+val+ ' import *')
+
 from global_land_mask import globe
 import pickle
-from flask import Flask, redirect, url_for,render_template, request , session , flash , jsonify
-from flask_sqlalchemy import SQLAlchemy
-
-tic=time.time()
-
-
 from flask import Flask, redirect, url_for,render_template, request , session , flash
 from flask_sqlalchemy import SQLAlchemy
-#from frouteur import frouteur
-
-
-app = Flask(__name__)
-app.secret_key="Hello"
-app.permanent_session_lifetime = timedelta(days=1)     
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///user.sqlite3'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] =False
-db = SQLAlchemy(app)
-
 tic=time.time()
-tig, GR        = chargement_grib()
 
-
-class NumpyArrayEncoder(JSONEncoder):
-    def default(self, obj):
-        if isinstance(obj, np.ndarray):
-            return obj.tolist()
-        return JSONEncoder.default(self, obj)
-
-# pour chargement du grib pour le js  a automatiser en fonction de la lat et lng
-#tig, GR = chargement_grib()
-latini=-50      # latitude la plus au nord en premier et latitude nord negative
-latfin=-40
-longini=350
-longfin=360
-
-
-def vents_encode(latini,latfin,longini,longfin):
-    ''' extrait du grib GR les donnees entre ini et fin sur 24 h et l'exporte en json'''
-    ilatini=90+latini    # les latitudes Nord doivent être négatives
-
-    ilatfin=90+latfin
-    print ()
-    U10=GR[0:8,ilatini:ilatfin,longini:longfin].real
-    V10=GR[0:8,ilatini:ilatfin,longini:longfin].imag
-    numpyData = {"latini":latini,"latfin":latfin,"longini":longini,"longfin":longfin,"u10": U10,"v10":V10}
-    a=json.dumps(numpyData, cls=NumpyArrayEncoder)
-    #b=jsonify(numpyData)
-    return a 
-
-
-
-def vents_encode2(latini,latfin,longini,longfin):
-    ''' extrait du grib GR les donnees entre ini et fin sur 24 h et l'exporte en json'''
-    ilatini=90+latini    # les latitudes Nord doivent être négatives
-
-    ilatfin=90+latfin
-    U10=GR[0:12,ilatini:ilatfin,longini:longfin].real
-    V10=GR[0:12,ilatini:ilatfin,longini:longfin].imag
-     
-    u10=[arr.tolist() for arr in U10]
-    v10=[arr.tolist() for arr in V10]
-    return u10,v10
-
-
-
-
-class user(db.Model):                                              # creation du modele de base de donnée
-    id     = db.Column(db.Integer, primary_key=True)
-    nom    = db.Column(db.String(100))
-    prenom = db.Column(db.String(100))
-
-
-#*******************************************************************************************************
-#*******************************************************************************************************
 
 def f_isochrone2(l, temps_initial_iso):
 
@@ -98,7 +33,7 @@ def f_isochrone2(l, temps_initial_iso):
     ''' Retourne les nouveaux points el le nouveau temps et implemente le tableau general des isochrones'''
     ''' isochrone 2 comprend une colonne de plus avec la twa en dernier '''
     global isochrone,TWS,TWD,temps_mini
-    nb_points=50
+    nb_points=100
     numero_iso           = int(isochrone[-1][2] + 1)
     print()
     print(' Isochrone Variante N° {} '.format(numero_iso ))
@@ -108,7 +43,8 @@ def f_isochrone2(l, temps_initial_iso):
     points=isochrone[-l:,0:2]  # ici on selectionne -l lignes en partant du bas et les colonnes 0 1 6
     twa= isochrone[-l:,5]      # ici on recupere l'ensemble des twa de l'isochrone precedent
 
-   
+    
+
 #variante
     numero_iso           = int(isochrone[-1][2] + 1)
     delta_temps          = intervalles[numero_iso]  # Ecart de temps entre anciens points et nouveaux en s (inchangé)
@@ -126,7 +62,7 @@ def f_isochrone2(l, temps_initial_iso):
     if numero_iso==1:
         penalite=0
     else:    
-        penalite=0
+        penalite=10
     
     for i in range(l):
 
@@ -136,13 +72,14 @@ def f_isochrone2(l, temps_initial_iso):
         # ici c'est nouveau
         
         # Calcul des caps a etudier pour chaque point (INCHANGÉ)
-        HDG = range_cap(dist_cap4(points[i], A)[1], TWD[i], angle_objectif, angle_twa_pres, angle_twa_ar)  
-
-        VT  =polaire2_vectv2(polaires,tab_twa, tab_tws, TWS[i], TWD[i], HDG)  #Vitesse polaire pour chaque cap
+        HDG = range_cap(dist_cap4(points[i], A)[1], TWD[i], angle_objectif, angle_twa_pres, angle_twa_ar)         
+        VT  =polaire2_vect(polaires, TWS[i], TWD[i], HDG)  #Vitesse polaire pour chaque cap
         #print ('delta_temps',delta_temps)
-        
-        X1,Y1,Da1,Ca1=deplacement2(points[i][0],points[i][1],delta_temps,HDG,TWD[i],VT,A,twap,penalite)
-
+        X1,Y1,Da1,Ca1=deplacement(points[i][0],points[i][1],delta_temps,HDG,TWD[i],VT,A,twap,penalite)
+        #X12,Y12,Da12,Ca12=deplacement_x_y_tab_ar(points2[i][0],points2[i][1],delta_temps,HDG2,VT2,A) #Coordonnees des nouveaux points calcules sous forme X,Y
+     
+       #Introduction de la fonction de penalite en fonction du changement de twa
+      
         L=len(X1)                                                                            # nombre de ( caps ) points etudies  (INCHANGÉ)
         niso1     = np.ones(L)*numero_iso                                                         # numero isochrone(INCHANGÉ)
         npointsm1 = np.ones(L)*i  +numero_premier_point +1    # numero du point mere i = 0 correspond au premier point de l'isochrone precedent(INCHANGÉ)
@@ -185,7 +122,7 @@ def f_isochrone2(l, temps_initial_iso):
     for i in range(points_calcul.shape[0] - 1, -1, -1):  # ecremage
         if (points_calcul[i][6]) == (points_calcul[i - 1][6]):
             points_calcul = np.delete(points_calcul, i, 0)
-    
+    longueur= points_calcul.shape[0] 
 # verification points terre ou mer
     for i in range(points_calcul.shape[0]- 1, -1, -1):  # ecremage 
         is_on_land = globe.is_land(-points_calcul[i][1], points_calcul[i][0])   # point de latitude -y et longitude x
@@ -202,7 +139,7 @@ def f_isochrone2(l, temps_initial_iso):
    
 # on minore TWS à  2 pour règle VR
     TWS[TWS <2] = 2
-    VT = polaire3_vect(polaires,tab_twa, tab_tws, TWS, TWD, points_calcul[:,6])
+    VT = polaire3_vect(polaires, TWS, TWD, points_calcul[:,6])
     VT=0.9*VT
 # calcul des temps vers l arrivee
     D_a       = points_calcul[: ,5]               # Distances vers l'arrivee
@@ -223,75 +160,58 @@ def f_isochrone2(l, temps_initial_iso):
 
 
 
-#*******************************************************************************************************
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # ************************************   Fin de la fonction       **********************************************************
 
 
 
-def fonction_routeur(course,depart,arrivee,t0=time.time()):
+def fonction_routeur(xn,yn,x1,y1,t0=time.time()):
     '''x0,y0,x1,y1 depart et arrivee '''
     ''' Le but de la fonction frouteur est a partir de x0 y0 x1 y1 
     de retourner une multipolyline des isochrones'''
-    ''' ex d'initialisation : course,depart,arrivee =    457,"bouee_2","arrivee"    '''
-
-
-    global isochrone,intervalles,TWS,TWD,tig,GR,angle_objectif,angle_twa_pres,angle_twa_ar,temps_mini,A,polaires,tab_twa,tab_tws
+    global isochrone,intervalles,TWS,TWD,tig,GR,angle_objectif,temps_mini,A
+   
+   
+    
+# Definition des variables pour le routage
     tig, GR        = chargement_grib()
-
-    with open('courses.json', 'r') as fichier:
-        data1 = json.load(fichier)
-    print ('course',course)
-    bateau=  (data1[course]["bateau"])
-    latdep = (data1[course][depart]["lat"])
-    lngdep = (data1[course][depart]["lng"])
-    latar  = (data1[course][arrivee]["lat"])
-    lngar  = (data1[course][arrivee]["lng"])
-    print('\nBateau : ',bateau)
-
-    print ('Depart :',latdep, lngdep,' ')
-    print ('Arrivee :',latar, lngar,' ')
-    print()
-
-    with open('polars.json', 'r') as fichier:
-        data2 = json.load(fichier)
-    
-    angle_twa_pres=data2[bateau]["pres_mini"]
-    angle_twa_ar= data2[bateau]["var_mini"]
-    l1=data2[bateau]["tab_tws"]
-    l2=data2[bateau]["tab_twa"]
-    polairesj1=data2[bateau]["polaires"]
-    tab_tws=np.array(l1)
-    tab_twa=np.array(l2)
-    polaires=np.array(polairesj1)
-
-    x0,y0=chaine_to_dec(latdep, lngdep)  # conversion des latitudes et longitudes en tuple
-    x1,y1=chaine_to_dec(latar, lngar)
-    print ('x0,y0',x0,y0)
-    print ('x1,y1',x1,y1)
-
-
-
-# Initialisation des variables pour le routage
-    
     A= x1+y1*1j                         # Arrivee sous forme complexe
-    pt1_np=np.array([[x0,y0]])          # isochrone de depart (1 point)
+    pt1_np=np.array([[xn,yn]])          # isochrone de depart (1 point)
     l=pt1_np.shape[0]                   # longueur de l'isochrone de depart (1)
           
     temps=t0                            # Definition du temps à l'isochrone de depart par defaut time.time()
    
     angle_objectif = 90                 # amplitude des angle balayes vers l'objectif 
-    temps_mini = 0                      # initialisation temps entre le dernier isochrone et l'objectif
-    but = False
-    isochrone = np.array([[x0, y0, 0, 0, 0,0]])# on initialise le tableau isochrone et TWS TWD avec une colonne en plus
-    TWS, TWD = prevision_tableau3(tig, GR, t0, pt1_np) # prevision au point de depart identique pour les 2
-
+    temps_mini = 0                      # temps entre le dernier isochrone et l'objectif 
 # definition des temps des isochrones
     dt1           = np.ones(72) * 600  # intervalles de temps toutes les 10mn pendant une heure puis toutes les heures
     dt2           = np.ones(370) * 3600
     intervalles   = np.concatenate(([t0 - tig], dt1, dt2))
     temps_cumules = np.cumsum(intervalles)
 
-
+#variante
+    but = False
+    isochrone = np.array([[x0, y0, 0, 0, 0,0]])# on initialise le tableau isochrone et TWS TWD avec une colonne en plus
+    TWS, TWD = prevision_tableau3(tig, GR, t0, pt1_np) # prevision au point de depart identique pour les 2
+    print ('(336)TWD',TWD.shape)
 
 
 # on imprime les donnees de depart    
@@ -360,7 +280,7 @@ def fonction_routeur(course,depart,arrivee,t0=time.time()):
     #dist = np.append(distance, [0])                         # on rajoute un 0 pour la distance arrivee et l angle arrivee
     HDG_ch = np.append(cap1, [0])                           # tableau des caps aux differents points
     TWA_ch = twa(HDG_ch, TWD_ch)                            # calculs twa sous forme de tableau pour les differents points
-    POL_ch = polaire3_vect(polaires,tab_twa, tab_tws, TWS_ch, TWD_ch, HDG_ch)# calcul des polaires aux differents points du chemin
+    POL_ch = polaire3_vect(polaires, TWS_ch, TWD_ch, HDG_ch)# calcul des polaires aux differents points du chemin
 
 
     # mise en forme pour concatener
@@ -422,7 +342,7 @@ def fonction_routeur(course,depart,arrivee,t0=time.time()):
     print('Temps total      v {:2.0f}j {:2.0f}h {:2.0f}mn {:2.0f}s'.format(j, h, mn ,s ))
 
 
-    return multipolyline,route3,comment,x0,y0,x1,y1,l1,l2,polairesj1
+    return multipolyline,route3,comment
 
 
 
@@ -435,211 +355,155 @@ def fonction_routeur(course,depart,arrivee,t0=time.time()):
 
 
 
-##partie serveur web
-
-
-@app.route('/')
-def index():
-  return render_template('index.html')
-
-@app.route('/dom')
-def dom():
-  return render_template('dom.html')
-
-@app.route('/leafletbase')
-def leafletbase():
-  return render_template("leafletbase.html")
-
-@app.route('/windybase')
-def windybase():
-  return render_template("windybase.html")
-
-
-@app.route('/resultat',methods = ['POST'])
-def resultat():
-  resultat1 = request.form                                    # dictionnaire avec les resultats de la requete
-                                                              # resultat = request.args dans le cas d'une requete 'GET'
-  latdep                 = resultat1['lat']
-  longdep                = resultat1['long']
-  #frouteur (latdep,longdep,latar,longar) 
-  return render_template("resultat.html", total=add(latdep,longdep) , result=request.form)
-
-@app.route('/vents.json')
-def jsoni():
-  return render_template("vents.json")
-
-
-# @app.route('/outils.json')
-# def outils():
-#   return render_template("outils.json")
-
-
-@app.route('/javascript')
-def javascript(): 
-    global tig, GR
-    latini=-50      # latitude la plus au nord en premier et latitude nord negative pour charger le grib pour jzvzscript
-    latfin=-35      # Il faudrait mettra une formule pour que la bonne portion de grib soit chargée
-    lngini=330
-    lngfin=360
-
-    u10,v10=vents_encode2(latini,latfin,lngini,lngfin)   
-    l1=list(tab_tws_imoca)
-    l2=list(tab_twa_imoca)
-    polairesjs=[arr.tolist() for arr in polaires]
-    tsimul=time.time()
-
-
-    #vents2=vents_encode(latini,latfin,longini,longfin)
-    return render_template("javascript.html",tig=tig,tsimul=tsimul,latini=latini,lngini=lngini,latfin=latfin,lngfin=lngfin,U10=u10, V10=v10,l1=l1,l2=l2,polairesjs=polairesjs )
-
-
-
-
-@app.route('/leaflet',methods = ["GET", "POST"])
-def leaflet():
-    global x0,y0,x1,y1
-    latitude_d     = '049-54-17-N'
-    longitude_d    = '006-46-01-W' 
-    x0,y0=chaine_to_dec(latitude_d, longitude_d)  # conversion des latitudes et longitudes en tuple
-    
-    #Point Arrivee 
-    latitude_a     = '051-21-00-N'
-    longitude_a    = '009-39-00-W'
-    t0=time.time() 
-    x1,y1=chaine_to_dec(latitude_a, longitude_a)
-# on tient compte des valeurs retournees par get
-    latdep        = float(request.args['latdep'])
-    lngdep        = float(request.args['lngdep'])
-    x0=lngdep
-    y0=-latdep
-    lngar=x1
-    latar=-y1
-    
-    print ('latar',latar)
-    print ('lngar',latar)
-
-
-
-    multipolyline,route,comment=fonction_routeur(lngdep,latdep,x1,y1)
-    #print ('route',route)
-
-    red=[]
-    black=[]
-
-    print (multipolyline[0:1])
-
-    for i in range(len(multipolyline)):
-        if (i+1)%6==0:
-                black.append(multipolyline[i])
-        else:
-                red.append(multipolyline[i])  
-    return render_template("leaflet.html", multipolyred=red,multipolyblack=black,route=route,comment=comment,lngdep=lngdep,latdep=latdep,lngar=lngar,latar=latar, result=request.form)
 
 
 
 
 
+if __name__ == '__main__':
+    # Initialisation  **********************************************************************************
+    # #Depart
+    # latitude_d     = '048-37-41-N'
+    # longitude_d    = '002-42-25-W'
+    # #Point Arrivee 
+    # latitude_a     = '050-08-00-N'
+    # longitude_a    = '004-15-00-W'
+
+    #   "depart":{"lat":"043-28-20-N" ,"lng":"009-28-58-E"},
+    #   "brehat" :{"lat":"048-01-00-N" ,"lng":"009-24-00-E"},
+    #   "bouee1":{"lat":"043-01-00-N" ,"lng":"009-24-00-E"}, 
 
 
+    # x0,y0=chaine_to_dec(latitude_d, longitude_d)  # conversion des latitudes et longitudes en tuple
+    # x1,y1=chaine_to_dec(latitude_a, longitude_a)
 
-
-
-@app.route('/windleaf',methods =["GET", "POST"])
-def windleaf():
-    global x0,y0,x1,y1
-    
-# Extraction de donnees du fichier json
+    # Extraction de donnees du fichier json
+    # Extraction de donnees du fichier json
      # Extraction de donnees du fichier json
-
-   
-
-    # with open('courses.json', 'r') as fichier:
-    #     data = json.load(fichier)
-    # n_course='429'
-    # bateau=(data[n_course]["bateau"])
-    # print('\nBateau : ',bateau)
-    # fichier_polaires='polaires.'+(data[n_course]["polaires"])
-    # depart="bouee_2"
-    # arrivee="arrivee"
+    with open('courses.json', 'r') as fichier:
+        data = json.load(fichier)
 
 
-    # latdep = (data[n_course][depart]["lat"])
-    # lngdep = (data[n_course][depart]["lng"])
-    # latar  = (data[n_course][arrivee]["lat"])
-    # lngar  = (data[n_course][arrivee]["lng"])
-    # x0,y0=chaine_to_dec(latdep, lngdep)  # conversion des latitudes et longitudes en tuple
-    # x1,y1=chaine_to_dec(latar, lngar)
-    # print ('x0,y0',x0,y0)
-    # print ('x1,y1',x1,y1)
-    # latar=y1
-    # lngar=x1
+    n_course='9999'
+    bateau=(data[n_course]["bateau"])
+    print('\nBateau : ',bateau)
+    fichier_polaires='polaires.'+(data[n_course]["polaires"])
 
-    t0=time.time() 
-    tsimul=time.time()
-    print ('(401) temps t0',time.strftime(" %d %b %Y %H:%M:%S ", time.localtime(t0)))
-
- 
-# on tient compte des valeurs retournees par get
-    latdep        = -float(request.args['latdep'])
-    lngdep        = float(request.args['lngdep'])
-    x0=lngdep
-    y0=latdep
+    latdep = (data[n_course]["depart"]["lat"])
+    print('latdep',latdep)
+    print()
+    lngdep = (data[n_course]["depart"]["lng"])
+    latar  = (data[n_course]["arrivee"]["lat"])
+    lngar  = (data[n_course]["arrivee"]["lng"])
 
 
-# #Si on veut forcer la position de depart     3 lignes seront à supprimer
-#     latitude_d     = '043-17-12-N'
-#     longitude_d    = '010-07-49-E'
-#     x0,y0=chaine_to_dec(latitude_d, longitude_d)  # conversion des latitudes et longitudes en tuple
-    
-# #Si on veut forcer la position d'arrivee (reste à tester )
-#     latitude_d     = '043-17-12-N'
-#     longitude_d    = '010-07-49-E'
-#     x1,y1=chaine_to_dec(latitude_d, longitude_d)  # conversion des latitudes et longitudes en tuple
-    
-  
-    # chargement du grib partiel pour utilisation ulterieure en js
-    global tig, GR
-    latini=-50      # latitude la plus au nord en premier et latitude nord negative pour charger le grib pour jzvzscript
-    latfin=-30
-    lngini=320
-    lngfin=360
-    u10,v10=vents_encode2(latini,latfin,lngini,lngfin)   
-    #provisoire
-
-    
-
-    # calcul de la route et de la multipolyline des isochrones
-   
-    multipolyline,route,comment,x0,y0,x1,y1,l1,l2,polairesjs=fonction_routeur("438","depart","bouee1")
+    x0,y0=chaine_to_dec(latdep, lngdep)  # conversion des latitudes et longitudes en tuple
+    x1,y1=chaine_to_dec(latar, lngar)
+    print ('x0,y0',x0,y0)
+    print ('x1,y1',x1,y1)
     latar=y1
     lngar=x1
-    red=[]
-    black=[]
+
+    t0=time.time() 
+
+
+
+    # on force les coordonnees de depart
+    #y0=-42.5763
+    #x0=10.1035
+    t0=time.time()     
+    print ('coordonnees Depart ',x0,y0)
+    print ('coordonnees Arrivee',x1,y1)
+
+#*******************************************************************************************
+#*******************************************************************************************
+# Fonction_routeur  elle retourne les isochrones (multipolyline) et la route ,
+    multipolyline,route,comment=fonction_routeur(x0,y0,x1,y1)
+#*******************************************************************************************
+#*******************************************************************************************
+#*******************************************************************************************
+  
+
+
+   
+
+    #*******************************************************************************************
+    #*******************************************************************************************
+
+    # pour des raisons de mise au point on va l'afficher directement dans folium
+    # Initialisation carte folium **************************************************************
+    lat1=  -(y0+y1)/2
+    lng1=   (x0+x1)/2  
+    m = folium.Map( location=[lat1,lng1],  zoom_start=9)
+    folium.LatLngPopup().add_to(m)   # popup lat long
+    #*******************************************************************************************
+   
+  
+
+# Variante
+    green=[]
+    orange=[]
     for i in range(len(multipolyline)):
         if (i+1)%6==0:
-                black.append(multipolyline[i])
+                green.append(multipolyline[i])
         else:
-                red.append(multipolyline[i]) 
+                orange.append(multipolyline[i]) 
+    #trace des isochrones           
+    folium.PolyLine(green,color='black',weight=1 , popup='Isochrone %6 ').add_to(m) 
+    folium.PolyLine(orange,color='red',weight=1 , popup='Isochrone ').add_to(m)   
 
 
 
-    print('tsimul',tsimul)
-    return render_template("windleaf.html", multipolyred=red,multipolyblack=black,route=route,comment=comment,l1=l1,l2=l2,polairesjs=polairesjs,lngdep=lngdep,latdep=latdep,lngar=lngar,latar=latar, t0=tsimul ,tig=tig,latini=latini,lngini=lngini,latfin=latfin,lngfin=lngfin,U10=u10, V10=v10 ,result=request.form)
+
+
 
 
     
+    #trace de la route variante
+    folium.PolyLine(route, color="blue", weight=2.5, popup='Route calculée ',opacity=0.8).add_to(m)
 
 
 
-
-
-
-
-
-
-if __name__ == "__main__" :
-    db.create_all()                 #creation de la base de donnees
-    app.debug=True
-    app.config['JSON_AS_ASCII']=False
+    # Creation de points sur la route avec tooltips pour folium
     
-    app.run(host='127.0.0.1', port=8080, debug=True)
+
+
+    # VARIANTE
+    tooltip=[]
+    popup=[]
+    for i in range (0,len(comment),1):
+        temps=time.strftime(" %d %b %Y %H:%M:%S ", time.localtime(comment[i][2]))
+        delta_t   = comment[i][2]- t0 +30   #(les 30s sont pour le temps dexecution du programme)
+        delta_t_h = delta_t//3600
+        delta_t_mn=(delta_t-delta_t_h*3600)//60
+        heures=str(delta_t_h)+'H '+str(delta_t_mn)+'mn'
+        lng= str(-round(comment[i][0], 2))
+        lat = str(-round(comment[i][1], 2))
+        tws = str(round(comment[i][3], 1))
+        twd = str(round(comment[i][4], 0))
+        cap = str(round(comment[i][5], 0))
+        twa = str(round(comment[i][6], 0))
+        Vt  = str(round(comment[i][7], 2))
+        tooltip.append('<b>'+temps+'<br>Iso N°:'+str(i) +'  +' +heures+'<br> Lat :'+lat+'° - Long :'+lng+'°<br>TWD :' +twd+'°-  TWS :'
+                    + tws +'N<br> Cap :' + cap + '° TWA :' +twa +'°<br>Vitesse :' +Vt+'Noeuds</b>')
+        popup.append( folium.Popup(folium.Html(tooltip[i], script=True), max_width=200,min_width=150))
+    
+ 
+    for i in range( len(comment)):
+        folium.Circle([comment[i][0],comment[i][1]],color='black', radius=200,tooltip=tooltip[i], popup=popup[i],fill=True).add_to(m)
+
+
+
+
+
+
+    #*******************************************************************************************
+    # Sauvegarde carte et affichage dans browser
+    filecarte='map.html'
+    filepath = 'templates/'+filecarte
+    m.save(filepath)
+    webbrowser.open( filepath)
+
+        #   ****************************************Controle du temps d'execution **********************************
+    tac = time.time()
+    print('\nDuree d\'execution:  {:4.2f} s'.format(tac - tic))
