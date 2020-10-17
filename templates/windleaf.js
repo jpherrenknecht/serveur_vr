@@ -65,18 +65,7 @@
                         return deg+'°'+min+'mn'+sec+'s'
                     }    
 
-            function polinterpol2d(bateau,twa,tws)
-			{	// parametres : polaires du bateau twa et tws
-			    var i_sup=l2.findIndex(element => element > twa);
-				var j_sup=l1.findIndex(element => element > tws);				
-				var twa_inf=l2[i_sup-1]
-				var twa_sup=l2[i_sup]
-				var tws_inf=l1[j_sup-1]
-				var tws_sup=l1[j_sup]
-				dx = twa-twa_inf 				// Ecart avec la valeur d'indice mini
-				dy = tws-tws_inf
-				deltax=twa_sup-twa_inf
-				deltay=tws_sup-tws_inf
+           		deltay=tws_sup-tws_inf
 				fx1y1   = bateau[i_sup-1][j_sup-1]
 				fx2y1   = bateau[i_sup][j_sup-1]			
 				fx1y2   = bateau[i_sup-1][j_sup]			
@@ -338,7 +327,39 @@
 			return [polyline2,capi]  
 			}
 
+            function polyline_cap2(latdep,lngdep,cap,tsimul)
+			{  
+				console.log ('Donnees de  polyline cap  latdep :' +latdep+ ' lngdep : ' +lngdep +' cap: ' +cap +' tsimul : '+tsimul)
+				//Cap généré par le curseur recherche du vent et twa en consequence 
+				hdg_ini=cap    // console.log( 'cap initial :' + hdg_ini)
+				meteo_ini=vit_angle_vent (latdep,lngdep,tsimul)
+				tws_ini=meteo_ini[0]
+				twd_ini=meteo_ini[1]				
+				twa_ini=ftwao(hdg_ini,twd_ini)
+				polyline2= [[latdep,lngdep]]  //initialisation de la polyline
+				dt=600   //intervalle entre deux points =10 mn
+				lat7 = latdep
+				lng7= lngdep
+				twa=twa_ini    // la twa est celle donnée initialement par le curseur
+				capi=hdg_ini
 
+				 t=tsimul
+				 for (var i=0;i<=72;i++)
+                    {tsimul = t+i*dt
+                     meteo=vit_angle_vent (lat7,lng7,tsimul)
+                     twa=ftwa(hdg_ini,meteo[1])
+                    //  console.log ('hdg_ini ' + hdg_ini + ' meteo 1 '+meteo[1] )
+                    //  console.log( 'test dans polyline_cap   twa : '+ twa + 'cap : ' +capi+' dirvent :'+meteo[1] + 'vit_vent :' + meteo[0]) 
+
+                     vit_polaire=polinterpol2d(polairesjs,twa,meteo[0])	                
+                    // console.log('cap dans polylinecap'+capi )
+                    point=deplacement(lat7,lng7,dt,vit_polaire,capi)     //calcul du nouveau point 
+                    lat7=point[0];lng7=point[1];
+                    polyline2.push(point)	
+                    }
+			//	console.log (' polyline '+polyline2)
+			return [polyline2,capi]  
+			}
 
 
 

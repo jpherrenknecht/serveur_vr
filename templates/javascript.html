@@ -4,9 +4,11 @@
 			<meta charset="utf-8">
 			<title>Page test javascript</title>
 			<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+
 			<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
 			
 			<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+
 			<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/base.css') }}">
 			<!-- Solution ou on charge le fichier par XMLHttprequest on doit attendre que onload soit bon pour executer la fonction 
 			
@@ -286,8 +288,8 @@
 			console.log('***************************************************************************************')
 			console.log ('Test de la fonction polaires')
 			twa= 63;tws= 7.5;
-			res=polinterpol2d(polairesjs,twa,tws)
-			console.log(' Polaire pour twa : '+twa+ ' tws  '+ tws +'  Vitesse '+res.toFixed(3)  )
+			// res=polinterpol2d(polairesjs,twa,tws)
+			// console.log(' Polaire pour twa : '+twa+ ' tws  '+ tws +'  Vitesse '+res.toFixed(3)  )
 			
 
 			console.log('***************************************************************************************')
@@ -356,7 +358,7 @@
 			twa=45
 
 
-			res=polyline_twa(latdep,lngdep,lat_curseur,lng_curseur,tsimul)
+			//res=polyline_twa(latdep,lngdep,lat_curseur,lng_curseur,tsimul)
 			//document.getElementById('test2').style.color='blue'
 			//document.getElementById('test2').innerhtml='taratata'
 
@@ -364,22 +366,25 @@
 
 <script>
 	$( function() {
-	  $( "#spinner_twa" ).spinner(
-	  { value: 45 ,
-	  	min :40 ,
-	  	max :160
+	  
+        var spinnertwa= $( "#spinner_twa" ).spinner()
+            spinnertwa.spinner({ min :40 , max :160  , stop:function(e,ui){var twa= spinnertwa.spinner("value"); console.log(spinnertwa.spinner("value")); }   });
+            spinnertwa.spinner("value", 45); 
+            
 
-	  });
 
-	  $("#spinner_twa").spinner().spinner("value", 45); 
+        var spinnerhdg= $( "#spinner_hdg" ).spinner()
+            spinnerhdg.spinner({  min :0 , max :360 });
+            spinnerhdg.spinner("value", 60); 
 
-	  $("#valeur").click(function() 
-	  { 
-		console.log("La valeur est "+ $("#spinner_twa").spinner().spinner("value")
-		);
-		}); 
+
+
+	  
 	
-	
+	  $("#spinner_twa").on("spinstop", function(){ alert($(this).spinner('value'));
+
+
+  });
 	
 	
 	//   $( "#disable" ).on( "click", function() {
@@ -404,7 +409,35 @@
 	//   });
    
 	//   $( "button" ).button();
-	} );
+
+	var a=document.getElementById('test')
+	console.log(a)	
+	var b=document.getElementsByClassName('essai')
+	console.log('test de getElement by classname'+b)
+	a.innerHTML="<b>Nouveau Test sur Id</b>"
+	b.innerHTML="<b>Test sur classe</b>"
+	document.getElementById('valeur').innerHTML="<b>Bouton<b>"
+	document.getElementById('spinner_twa').value=90      //affecte la valeur 90 a spinner_twa
+	// affectation  de class red a id labeltwa 	
+	var labeltwa=document.getElementById('labeltwa')
+	
+	// affectation de la classe red
+	labeltwa.classList.add('red')
+	labeltwa.style.fontWeight="bold"
+	labeltwa.style.backgroundColor='pink'
+
+		// creation de nouveaux elements
+
+	const newElt=document.createElement("div")	
+	
+	labeltwa.appendChild(newElt);
+    newElt.innerHTML="Ceci est un element ajouté par appendchild"
+	labeltwa.innerHTML=$("#spinner_twa").spinner("value")
+
+
+
+
+} );
 	</script>
 
 
@@ -417,11 +450,14 @@
 
 					<div id ='test'>Test </div> 
 					<div id ="test2">Test2 </div> 
+					<div id ="test2" class='essai'>Test2 </div> 
 
+					Variable <input id="variable" type="text" value = "champ texte"> 
 					<p>
-						<label for="spinner">TWA:</label>
-						<input id="spinner_twa" name="value">
-					
+						<span id="labeltwa"  >TWA:</span>
+						<input id="spinner_twa" name="twa" >
+						<label for="spinner">HDG:</label>
+						<input id="spinner_hdg" name="hdg">
 					  </p>
 					  <button id="valeur">Valeur ?</button> 
 

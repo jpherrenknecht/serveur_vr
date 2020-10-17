@@ -69,12 +69,20 @@ def vents_encode(latini,latfin,longini,longfin):
 
 def vents_encode2(latini,latfin,longini,longfin):
     ''' extrait du grib GR les donnees entre ini et fin sur 24 h et l'exporte en json'''
-    ilatini=90+latini    # les latitudes Nord doivent être négatives
+    #les latitudes et longitudes sont en coordonnees leaflet positives au nord la latitude initiale est la plus petite (plus au sud )
+    # on les transforme en indices grib
+    ilatini=90 -latini    #ilatini est l'indice de grib dans GR
+    ilatfin=90-latfin
+    # pour les longitudes longini est la plus a l'ouest 
 
-    ilatfin=90+latfin
-    U10=GR[0:12,ilatini:ilatfin,longini:longfin].real
-    V10=GR[0:12,ilatini:ilatfin,longini:longfin].imag
-     
+    if (longini <longfin) :
+        U10=GR[0:12,ilatini:ilatfin,longini:longfin].real
+        V10=GR[0:12,ilatini:ilatfin,longini:longfin].imag
+    else :
+        fin = 360-longini         # sert a determiner la coupe a la fin 
+        debut =longfin+1
+        U10=np.concatenate((GR[0:12,ilatini:ilatfin,-fin:].real,GR[0:12,ilatini:ilatfin,:debut].real),axis=2)
+        V10=np.concatenate((GR[0:12,ilatini:ilatfin,-fin:].imag,GR[0:12,ilatini:ilatfin,:debut].imag),axis=2)
     u10=[arr.tolist() for arr in U10]
     v10=[arr.tolist() for arr in V10]
     return u10,v10
@@ -228,7 +236,7 @@ def f_isochrone2(l, temps_initial_iso):
 
 
 
-def fonction_routeur(course,depart,arrivee,t0=time.time()):
+def fonction_routeur(course,latdep,lngdep,arrivee,t0=time.time()):
     '''x0,y0,x1,y1 depart et arrivee '''
     ''' Le but de la fonction frouteur est a partir de x0 y0 x1 y1 
     de retourner une multipolyline des isochrones'''
@@ -242,8 +250,8 @@ def fonction_routeur(course,depart,arrivee,t0=time.time()):
         data1 = json.load(fichier)
     print ('course',course)
     bateau=  (data1[course]["bateau"])
-    latdep = (data1[course][depart]["lat"])
-    lngdep = (data1[course][depart]["lng"])
+    # latdep = (data1[course][depart]["lat"])
+    # lngdep = (data1[course][depart]["lng"])
     latar  = (data1[course][arrivee]["lat"])
     lngar  = (data1[course][arrivee]["lng"])
     print('\nBateau : ',bateau)
@@ -264,7 +272,8 @@ def fonction_routeur(course,depart,arrivee,t0=time.time()):
     tab_twa=np.array(l2)
     polaires=np.array(polairesj1)
 
-    x0,y0=chaine_to_dec(latdep, lngdep)  # conversion des latitudes et longitudes en tuple
+    #x0,y0=chaine_to_dec(latdep, lngdep)  # conversion des latitudes et longitudes en tuple
+    x0,y0=lngdep,latdep
     x1,y1=chaine_to_dec(latar, lngar)
     print ('x0,y0',x0,y0)
     print ('x1,y1',x1,y1)
@@ -483,9 +492,9 @@ def javascript():
     lngfin=360
 
     u10,v10=vents_encode2(latini,latfin,lngini,lngfin)   
-    l1=list(tab_tws_imoca)
-    l2=list(tab_twa_imoca)
-    polairesjs=[arr.tolist() for arr in polaires]
+    l1=[1,2]
+    l2=[2,5]
+    polairesjs=[10,20]
     tsimul=time.time()
 
 
@@ -520,7 +529,7 @@ def leaflet():
 
 
 
-    multipolyline,route,comment=fonction_routeur(lngdep,latdep,x1,y1)
+    multipolyline,route,comment=fonction_routeur(course,latdep,lngdep,arrivee,t0)
     #print ('route',route)
 
     red=[]
@@ -548,69 +557,46 @@ def leaflet():
 def windleaf():
     global x0,y0,x1,y1
     
-# Extraction de donnees du fichier json
-     # Extraction de donnees du fichier json
-
-   
-
-    # with open('courses.json', 'r') as fichier:
-    #     data = json.load(fichier)
-    # n_course='429'
-    # bateau=(data[n_course]["bateau"])
-    # print('\nBateau : ',bateau)
-    # fichier_polaires='polaires.'+(data[n_course]["polaires"])
-    # depart="bouee_2"
-    # arrivee="arrivee"
-
-
-    # latdep = (data[n_course][depart]["lat"])
-    # lngdep = (data[n_course][depart]["lng"])
-    # latar  = (data[n_course][arrivee]["lat"])
-    # lngar  = (data[n_course][arrivee]["lng"])
-    # x0,y0=chaine_to_dec(latdep, lngdep)  # conversion des latitudes et longitudes en tuple
-    # x1,y1=chaine_to_dec(latar, lngar)
-    # print ('x0,y0',x0,y0)
-    # print ('x1,y1',x1,y1)
-    # latar=y1
-    # lngar=x1
-
-    t0=time.time() 
+    # valeurs par defaut si pas de retour de dashboard
+    course="438.1"
+    depart="depart"
+    arrivee="bouee2"
+    t1=time.time() 
     tsimul=time.time()
-    print ('(401) temps t0',time.strftime(" %d %b %Y %H:%M:%S ", time.localtime(t0)))
 
- 
-# on tient compte des valeurs retournees par get
-    latdep        = -float(request.args['latdep'])
-    lngdep        = float(request.args['lngdep'])
-    x0=lngdep
-    y0=latdep
-
-
-# #Si on veut forcer la position de depart     3 lignes seront à supprimer
-#     latitude_d     = '043-17-12-N'
-#     longitude_d    = '010-07-49-E'
-#     x0,y0=chaine_to_dec(latitude_d, longitude_d)  # conversion des latitudes et longitudes en tuple
+    try:
+        (request.args['latdep'])
+        latdep = -float(request.args['latdep'])
+        lngdep = float(request.args['lngdep'])
+        course = request.args['race']
+        #print('on est dans try')
+     
+    except :   
+        with open('courses.json', 'r') as fichier:
+            data1 = json.load(fichier)
+        # print ('course',course)
+        # bateau=  (data1[course]["bateau"])
+        latdep = (data1[course][depart]["lat"])
+        lngdep = (data1[course][depart]["lng"])
+        #print('on est dans except')
     
-# #Si on veut forcer la position d'arrivee (reste à tester )
-#     latitude_d     = '043-17-12-N'
-#     longitude_d    = '010-07-49-E'
-#     x1,y1=chaine_to_dec(latitude_d, longitude_d)  # conversion des latitudes et longitudes en tuple
-    
+    print ('latdep lngdep ',latdep,lngdep )  
   
     # chargement du grib partiel pour utilisation ulterieure en js
     global tig, GR
-    latini=-50      # latitude la plus au nord en premier et latitude nord negative pour charger le grib pour jzvzscript
-    latfin=-30
-    lngini=320
-    lngfin=360
+    latini=math.floor(-latdep)+5    # latitude la plus au nord en premier et latitude nord negative pour charger le grib pour javascript
+    latfin=latini -10 
+    lngini=(math.floor(lngdep)-5)%360
+    lngfin=(lngini+10)%360
+    
     u10,v10=vents_encode2(latini,latfin,lngini,lngfin)   
     #provisoire
 
-    
-
+    print ('(586)latdep lngdep dans main.py',latdep,lngdep)
+    print('(587)latini latfin lngini lngfin dans main.py',latini,latfin,lngini,lngfin)
     # calcul de la route et de la multipolyline des isochrones
    
-    multipolyline,route,comment,x0,y0,x1,y1,l1,l2,polairesjs=fonction_routeur("438","depart","bouee1")
+    multipolyline,route,comment,x0,y0,x1,y1,l1,l2,polairesjs=fonction_routeur(course,latdep,lngdep,arrivee,tsimul)
     latar=y1
     lngar=x1
     red=[]
@@ -621,19 +607,9 @@ def windleaf():
         else:
                 red.append(multipolyline[i]) 
 
-
-
     print('tsimul',tsimul)
-    return render_template("windleaf.html", multipolyred=red,multipolyblack=black,route=route,comment=comment,l1=l1,l2=l2,polairesjs=polairesjs,lngdep=lngdep,latdep=latdep,lngar=lngar,latar=latar, t0=tsimul ,tig=tig,latini=latini,lngini=lngini,latfin=latfin,lngfin=lngfin,U10=u10, V10=v10 ,result=request.form)
-
-
-    
-
-
-
-
-
-
+    print ('course',course)
+    return render_template("windleaf.html", multipolyred=red,multipolyblack=black,route=route,comment=comment,l1=l1,l2=l2,polairesjs=polairesjs,lngdep=lngdep,latdep=latdep,lngar=lngar,latar=latar, t0=tsimul,tig=tig,latini=latini,lngini=lngini,latfin=latfin,lngfin=lngfin,U10=u10, V10=v10 ,result=request.form)
 
 
 

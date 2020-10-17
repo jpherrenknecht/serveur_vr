@@ -1,6 +1,26 @@
 body{padding:0;margin:0;background:#fff;behavior:url(csshover.htc)}
 H1{font-size:30pt;font-family:Lucida Grande,Lucida Sans,Arial,sans-serif;color:rgb(43, 199, 82);font-weight:800;text-align:left}
 H2{font-size:20pt;font-family:Lucida Grande,Lucida Sans,Arial,sans-serif;color:#000;font-weight:800;text-align:left}
-H3{font-size:20pt;font-family:Lucida Grande,Lucida Sans,Arial,sans-serif;color:rgb(20, 12, 94);font-weight:800;text-align:left}
-#spinner_twa  {width: 50px ; height :8px;}
-#twaspin      {width: 50px ; height :8px;}
+H3{font-size:15pt;font-family:Lucida Grande,Lucida Sans,Arial,sans-serif;color:rgb(20, 12, 94);font-weight:800;text-align:center}
+H4{font-size:10pt;font-family:Lucida Grande,Lucida Sans,Arial,sans-serif;color:rgb(20, 12, 94);font-weight:800;text-align:center}
+
+.essai{font-size:15pt;font-family:Lucida Grande,Lucida Sans,Arial,sans-serif;color:rgb(20, 12, 94);font-weight:800;text-align:left}
+
+
+.red {color:red;}
+.green {color:green;}
+.ui-widget {font-size :0.8em ; color:white;}
+/* .ui-widget-content { background: red;} */
+#spinner_twa  {width: 50px ; height :8px;background:red;padding: 4px; margin: 0px;}
+#spinner_hdg  {width: 50px ; height :8px;background:green;padding: 4px; margin: 0px;}
+.greybox1{text-align:center; background:lightgrey; border-radius: 10px;opacity: .8; padding:5px}
+
+.command {
+    padding: 4px 6px;
+    background: white;
+    font: 14px/16px Arial, Helvetica, sans-serif;
+    background: rgba(255,255,255,0.8);
+    box-shadow: 0 0 15px rgba(0,0,0,0.2);
+    border-radius: 5px;
+    min-width: 160px;
+}

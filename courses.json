@@ -130,8 +130,8 @@
                              "arrivee":{"nom":"Les Sables d'Olonne","lat":"046-29-00-N" ,"lng":"001-49-00-W"}
                             }   ,
 
-        "438":   
-        {"numero"  : "438" ,
+        "438.1":   
+        {"numero"  : "438.1" ,
             "nom":"La Mauricienne",
             "bateau":"maxitrix",
             "polaires":"polaires_maxitrix.py",

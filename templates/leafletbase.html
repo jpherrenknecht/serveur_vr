@@ -2,8 +2,38 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="fr">
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+        <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+
+        <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+        <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css" />
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/base.css') }}">
         <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js" ></script>
+        <script  type="text/javascript" src="{{ url_for('static', filename='js/geojson-data.js') }}"></script>
+
+        <script type="text/javascript">
+        $( function()
+        {
+   
+           var spinnertwa= $( "#spinner_twa" ).spinner()
+               spinnertwa.spinner({ min :40 , max :160  , stop:function(e,ui){var twa= spinnertwa.spinner("value"); console.log(spinnertwa.spinner("value")); }   });
+               spinnertwa.spinner("value", 45); 
+               
+   
+   
+           var spinnerhdg= $( "#spinner_hdg" ).spinner()
+               spinnerhdg.spinner({  min :0 , max :360 });
+               spinnerhdg.spinner("value", 60); 
+   
+           //$("#spinner_twa").on("spinstop", function(){ alert($(this).spinner('value'));  } );
+   
+          // $("#spinner_twa").on("spinstop", function(){ alert($(this).spinner('value'));  } );  // fonctionne 
+   
+       } );
+
+</script>
+
     </head>
     <style>
         html, body { height: 100% }
@@ -14,14 +44,23 @@
 
 
 
+
+
     <body onload="initialize()">
-        <div id="map" style="width:100%; height:100%"></div>
+        Click       Latitude            : <input type="text" name="latc" /> 
+        Longitude   : <input type="text" name="lngc" />
+  
+            
+            <label for="spinner">HDG:</label>
+            <input id="spinner_hdg" name="hdg">
+        <div id="map" style="width:100%; height:90%"></div>
     </body>
 </html>
 
 
 
 <script type="text/javascript">
+
 
     function arrondi(a,n)
             {return(Math.round(a*10**n)/10**n);}
@@ -32,7 +71,11 @@
         min=Math.floor((abs-deg)*60)
         sec=Math.round(((abs-deg)*60-min)*60)
         return deg+'°'+min+'mn'+sec+'s'
-    }        
+    }  
+    
+    
+
+
 
 console.log(pos_dec_mn(46.555))
 
@@ -97,6 +140,12 @@ console.log(pos_dec_mn(46.555))
         L.marker([48, -0.20], {icon: blackIcon}).addTo(map); 
         L.marker([49, -0.50], {icon: redIcon}).addTo(map); 
 
+
+
+
+
+
+
         L.control.layers ({
                 'osm':osmLayer,
                 'Stamen':Stamen_TerrainBackground,         
@@ -105,8 +154,25 @@ console.log(pos_dec_mn(46.555))
                 'Marques':marques.addTo(map)
                 }).addTo(map);
 
-     
-     
+        var command = L.control({position: 'topright'});
+
+        command.onAdd = function (map)
+            {
+            var div = L.DomUtil.create('div', 'greybox');
+            div.innerHTML += '<div class="greybox"><h3>Route<br /></h3><h4 class="red"> TWA <input id="spinner" name="twa" size=10px value=45><br></h4> <h4 class="green"> HDG <input id="spinner2" name="hdg" value=-15 size=10px></h4>';
+            //div.innerHTML += '<input type="text" size=5 value="xxx"></div>'
+            return div;
+            const sp1=document.getElementById('spinner')
+            
+            sp1.addEventListener("click", handleCommand, false);
+
+            
+
+            };
+                    
+        command.addTo(map);
+           
+     function handleCommand() {alert ("changement")}
      
      
      
@@ -124,31 +190,37 @@ console.log(pos_dec_mn(46.555))
     poly= new L.Polyline ([[0,0],[1,1]]).setStyle({color:'red',weight:1,});
 
  
-    map.on('click', function(e) {
-        latclick=e.latlng.lat
-        lngclick=e.latlng.lng
+    // map.on('click', function(e) {
+    //     latclick=e.latlng.lat
+    //     lngclick=e.latlng.lng
 
 
-        var popup = L.popup();   
+    //     var popup = L.popup();   
 
         
-    popup
-        .setLatLng(e.latlng)
-        .setContent("Latitude      : " +arrondi(e.latlng.lat,4) +" (" +pos_dec_mn(e.latlng.lat) +") <br> Longitude : " +arrondi(e.latlng.lng,4)+" (" +pos_dec_mn(e.latlng.lng) +")" )
-        .openOn(map);
-        map.removeLayer(poly);
-        ligne=[[latdep,lngdep],[latclick,lngclick]]
-        poly=new L.polyline(ligne).setStyle({
-            color: 'red',
-            weight:2,
-            opacity:0.5,
-            }).addTo(map);
+    // popup
+    //     .setLatLng(e.latlng)
+    //     .setContent("Latitude      : " +arrondi(e.latlng.lat,4) +" (" +pos_dec_mn(e.latlng.lat) +") <br> Longitude : " +arrondi(e.latlng.lng,4)+" (" +pos_dec_mn(e.latlng.lng) +")" )
+    //     .openOn(map);
+    //     map.removeLayer(poly);
+    //     ligne=[[latdep,lngdep],[latclick,lngclick]]
+    //     poly=new L.polyline(ligne).setStyle({
+    //         color: 'red',
+    //         weight:2,
+    //         opacity:0.5,
+    //         }).addTo(map);
 
 
     // alert("Latitude : " + e.latlng.lat + " Longitude : " + e.latlng.lng)
-        });
+        // });
 
 
 
     }
+
+    
+    
+
+    
+
 </script>

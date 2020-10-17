@@ -129,14 +129,6 @@
         
         L.marker([latdep, lngdep],  {icon: blackIcon}).addTo(map);
         L.marker([latar, lngar],    {icon: redIcon}).addTo(map);
-        var bounds =[[latini, lngini],[latfin,lngfin]]
-        //var bounds =[[-7,-25],[13,-1]]
-        console.log ('XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXlatini dans windy init')
-        console.log ('yyyyyyyyyyyyyyyyyyyybounds'+bounds)
-        L.rectangle(bounds, {color: "#ff7800", weight: 5}).addTo(map);
-
-
-
 
         for ( var i=0 ; i<polylineblue.length ; i++ )
         { var circle = L.circle(polylineblue[i],
@@ -150,75 +142,18 @@
 
        
 
-        cap=map.on('mousemove', function(e)
-        {   valinit=document.getElementById('stocka0').innerHTML  //recuperation de la valeur
-            twainit=document.getElementById('stocka1').innerHTML  //recuperation de la valeur
-            meteocurseur=vit_angle_vent (e.latlng.lat,e.latlng.lng ,tsimul)  //meteo au curseur 
-            meteodepart=vit_angle_vent (latdep,lngdep ,tsimul)  //meteo au point de depart 
-            direction=dist_cap_ortho(latdep,lngdep,e.latlng.lat,e.latlng.lng) //direction distance vers le curseur
-            twac=ftwao(direction[1],meteodepart[1]).toFixed(0) 
-                       
-            
-            console.log('curseur latitude '+e.latlng.lat+' longitude '+ e.latlng.lng )
-            console.log('meteo au curseur '+meteocurseur[0]+' '+ meteocurseur[1])
-            console.log('Depart latitude '+latdep+' longitude '+ lngdep )
-            console.log('meteo au depart '+meteodepart[0]+' '+ meteodepart[1])
-
-
-            //console.log('twac'+twac)
+        map.on('mousemove', function(e)
+        {
+            meteo=vit_angle_vent (e.latlng.lat,e.latlng.lng ,tsimul)
+            direction=dist_cap_ortho(latdep,lngdep,e.latlng.lat,e.latlng.lng)
+            twac=ftwao(direction[0],meteo[1])
             document.formu.latm.value=e.latlng.lat.toFixed(4)+' soit  '+pos_dec_mn(e.latlng.lat)
             document.formu.lngm.value=e.latlng.lng.toFixed(4)+' soit  '+pos_dec_mn(e.latlng.lng)
-            document.formu.twsm.value=meteocurseur[0].toFixed(2)
-            document.formu.twdm.value=meteocurseur[1].toFixed(2)
-            document.formu.capm.value=direction[1].toFixed(0) 
-            document.formu.twam.value=twac  
-            valcal=direction[1].toFixed(0)
-            console.log ( 'valeur calculee cap '+valcal ) 
-            console.log ('ecart '+(valcal-valinit))
-            console.log ('valeur initiale twa '+twainit)
-            console.log ( 'valeur calculee twa '+twac ) 
-            
-            
+            document.formu.twsm.value=meteo[0].toFixed(2)
+            document.formu.twdm.value=meteo[1].toFixed(2)
+            document.formu.capm.value=direction[1].toFixed(1)
+            document.formu.twam.value=twac.toFixed(1)
             document.formu.dism.value=direction[0].toFixed(1)
-            cap0= Math.floor(direction[1])
-            // on stocke dans un element exterieur 
-            //document.formu.stockage.value=cap0                      //stockage valeur dans formulaire
-            
-            document.getElementById('stocka0').innerHTML=cap0        // stockage valeur dans id
-            document.getElementById('stocka1').innerHTML=twac 
-            //recuperation de la valeur  de stockage
-
-            if (valinit!=valcal)
-            {//console.log ("les deux valeurs sont differentes")
-            
-            polytwa=polyline_twa3(latdep,lngdep,twac,tsimul)
-            polycap=polyline_cap2(latdep,lngdep,valcal,tsimul)
-       
-       
-            map.removeLayer(poly);   map.removeLayer(poly2);
-            for ( var j=1 ; j<74 ; j++ )  {map.removeLayer(circle1[j]); map.removeLayer(circle2[j]);}
-            
-            
-            for ( var i=1 ; i<polycap[0].length ; i++ )
-            { if (i%6 != 0)
-                { circle1[i] = L.circle(polycap[0][i], {color: 'red' ,fillColor: '#f03',opacity:0.9,fillOpacity: 0.3,radius: 200,}).addTo(map);} 
-                else
-                { circle1[i] = L.circle(polycap[0][i], {color: 'orange' ,fillColor: '#f03',opacity:0.9,fillOpacity: 0.3,radius: 200,}).addTo(map);}
-            }    
-            for ( var i=1 ; i<polytwa[0].length ; i++ )
-            { if (i%6 != 0)
-                {circle2[i] = L.circle(polytwa[0][i], {color: 'green' ,fillColor: '#f03',opacity:0.9,fillOpacity: 0.3,radius: 200,}).addTo(map);}
-              else  
-               {circle2[i] = L.circle(polytwa[0][i], {color: 'lime' ,fillColor: '#f03',opacity:0.9,fillOpacity: 0.3,radius: 200,}).addTo(map);}
-            } 
-    
-       
-       
-       
-            }
-            else{console.log(" les deux valeurs sont identiques pas de recalcul")}
-            
-          
 
             
         });
@@ -231,11 +166,7 @@
 
 
         map.on('click', function(e)
-
-
-        {   
-            
-            var a=document.getElementById('testjs')
+        {   var a=document.getElementById('testjs')
             a.innerHTML="<b>Nouveau Test sur Id</b>"
             //var b=document.getElementById('spinnertwa')
             document.getElementById('spinner_twa').value=45   // affecte la valeur 90 au spinner 
@@ -244,27 +175,19 @@
             a.innerHTML=$("#spinner_twa").spinner("value")
             twa=document.getElementById('spinner_twa').value
             hdg=document.getElementById('spinner_hdg').value
-            console.log ('windleaf html ligne 236  twa'+twa+'  hdg '+hdg )
+            console.log ('################################################'+twa+'  hdg '+hdg )
 
             // on se met un marqueur pour le plaisir
-            //L.marker([twa, hdg],  {icon: blackIcon}).addTo(map);
+            L.marker([twa, hdg],  {icon: blackIcon}).addTo(map);
 
 
             latclick=e.latlng.lat
             lngclick=e.latlng.lng
             latf= latclick
-            lngf=lngclick  
-
-            // meteocurseur=vit_angle_vent (e.latlng.lat,e.latlng.lng ,tsimul)  //meteo au curseur 
-            // meteodepart=vit_angle_vent (latdep,lngdep ,tsimul)  //meteo au point de depart 
-            // console.log('curseur latitude '+e.latlng.lat+' longitude '+ e.latlng.lng )
-            // console.log('meteo au curseur '+meteocurseur[0]+' '+ meteocurseur[1])
-            // console.log('Depart latitude '+latdep+' longitude '+ lngdep )
-            // console.log('meteo au depart '+meteodepart[0]+' '+ meteodepart[1])
-
-
+            lngf=lngclick   
             cap_dist  =crsdist( latdep ,lngdep,latclick, lngclick);
             cap_dist2=dist_cap_ortho( latdep ,lngdep,latclick, lngclick)
+
             polytwa=polyline_twa(latdep,lngdep,latf,lngf,tsimul)
             polycap=polyline_cap(latdep,lngdep,latf,lngf,tsimul)
             
@@ -274,10 +197,10 @@
 
             poly2= new L.polyline(polytwa[0]).setStyle({color: 'lime',weight:2,opacity:0.5,}).addTo(map);
 
-            for ( var i=1 ; i<polytwa[0].length ; i++ )
+            for ( var i=0 ; i<polytwa[0].length ; i++ )
                 { circle1[i] = L.circle(polytwa[0][i], {color: 'lime',fillColor: '#f03',opacity:0.9,fillOpacity: 0.3,radius: 200,}).addTo(map);}  
 
-            for ( var i=1 ; i<polycap[0].length ; i++ )
+            for ( var i=0 ; i<polycap[0].length ; i++ )
                 { circle2[i] = L.circle(polycap[0][i], {color: 'red' ,fillColor: '#f03',opacity:0.9,fillOpacity: 0.3,radius: 200,}).addTo(map);}   
 
             popup
@@ -348,11 +271,7 @@
                                     <input id="spinner_hdg" name="hdg">
 					            
             <div id='testjs' >testjsbase</div>
-            <div id='stocka0' >test covid</div> 
-            <div id='stocka1' >test grippe</div>   
-            <div><input name="stockage" id="stocka" type ="text" value=10>
-               
-            </div>            
+                                
                   <!-- Test :<input type="text" name="test3" /> -->
                   <!-- GFS :<input type="text" name="gfs" /> -->
                 </form>

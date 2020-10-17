@@ -19,10 +19,21 @@ var LeafletIcon=L.Icon.extend({
 
 
 
-$( function() {
-    var spinner = $( "#twaspin" ).spinner();
-    spinner.spinner( "value", 45 );
-  
+    $( function()
+     {
+
+        var spinnertwa= $( "#spinner_twa" ).spinner()
+            spinnertwa.spinner({ min :-180 , max :+180  , stop:function(e,ui){var twa= spinnertwa.spinner("value"); console.log(spinnertwa.spinner("value")); }   });
+            spinnertwa.spinner("value", 45); 
+            
 
 
-} );
+        var spinnerhdg= $( "#spinner_hdg" ).spinner()
+            spinnerhdg.spinner({  min :0 , max :360 });
+            spinnerhdg.spinner("value", 60); 
+
+        //$("#spinner_twa").on("spinstop", function(){ alert($(this).spinner('value'));  } );
+
+       // $("#spinner_twa").on("spinstop", function(){ alert($(this).spinner('value'));  } );  // fonctionne 
+
+    } );

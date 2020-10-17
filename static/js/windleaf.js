@@ -1,19 +1,29 @@
 
-var intl=new Intl.DateTimeFormat("en-US",{month:"2-digit",day:"2-digit", hour12: false,hour:"2-digit", minute:"2-digit" });
+var intl=new Intl.DateTimeFormat("fr-EU",{month:"2-digit",day:"2-digit", year:"2-digit",hour12: false,hour:"2-digit", minute:"2-digit" });
 
             function arrondi(a,n)
             {return(Math.round(a*10**n)/10**n);}
 
 
             function h_mn(sec)
-			{   sec=sec+15
+			{   sec=sec
 				h=Math.floor(sec/3600)	
 				mn=Math.ceil((sec-3600*h)/60)
 				s=sec-3600*h-60*mn 
 				res=h+'h '+mn+'mn'
 				return res
 			}
-        
+
+			function h_mn2(sec)
+			{   sec=sec
+				h=Math.floor(sec/3600)	
+				mn=Math.ceil((sec-3600*h)/60)
+				s=sec-3600*h-60*mn 
+				res=h+'h '+mn+'mn'
+				return res
+			}
+			
+
             function deg_mn_(sec)
 			{   sec=sec+15
 				h=Math.floor(sec/3600)	
@@ -94,7 +104,7 @@ var intl=new Intl.DateTimeFormat("en-US",{month:"2-digit",day:"2-digit", hour12:
 				//t0    = Math.floor(i_t)       // t0 est censé être un indice entier
 				dec_lat = i_lat%1    				// partie decimale
 				dec_lng = i_lng%1
-                console.log( 'lat0 '+ lat0 +' Lng0 '+lng0 +' t0 ' + t0) 
+                //console.log( 'lat0 '+ lat0 +' Lng0 '+lng0 +' t0 ' + t0)  
 				fx1y1   = XX[t0][lat0][lng0]
 				fx2y1   = XX[t0][lat0+1][lng0]
 				fx1y2   = XX[t0][lat0][lng0+1]
@@ -180,7 +190,7 @@ var intl=new Intl.DateTimeFormat("en-US",{month:"2-digit",day:"2-digit", hour12:
 				var twa_sup=l2[i_sup]
 				var tws_inf=l1[j_sup-1]
 				var tws_sup=l1[j_sup]
-				console.log('isup : '+ i_sup)
+				//console.log('isup : '+ i_sup)
                 dx = twa-twa_inf 				// Ecart avec la valeur d'indice mini
 				dy = tws-tws_inf
 
@@ -200,21 +210,27 @@ var intl=new Intl.DateTimeFormat("en-US",{month:"2-digit",day:"2-digit", hour12:
 
 			function vit_angle_vent (lat,lng ,t)
 			{
-			i_lat=-lat-latini       // ecart avec la latitude du grib chargé
+			i_lat=-(lat-latini)       // ecart avec la latitude du grib chargé
 			i_lng=360+lng-lngini
 			i_t=(t-tig)/3600/3     // Ecart en heures avec le tig  modulo 3h
-				
-			// console.log ('**** Temps depuis le grib en h '+i_t*3+ ' Indice '+i_t)
-			// console.log ('**** latini : '+latini+' ********* Latitude  '+lat+' i_lat : '+i_lat)
-			// console.log ('**** lngini : '+lngini+' ********* Longitude ' +lng+' i_lng : '+i_lng)
+			
+			//  console.log()
+			//  console.log ('*f angle vent ** Temps depuis le grib en h '+i_t*3+ ' Indice '+i_t)
+			//  console.log ('* latini : '+latini+' Latfin '+ latfin+' Latitude  '+lat+' i_lat : '+i_lat)
+			//  console.log ('* lngini : '+lngini+' lngfin  '+lngfin+ ' Longitude ' +lng+' i_lng : '+i_lng)
 					
 			u10=interpol3d(U10,i_t,i_lat,i_lng)	
 			v10=interpol3d(V10,i_t,i_lat,i_lng)	
-			res=cvent(u10,v10) 		// vitesse=res[0], angle=res[1] 
-			// console.log('resultat'+ res)
+			res=cvent(u10,v10) 
+			vitesse=res[0], angle=res[1] 
+			//console.log('resultat'+ res)
 			return res	
 
 			}
+
+
+
+
 
 			function cvent(u,v) //retourne la vitesse du vent et sa force a partir de u et v
 			{
@@ -292,9 +308,47 @@ var intl=new Intl.DateTimeFormat("en-US",{month:"2-digit",day:"2-digit", hour12:
 			return [polyline,twa_ini]  
 			}
 
+
+			function polyline_twa2(latdep,lngdep,latf,lngf,tsimul,twaini)
+			{  
+				//console.log ('latdep dans polyline twa :' +latdep+ ' lngdep : ' +lngdep +' latf : ' +latf +' lngf : '+lngf +' tsimul : '+tsimul)
+				//Cap généré par le curseur recherche du vent et twa en consequence 
+				hdg_ini=dist_cap_ortho(latdep,lngdep,latf,lngf,)[1]
+                //console.log( 'cap initial :' + hdg_ini)
+				meteo=vit_angle_vent (latdep,lngdep,tsimul)
+				tws_ini=meteo[0]
+				console.log ('meteo : vitesse et direction '+meteo)
+				twd_ini=meteo[1]				
+				//twa_ini=ftwao(hdg_ini,twd_ini)
+				polyline= [[latdep,lngdep]]  //initialisation de la polyline
+				dt=600   //intervalle entre deux points =10 mn
+
+				lat6 = latdep
+				lng6= lngdep
+				
+				twa=+twaini    // la twa initiale est celle donnée initialement par le curseur
+				capa=(twaini+meteo[1])%360	//le cap initial est deduit de la twa par la twaini et la direction du vent 
+
+				console.log ('CAP a '+capa)
+				t=tsimul
+				for (var i=0;i<=72;i++)
+				{tsimul = t+i*dt
+				meteo=vit_angle_vent (lat6,lng6,tsimul)
+				vit_polaire=polinterpol2d(polairesjs,twaini,meteo[0])	
+                capa=twaini+meteo[1]
+				point=deplacement(lat6,lng6,dt,vit_polaire,capa)     //calcul du nouveau point 
+				lat6=point[0];lng6=point[1];
+				polyline.push(point)	
+				}
+				//console.log (' polyline '+polyline)
+			return [polyline,twaini]  
+			}
+
+
+
             function polyline_cap(latdep,lngdep,latf,lngf,tsimul)
 			{  
-				console.log ('latdep dans polyline cap :' +latdep+ ' lngdep : ' +lngdep +' latf : ' +latf +' lngf : '+lngf +' tsimul : '+tsimul)
+				console.log (' polyline latdep  :' +latdep+ ' lngdep : ' +lngdep +' latf : ' +latf +' lngf : '+lngf +' tsimul : '+tsimul)
 				//Cap généré par le curseur recherche du vent et twa en consequence 
 				hdg_ini=dist_cap_ortho(latdep,lngdep,latf,lngf,)[1]
 
@@ -327,6 +381,90 @@ var intl=new Intl.DateTimeFormat("en-US",{month:"2-digit",day:"2-digit", hour12:
 			//	console.log (' polyline '+polyline2)
 			return [polyline2,capi]  
 			}
+
+
+			function polyline_cap2(latdep,lngdep,cap,tsimul)
+			{  
+				//console.log ('Donnees de  polyline cap  latdep :' +latdep+ ' lngdep : ' +lngdep +' cap: ' +cap +' tsimul : '+tsimul)
+				//Cap généré par le curseur recherche du vent et twa en consequence 
+				hdg_ini=cap    // console.log( 'cap initial :' + hdg_ini)
+				meteo_ini=vit_angle_vent (latdep,lngdep,tsimul)
+				tws_ini=meteo_ini[0]
+				twd_ini=meteo_ini[1]				
+				twa_ini=ftwao(hdg_ini,twd_ini)
+				polyline2= [[latdep,lngdep]]  //initialisation de la polyline
+				dt=600   //intervalle entre deux points =10 mn
+				lat7 = latdep
+				lng7= lngdep
+				twa=twa_ini    // la twa est celle donnée initialement par le curseur
+				capi=hdg_ini
+
+				 t=tsimul
+				 for (var i=0;i<=72;i++)
+                    {tsimul = t+i*dt
+					 meteo=vit_angle_vent (lat7,lng7,tsimul)
+					//console.log( 'hdg_ini'+ hdg_ini+' angle vent'+meteo[1]) 
+                     twa=ftwa(hdg_ini,meteo[1])
+                    //  console.log ('hdg_ini ' + hdg_ini + ' meteo 1 '+meteo[1] )
+                    //  console.log( 'test dans polyline_cap   twa : '+ twa + 'cap : ' +capi+' dirvent :'+meteo[1] + 'vit_vent :' + meteo[0]) 
+					//console.log('twa : '+twa+' vit vent '+meteo[0])	
+                    vit_polaire=polinterpol2d(polairesjs,twa,meteo[0])	                
+                    // console.log('cap dans polylinecap'+capi )
+                    point=deplacement(lat7,lng7,dt,vit_polaire,capi)     //calcul du nouveau point 
+                    lat7=point[0];lng7=point[1];
+                    polyline2.push(point)	
+                    }
+			//	console.log (' polyline '+polyline2)
+			return [polyline2,capi]  
+			}
+
+
+			function polyline_twa3(latdep,lngdep,twa_ini,tsimul)
+			{   // ici la twa est une twa orientée
+
+				//console.log ('latdep dans polyline twa :' +latdep+ ' lngdep : ' +lngdep +' latf : ' +latf +' lngf : '+lngf +' tsimul : '+tsimul)
+				//Cap généré par le curseur recherche du vent et twa en consequence 
+				//hdg_ini=dist_cap_ortho(latdep,lngdep,latf,lngf,)[1]
+                //console.log( 'cap initial :' + hdg_ini)
+				meteo=vit_angle_vent (latdep,lngdep,tsimul)
+				tws_ini=meteo[0]
+				twd_ini=meteo[1]
+				polyline= [[latdep,lngdep]]  //initialisation de la polyline
+				dt=600   //intervalle entre deux points =10 mn
+				lat6 = latdep
+				lng6= lngdep
+   				twa=+twa_ini    // la twa est celle donnée initialement 
+				capa=(twd_ini+twa_ini)%360
+				t=tsimul
+				for (var i=0;i<=72;i++)
+				{tsimul = t+i*dt
+				meteo=vit_angle_vent (lat6,lng6,tsimul)
+				vit_polaire=polinterpol2d(polairesjs,twa,meteo[0])	
+				capa=twa+meteo[1]
+				point=deplacement(lat6,lng6,dt,vit_polaire,capa)     //calcul du nouveau point 
+				lat6=point[0];lng6=point[1];
+				polyline.push(point)	
+				}
+				//console.log (' polyline dans wondleaf js '+polyline)
+			return [polyline,twa_ini]  
+			}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
