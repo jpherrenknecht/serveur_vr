@@ -1,7 +1,28 @@
 body{padding:0;margin:0;background:#fff;behavior:url(csshover.htc)}
+
+#container{width:1920px; margin:0 auto;}
+
+#header {padding:10px}
+.texte1  {width: 100px ; height :20px;background:rgb(39, 228, 241);padding: 2px; margin: 2px;}
+.texte2  {width: 100px ; height :20px;background:white;padding: 2px; margin: 2px;}
+
+
+#table {display :table;}
+.row {display:table-row;}
+.cell {display: table-cell}
+.red {font-weight:800;color:red;}
+.green {font-weight:800;color:green;}
+#twasimul{margin-left: 20px;font-weight:800;color:green;}
+
+.noir {color:black; padding:1px; margin:1px;}
+ a:hover {background:rgba(131, 131, 202, 0.973); padding:1px;margin:1px;}
+
+.twa {width: 50px ; height :20px;background:red;padding: 4px; margin: 0px;}
+
 #main { margin-top: 25px;  text-align: center;   font-size: 10px;    }
 
 #windy {  width: 100%; height: 90%;            }
+#infosimul{margin-left: 30px;}
 
 H1{font-size:30pt;font-family:Lucida Grande,Lucida Sans,Arial,sans-serif;color:rgb(43, 199, 82);font-weight:800;text-align:left}
 H2{font-size:20pt;font-family:Lucida Grande,Lucida Sans,Arial,sans-serif;color:#000;font-weight:800;text-align:left}
@@ -12,6 +33,39 @@ H3{font-size:20pt;font-family:Lucida Grande,Lucida Sans,Arial,sans-serif;color:r
 #spinner_twa  {width: 50px ; height :20px;background:red;padding: 4px; margin: 0px;}
 #spinner_hdg  {width: 50px ; height :20px;background:green;padding: 4px; margin: 0px;}
 
+
+#infos {
+    /* width:5%; */
+    /* height:5%; */
+    background: rgba(255, 255, 255, 0.7);
+    position: absolute;
+    top:100px;
+    left:30%;
+    padding:5px;
+    border:1px solid grey;
+    z-index:10;
+    border-radius:10px;
+    font-size:12pt
+
+    /* display:none; */
+}
+
+.boite {
+    /* width:5%; */
+    /* height:200px;  */
+    background: rgba(255, 255, 255, 0.7);
+    position: absolute;
+    top:0%;
+    left:0%;
+    padding:5px;
+    margin:5px;
+    border:1px solid grey;
+    z-index:10;
+    border-radius:10px;
+    font-size:10pt;
+    color:black;
+    /* display:none; */
+}
 
 
 

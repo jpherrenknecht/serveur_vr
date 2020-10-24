@@ -518,4 +518,144 @@ var intl=new Intl.DateTimeFormat("fr-EU",{month:"2-digit",day:"2-digit", year:"2
             return [crs,d];
         }
 
-        
+        function testPolyline(){
+			twasimul1=document.getElementById('twasimul1').value
+			twasimul2=document.getElementById('twasimul2').value
+			twasimul3=document.getElementById('twasimul3').value
+			twasimul4=document.getElementById('twasimul4').value
+			
+			capsimul1=document.getElementById('capsimul1').value
+			capsimul2=document.getElementById('capsimul2').value
+			capsimul3=document.getElementById('capsimul3').value
+			capsimul4=document.getElementById('capsimul4').value
+			
+			tsimulation1=document.getElementById('tsimul1').value
+			tsimulation2=document.getElementById('tsimul2').value
+			tsimulation3=document.getElementById('tsimul3').value
+			tsimulation4=document.getElementById('tsimul4').value
+			
+
+
+
+			
+			if(	document.getElementById('twa1').checked)
+			{choix1='twa';valeur1= twasimul1}
+			else
+			{choix1='cap';valeur1= capsimul1}
+
+			if(	document.getElementById('twa2').checked)
+			{choix2='twa';valeur2= twasimul2}
+			else
+			{choix2='cap';valeur2= capsimul2}
+
+			if(	document.getElementById('twa3').checked)
+			{choix3='twa';valeur3= twasimul3}
+			else
+			{choix3='cap';valeur3= capsimul3}
+
+			if(	document.getElementById('twa4').checked)
+			{choix4='twa';valeur4= twasimul4}
+			else
+			{choix4='cap';valeur4= capsimul4}
+
+
+			//calcul des points 
+			polyline= [[latdep,lngdep]]  //initialisation de la polyline
+			
+			t =tsimul
+			// conditions au depart
+			meteo=vit_angle_vent (latdep,lngdep,tsimul)
+			tws_ini=meteo[0]
+			twd_ini=meteo[1]
+			lat8=latdep
+			lng8=lngdep
+			dt=600   //intervalle entre deux points 10mn
+			
+			t1=tsimulation1/10 // recalcul toutes les 10mn 
+			t2=tsimulation2/10 
+			
+			for (var i=0;i<t1;i++)
+			{tsimul1 = t+i*dt
+				console.log ('tsimul1  '+tsimul1)
+				
+				if (choix1=='twa')
+				{	meteo=vit_angle_vent (lat8,lng8,tsimul1)
+					twa =twasimul1
+					console.log('twasimul1 : '+twasimul1)
+					vit_polaire=polinterpol2d(polairesjs,twa,meteo[0])
+					console.log('vit_polaire : '+vit_polaire)
+					capa=+twa+meteo[1]
+					console.log('capa : '+capa)
+					point=deplacement(lat8,lng8,dt,vit_polaire,capa) 
+					console.log('nouveau point : '+point) 
+					lat8=point[0];lng8=point[1];
+					polyline.push(point)	
+					}
+				if (choix1=='cap')
+				{	meteo=vit_angle_vent (lat8,lng8,tsimul1)
+					cap1 =capsimul1
+					console.log('twasimul1 : '+twasimul1)
+					twa=ftwa(cap1,meteo[1])
+					vit_polaire=polinterpol2d(polairesjs,twa,meteo[0])
+					console.log('vit_polaire : '+vit_polaire)
+					console.log('capa : '+capa)
+					point=deplacement(lat8,lng8,dt,vit_polaire,cap1) 
+					console.log('nouveau point : '+point) 
+					lat8=point[0];lng8=point[1];
+					polyline.push(point)	
+					}
+			}
+
+				// 2eme troncon
+			console.log('choix2 '+choix2+' '+capsimul2 )
+			for (var i=0;i<t2;i++)
+			{tsimul2 = tsimul1+60+i*dt
+				console.log ('tsimul2  '+tsimul2)
+				console.log ( 'pour test'+lat8 +' '+ lng8+' '+tsimul2)
+				if (choix2=='twa')
+				{	meteo=vit_angle_vent (lat8,lng8,tsimul2) //lat8 lng8 sont les latitudes issues de la sequence precedente
+					twa =twasimul2
+					console.log('twasimul2 : '+twasimul2)
+					vit_polaire=polinterpol2d(polairesjs,twa,meteo[0])
+					console.log('vit_polaire : '+vit_polaire)
+					capa=+twa+meteo[1]
+					console.log('capa : '+capa)
+					point=deplacement(lat8,lng8,dt,vit_polaire,capa) 
+					console.log('nouveau point : '+point) 
+					lat8=point[0];lng8=point[1];
+					polyline.push(point)	
+					}
+				if (choix2=='cap')
+				{	meteo=vit_angle_vent (lat8,lng8,tsimul2)
+					cap2 =capsimul2
+					console.log('capsimul2 : '+capsimul2)
+					twa=ftwa(cap2,meteo[1])
+					vit_polaire=polinterpol2d(polairesjs,twa,meteo[0])
+					console.log('vit_polaire : '+vit_polaire)
+					console.log('capa : '+capa)
+					point=deplacement(lat8,lng8,dt,vit_polaire,cap2) 
+					console.log('nouveau point : '+point) 
+					lat8=point[0];lng8=point[1];
+					polyline.push(point)	
+					}
+			}
+
+
+			//var polylinesimul=[[latdep,lngdep],[latdep,lngdep+2],[latdep+1,lngdep+3],[latdep+2,lngdep+4]]
+		
+			//document.formu.stocksimul.value=polylinesimul
+			
+
+			//alert('latdep : '+ latdep + ' choix1 : '+choix1+ ' valeur '+ valeur1+ ' choix2 : '+choix2+ ' valeur '+ valeur2+'  choix3 : '+choix3+ ' valeur '+ valeur3 )
+			return polyline
+		
+		}
+
+		// function testPolyline(){
+		// polyline=	[[latdep,lngdep],[latdep,lngdep+2],[latdep+1,lngdep+3],[latdep+2,lngdep+4]]
+		// return polyline
+
+		// }
+			
+
+		

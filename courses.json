@@ -138,27 +138,37 @@
             "depart":{"nom":"Port louis","lat":"047-41-36-N" ,"lng":"003-23-12-W"},
             "bouee1":{"nom":"Equateur","lat":"000-00-00-N" ,"lng":"025-00-00-W"}, 
             "bouee2":{"nom":"Cap de bonne esperance","lat":"034-56-02-S" ,"lng":"020-00-00-E"},
-            "arrivee":{"nom":"Port Louis Maurice","lat":"020-15-00-N" ,"lng":"057-30-00-E"}
+
+            "arrivee":{"nom":"Port Louis Maurice","lat":"020-09-00-S" ,"lng":"057-28-15-E"}
         }   ,
 
 
+        "467.1":   
+        {"numero"  : "467.1" ,
+            "nom":"Bermuda race",
+            "bateau":"class40",
+            "polaires":"polaires_class40.py",
+            "depart":{"nom":"Fort Lauderdale","lat":"025-57-00-N" ,"lng":"080-06-12-W"},
+            "arrivee":{"nom":"Hamilton","lat":"032-18-07-N" ,"lng":"064-47-00-W"}
+
+        }   ,
 
 
-                      "9999":   
-                    {"numero"  : "9999" ,
-                    "nom":"Course test",
-                    "bateau":"Figaro III",
-                    "polaires":"polaires_figaro2.py",
-                    "depart":{"lat":"050-15-50-N" ,"lng":"001-41-50-W"},
-                    "courant":{"lat":"048-57-02-N" ,"lng":"002-49-01-W"},
-                    "brehat" :{"lat":"048-01-00-N" ,"lng":"009-24-00-W"},
-                    "bouee1":{"lat":"043-01-00-N" ,"lng":"009-24-00-W"}, 
-                    "bouee2":{"lat":"050-10-47-N" ,"lng":"004-15-21-W"},
-                    "bouee3":{"lat":"049-45-14-N" ,"lng":"000-06-24-W"},
-                    "test" :{"lat":"050-55-14-N" ,"lng":"001-06-24-W"},
-                    "dunkerque":{"lat":"051-02-40-N" ,"lng":"002-09-30-E"},
-                    "arrivee":{"lat":"050-30-40-N" ,"lng":"000-20-30-W"}
-                    }   
+            "9999":   
+        {"numero"  : "9999" ,
+        "nom":"Course test",
+        "bateau":"Figaro III",
+        "polaires":"polaires_figaro2.py",
+        "depart":{"lat":"050-15-50-N" ,"lng":"001-41-50-W"},
+        "courant":{"lat":"048-57-02-N" ,"lng":"002-49-01-W"},
+        "brehat" :{"lat":"048-01-00-N" ,"lng":"009-24-00-W"},
+        "bouee1":{"lat":"043-01-00-N" ,"lng":"009-24-00-W"}, 
+        "bouee2":{"lat":"050-10-47-N" ,"lng":"004-15-21-W"},
+        "bouee3":{"lat":"049-45-14-N" ,"lng":"000-06-24-W"},
+        "test" :{"lat":"050-55-14-N" ,"lng":"001-06-24-W"},
+        "dunkerque":{"lat":"051-02-40-N" ,"lng":"002-09-30-E"},
+        "arrivee":{"lat":"050-30-40-N" ,"lng":"000-20-30-W"}
+        }   
 
 
    

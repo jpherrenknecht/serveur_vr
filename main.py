@@ -106,8 +106,17 @@ def f_isochrone2(l, temps_initial_iso):
     ''' Retourne les nouveaux points el le nouveau temps et implemente le tableau general des isochrones'''
     ''' isochrone 2 comprend une colonne de plus avec la twa en dernier '''
     global isochrone,TWS,TWD,temps_mini
-    nb_points=50
+
+    nb_points_ini=200
+    
+    
     numero_iso           = int(isochrone[-1][2] + 1)
+
+    if (numero_iso<48):
+        nb_points=nb_points_ini
+    else:
+        nb_points=50 
+
     print()
     print(' Isochrone Variante N° {} '.format(numero_iso ))
   
@@ -295,7 +304,7 @@ def fonction_routeur(course,latdep,lngdep,arrivee,t0=time.time()):
     TWS, TWD = prevision_tableau3(tig, GR, t0, pt1_np) # prevision au point de depart identique pour les 2
 
 # definition des temps des isochrones
-    dt1           = np.ones(72) * 600  # intervalles de temps toutes les 10mn pendant une heure puis toutes les heures
+    dt1           = np.ones(48) * 600  # intervalles de temps toutes les 10mn pendant une heure puis toutes les heures
     dt2           = np.ones(370) * 3600
     intervalles   = np.concatenate(([t0 - tig], dt1, dt2))
     temps_cumules = np.cumsum(intervalles)
@@ -558,9 +567,10 @@ def windleaf():
     global x0,y0,x1,y1
     
     # valeurs par defaut si pas de retour de dashboard
+  
     course="438.1"
     depart="depart"
-    arrivee="bouee2"
+    arrivee="arrivee"
     t1=time.time() 
     tsimul=time.time()
 
@@ -584,10 +594,10 @@ def windleaf():
   
     # chargement du grib partiel pour utilisation ulterieure en js
     global tig, GR
-    latini=math.floor(-latdep)+5    # latitude la plus au nord en premier et latitude nord negative pour charger le grib pour javascript
-    latfin=latini -10 
-    lngini=(math.floor(lngdep)-5)%360
-    lngfin=(lngini+10)%360
+    latini=math.floor(-latdep)+10    # latitude la plus au nord en premier et latitude nord negative pour charger le grib pour javascript
+    latfin=latini -20 
+    lngini=(math.floor(lngdep)-20)%360
+    lngfin=(lngini+40)%360
     
     u10,v10=vents_encode2(latini,latfin,lngini,lngfin)   
     #provisoire
