@@ -594,8 +594,8 @@ def windleaf():
   
     # chargement du grib partiel pour utilisation ulterieure en js
     global tig, GR
-    latini=math.floor(-latdep)+10    # latitude la plus au nord en premier et latitude nord negative pour charger le grib pour javascript
-    latfin=latini -20 
+    latini=(math.floor(-latdep)+10)    # latitude la plus au nord en premier et latitude nord negative pour charger le grib pour javascript
+    latfin=(latini -20)
     lngini=(math.floor(lngdep)-20)%360
     lngfin=(lngini+40)%360
     

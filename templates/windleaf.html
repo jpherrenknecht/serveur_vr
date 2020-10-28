@@ -148,8 +148,13 @@
         L.marker([latdep, lngdep],  {icon: blackIcon}).addTo(map);
         L.marker([latar, lngar],    {icon: redIcon}).addTo(map);
               
+
+        L.marker([latini, lngini],    {icon: redIcon}).addTo(map);
+        L.marker([latfin, lngfin],    {icon: blackIcon}).addTo(map);
+
         if (lngfin>lngini)
-        {latlngpoly=[[latini, lngini-360],[latini, lngfin-360],[latfin, lngfin-360],[latfin, lngini-360],[latini, lngini-360]]
+        {latlngpoly=[[latini, lngini],[latini, lngfin],[latfin, lngfin],[latfin, lngini],[latini, lngini]]
+         console.log('latlngpoly '+ latlngpoly)   
         L.polyline(latlngpoly).setStyle({ color: 'green', weight:2, opacity:0.3, }).addTo(map);}
         else
         {
@@ -166,20 +171,21 @@
             elt.appendChild(newElt);
             newElt.classList.add("boite"); 
             newElt.innerHTML="<a >Simulations :  </a> <span id='infosimul'  ></span> </p>"
-            +" TWA<input type='radio' id ='twa1' name='s1' ,value='twa' ><input type='text' id = 'twasimul1' size =2 value= 120 >CAP<input type='radio' id='cap1' name='s1' value='cap' value=270 > <input type='text' id = 'capsimul1' value= 120 size =2> Duree <input type='text' id = 'tsimul1' size =2 value =60 >mn <br> "  
-            +" TWA<input type='radio' id ='twa2' name='s2' ,value='twa' ><input type='text' id = 'twasimul2' size =2 value= 45 >CAP<input type='radio' id='cap2' name='s2' value='cap'> <input type='text' id = 'capsimul2' value= 0   size =2> Duree <input type='text' id = 'tsimul2' size =2 value =60   >mn <br> "  
-            +" TWA<input type='radio' id ='twa3' name='s3' ,value='twa' ><input type='text' id = 'twasimul3' size =2 value= 45 >CAP<input type='radio' id='cap3' name='s3' value='cap'> <input type='text' id = 'capsimul3' value= 0   size =2> Duree <input type='text' id = 'tsimul3' size =2 value =60   >mn <br> "  
-            +" TWA<input type='radio' id ='twa4' name='s4' ,value='twa' ><input type='text' id = 'twasimul4' size =2 value= 45 >CAP<input type='radio' id='cap4' name='s4' value='cap'> <input type='text' id = 'capsimul4' value= 0   size =2> Duree <input type='text' id = 'tsimul4' size =2 value =60   >mn <br> "  
+            +" TWA<input type='radio' id ='twa1' name='s1' ,value='twa' ><input type='text' id = 'twasimul1' size =2 value= -134 >CAP<input type='radio' id='cap1' name='s1' value='cap' value=270 > <input type='text' id = 'capsimul1' value= 120 size =2> Duree <input type='text' id = 'tsimul1' size =2 value =60 >mn <br> "  
+            +" TWA<input type='radio' id ='twa2' name='s2' ,value='twa' ><input type='text' id = 'twasimul2' size =2 value= -135 >CAP<input type='radio' id='cap2' name='s2' value='cap'> <input type='text' id = 'capsimul2' value= 0   size =2> Duree <input type='text' id = 'tsimul2' size =2 value =60   >mn <br> "  
+            +" TWA<input type='radio' id ='twa3' name='s3' ,value='twa' ><input type='text' id = 'twasimul3' size =2 value= -138 >CAP<input type='radio' id='cap3' name='s3' value='cap'> <input type='text' id = 'capsimul3' value= 0   size =2> Duree <input type='text' id = 'tsimul3' size =2 value =60   >mn <br> "  
+            +" TWA<input type='radio' id ='twa4' name='s4' ,value='twa' ><input type='text' id = 'twasimul4' size =2 value= -130 >CAP<input type='radio' id='cap4' name='s4' value='cap'> <input type='text' id = 'capsimul4' value= 0   size =2> Duree <input type='text' id = 'tsimul4' size =2 value =60   >mn <br> "  
             +" <input type=button id = 'valid' name='valid' value='Ok'  >";
 
 
 
         valid.addEventListener("click", function (evt){ 
             map.removeLayer(polylinesimul);
-            polylinesim=testPolyline()
+            console.log ('(html l184 ) '+ tsimul)
+            polylinesim=testPolyline(tsimul)
             //[[latdep,lngdep],[latdep,lngdep+2],[latdep+1,lngdep+3],[latdep+2,lngdep+4]]
            
-            polylinesimul=L.polyline(polylinesim).setStyle({ color: 'purple', weight:2, opacity:0.3, }).addTo(map);
+            polylinesimul=L.polyline(polylinesim).setStyle({ color: 'yellow', weight:3, opacity:1, }).addTo(map);
             
             //L.marker([latdep+10, lngdep+10],  {icon: blackIcon}).addTo(map)
         
@@ -213,10 +219,12 @@
             catch(err){meteocurseur=meteodepart} //meteo au curseur 
             direction=dist_cap_ortho(latdep,lngdep,e.latlng.lat,e.latlng.lng) //direction distance vers le curseur
             twac=ftwao(direction[1],meteodepart[1]).toFixed(0) 
-            // console.log('curseur latitude '+e.latlng.lat+' longitude '+ e.latlng.lng )
+
+            // console.log(' (html 222) curseur latitude '+e.latlng.lat+' longitude '+ e.latlng.lng )
             // console.log('meteo au curseur '+meteocurseur[0]+' '+ meteocurseur[1])
             // console.log('Depart latitude '+latdep+' longitude '+ lngdep )
             // console.log('meteo au depart '+meteodepart[0]+' '+ meteodepart[1])
+            
             document.formu.latm.value=e.latlng.lat.toFixed(4)+' soit  '+pos_dec_mn(e.latlng.lat)
             document.formu.lngm.value=e.latlng.lng.toFixed(4)+' soit  '+pos_dec_mn(e.latlng.lng)
             document.formu.twsm.value=meteocurseur[0].toFixed(2)

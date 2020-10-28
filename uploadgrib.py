@@ -12,10 +12,16 @@ from datetime import datetime
 from scipy.interpolate import RegularGridInterpolator
 from pathlib import Path
 
-# les gribs complets sont disponibles en heure d'ete à
-# 13h(gfs06) - 19(gfs12) -  01(gfs18) - 07 h (gfs00)
+#le debut de chargement des gribs intervient en heure UTC à
+# 9h30(gfs06) - 15h30(gfs12) -  21h30(gfs18) - 03h30 (gfs00)
+
+
+# les gribs complets sont disponibles en heure UTC à
+# 11h(gfs06) - 17(gfs12) -  23(gfs18) - 05 h (gfs00)
 # les gribs complets sont disponibles en heure d'hiver à
 # 12h(gfs06) - 18(gfs12) -  00(gfs18) - 06 h (gfs00)
+# les gribs complets sont disponibles en heure d'ete à
+# 13h(gfs06) - 19(gfs12) -  01(gfs18) - 07 h (gfs00)
 
 # renvoie le chemin absolu du repertoire courant ici /home/jphe/PycharmProjects/VR_version2
 basedir = os.path.abspath(os.path.dirname(__file__))
@@ -140,8 +146,8 @@ def chargement_grib():
                   prev + "&lev_10_m_above_ground=on&all_var=on&leftlon=" \
                   + str(leftlon) + "&rightlon=" + str(rightlon) + "&toplat=" + str(toplat) + "&bottomlat=" + str(
                 bottomlat) + "&dir=%2Fgfs." + date + "%2F" + strhour
-            nom_fichier = "grib_" + date + "_" + strhour + "_" + prev
-            urlretrieve(url, nom_fichier)  # recuperation des fichiers provisoires
+            nom_fichier = "grib_" + date + "_" + strhour + "_" + prev   # nom sous lequ fichier est sauvegarde provisoirement
+            urlretrieve(url, nom_fichier)                               # recuperation des fichiers provisoires
             print(' Enregistrement prévision {} + {} heures effectué: '.format(dategrib,prev))  # destine a suivre le chargement des previsions
 
             # exploitation du fichier et mise en memoire dans GR
