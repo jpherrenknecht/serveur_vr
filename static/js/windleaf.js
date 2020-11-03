@@ -208,19 +208,29 @@ var intl=new Intl.DateTimeFormat("fr-EU",{month:"2-digit",day:"2-digit", year:"2
 			}
 
 
-			function vit_angle_vent (lat,lng ,t)
+			function vit_angle_vent (lat,lng ,t1000)
 			{
+
+			//correction heure hiver ?	
 			i_lat=-(lat-latini)       // ecart avec la latitude du grib chargé
 			i_lng=(360+lng-lngini)%360
-			i_t=(t-tig)/3600/3     // Ecart en heures avec le tig  modulo 3h
+			i_t=(t1000-tig)/3600/3     // Ecart en heures avec le tig  modulo 3h
 			
-			 console.log()
-			 console.log (' Temps depuis le grib en h '+i_t*3+ ' Indice '+i_t)
-			 console.log ('* latini : '+latini+' Latfin '+ latfin+' Latitude  '+lat+' i_lat : '+i_lat)
-			 console.log ('* lngini : '+lngini+' lngfin  '+lngfin+ ' Longitude ' +lng+' i_lng : '+i_lng)
-					
+			//  console.log()
+			//  console.log (' Temps depuis le grib en h '+i_t*3+ ' Indice '+i_t)
+			//  console.log()
+
+			//  console.log ('* latini : '+latini+' Latfin '+ latfin+' Latitude  '+lat+' i_lat : '+i_lat)
+			//  console.log()
+			//  console.log ('* lngini : '+lngini+' lngfin  '+lngfin+ ' Longitude ' +lng+' i_lng : '+i_lat)
+			//  console.log()
+			console.log ('Indices : '+i_t+' '+i_lat+' '+i_lat)		
 			u10=interpol3d(U10,i_t,i_lat,i_lng)	
+
 			v10=interpol3d(V10,i_t,i_lat,i_lng)	
+
+
+			console.log(' u10 et v10  ' +u10+' '+v10)
 			res=cvent(u10,v10) 
 			vitesse=res[0], angle=res[1] 
 			//console.log('resultat'+ res)
@@ -389,6 +399,7 @@ var intl=new Intl.DateTimeFormat("fr-EU",{month:"2-digit",day:"2-digit", year:"2
 				//Cap généré par le curseur recherche du vent et twa en consequence 
 				hdg_ini=cap    // console.log( 'cap initial :' + hdg_ini)
 				meteo_ini=vit_angle_vent (latdep,lngdep,tsimul)
+	//			console.log ('394 meteo_ini'+ meteo_ini)
 				tws_ini=meteo_ini[0]
 				twd_ini=meteo_ini[1]				
 				twa_ini=ftwao(hdg_ini,twd_ini)
@@ -427,7 +438,7 @@ var intl=new Intl.DateTimeFormat("fr-EU",{month:"2-digit",day:"2-digit", year:"2
 				//hdg_ini=dist_cap_ortho(latdep,lngdep,latf,lngf,)[1]
                 //console.log( 'cap initial :' + hdg_ini)
 				meteo=vit_angle_vent (latdep,lngdep,tsimul)
-				console.log (' (js l 430 )meteo '+meteo)
+				//console.log (' (js l 432 )meteo '+meteo)
 				tws_ini=meteo[0]
 				twd_ini=meteo[1]
 				polyline= [[latdep,lngdep]]  //initialisation de la polyline

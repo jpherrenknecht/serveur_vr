@@ -332,7 +332,8 @@
 				console.log ('Donnees de  polyline cap  latdep :' +latdep+ ' lngdep : ' +lngdep +' cap: ' +cap +' tsimul : '+tsimul)
 				//Cap généré par le curseur recherche du vent et twa en consequence 
 				hdg_ini=cap    // console.log( 'cap initial :' + hdg_ini)
-				meteo_ini=vit_angle_vent (latdep,lngdep,tsimul)
+                meteo_ini=vit_angle_vent (latdep,lngdep,tsimul)
+                console.log(' llllllll 336 meteo_ini '+ meteo_ini)
 				tws_ini=meteo_ini[0]
 				twd_ini=meteo_ini[1]				
 				twa_ini=ftwao(hdg_ini,twd_ini)

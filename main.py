@@ -36,7 +36,7 @@ db = SQLAlchemy(app)
 
 tic=time.time()
 tig, GR        = chargement_grib()
-
+nb_points_ini=20
 
 class NumpyArrayEncoder(JSONEncoder):
     def default(self, obj):
@@ -71,8 +71,8 @@ def vents_encode2(latini,latfin,longini,longfin):
     ''' extrait du grib GR les donnees entre ini et fin sur 24 h et l'exporte en json'''
     #les latitudes et longitudes sont en coordonnees leaflet positives au nord la latitude initiale est la plus petite (plus au sud )
     # on les transforme en indices grib
-    ilatini=90 -latini    #ilatini est l'indice de grib dans GR
-    ilatfin=90-latfin
+    ilatini=90 -latini    #ilatini est l'indice de grib dans GR ( ex pour latini= 60 nord ilatini=30)
+    ilatfin=90 -latfin
     # pour les longitudes longini est la plus a l'ouest 
 
     if (longini <longfin) :
@@ -81,8 +81,13 @@ def vents_encode2(latini,latfin,longini,longfin):
     else :
         fin = 360-longini         # sert a determiner la coupe a la fin 
         debut =longfin+1
-        U10=np.concatenate((GR[0:12,ilatini:ilatfin,-fin:].real,GR[0:12,ilatini:ilatfin,:debut].real),axis=2)
-        V10=np.concatenate((GR[0:12,ilatini:ilatfin,-fin:].imag,GR[0:12,ilatini:ilatfin,:debut].imag),axis=2)
+        U10=np.concatenate((GR[0:12,ilatini:ilatfin,longini:359].real,GR[0:12,ilatini:ilatfin,0:longfin].real),axis=2)
+        V10=np.concatenate((GR[0:12,ilatini:ilatfin,longini:359].imag,GR[0:12,ilatini:ilatfin,0:longfin].imag),axis=2)
+
+        # U10=np.concatenate((GR[0:12,ilatini:ilatfin,-fin:].real,GR[0:12,ilatini:ilatfin,:debut].real),axis=2)
+        # V10=np.concatenate((GR[0:12,ilatini:ilatfin,-fin:].imag,GR[0:12,ilatini:ilatfin,:debut].imag),axis=2)
+   
+   
     u10=[arr.tolist() for arr in U10]
     v10=[arr.tolist() for arr in V10]
     return u10,v10
@@ -107,7 +112,7 @@ def f_isochrone2(l, temps_initial_iso):
     ''' isochrone 2 comprend une colonne de plus avec la twa en dernier '''
     global isochrone,TWS,TWD,temps_mini
 
-    nb_points_ini=200
+    
     
     
     numero_iso           = int(isochrone[-1][2] + 1)
@@ -174,9 +179,6 @@ def f_isochrone2(l, temps_initial_iso):
         # maintenant on forme le tableau correspondant à n_pts_x
         n_pts_x2       = np.concatenate((X,Y,niso,npointsm,npoints,Da,Ca), axis = 1)    # tableau des points pour un point de base
         points_calcul = np.concatenate((points_calcul,n_pts_x2), axis         = 0)           # tableau du brouillard pour tous les points de base 
-
-
-
 
 
 #VERSION MODIFIEE
@@ -330,9 +332,6 @@ def fonction_routeur(course,latdep,lngdep,arrivee,t0=time.time()):
 
     while but == False:
         l,temps, but, indice= f_isochrone2(l,temps)
-
-
-
 #********************************************************************************************************************
 #********************************************************************************************************************
 
@@ -438,8 +437,6 @@ def fonction_routeur(course,latdep,lngdep,arrivee,t0=time.time()):
 
 #print('temps total  {}h {}mn'.format(duree/3600,(duree-duree//3600))/60)
     print('Temps total      v {:2.0f}j {:2.0f}h {:2.0f}mn {:2.0f}s'.format(j, h, mn ,s ))
-
-
     return multipolyline,route3,comment,x0,y0,x1,y1,l1,l2,polairesj1
 
 
@@ -564,13 +561,14 @@ def leaflet():
 
 @app.route('/windleaf',methods =["GET", "POST"])
 def windleaf():
-    global x0,y0,x1,y1
-    
+   
+    global x0,y0,x1,y1,nb_points_ini
+    nb_points_ini=50
     # valeurs par defaut si pas de retour de dashboard
   
-    course="438.1"
+    course="440"
     depart="depart"
-    arrivee="arrivee"
+    arrivee="bouee1"
     t1=time.time() 
     tsimul=time.time()
 
@@ -586,8 +584,9 @@ def windleaf():
             data1 = json.load(fichier)
         # print ('course',course)
         # bateau=  (data1[course]["bateau"])
-        latdep = (data1[course][depart]["lat"])
-        lngdep = (data1[course][depart]["lng"])
+        lat1 = (data1[course][depart]["lat"])
+        lng1 = (data1[course][depart]["lng"])
+        lngdep,latdep=chaine_to_dec(lat1, lng1)
         #print('on est dans except')
     
     print ('latdep lngdep ',latdep,lngdep )  

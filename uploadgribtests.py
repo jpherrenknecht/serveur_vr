@@ -139,7 +139,7 @@ def chargement_grib():
     filename="gribs/gfs_" + date +"-"+strhour+".hdf5"
     filenamehdf5 = os.path.join(basedir,filename)
 
-    print ('dategrib_tpl',dategrib_tpl)
+    #print ('dategrib_tpl',dategrib_tpl)
 
     if os.path.exists(filenamehdf5) == False:        #si ce fichier n'existe pas deja
         leftlon, rightlon, toplat, bottomlat = 0, 360, 90, -90
@@ -211,10 +211,13 @@ def prevision(tig, GR, tp, latitude, longitude):
    # tp =tp-3600    # ajustement pour VR qui semble ne fonctionner qu'en UTC et ne pas tenir compte de l'heure locale
     fn3 = RegularGridInterpolator((ix, iy, iz), GR)
     itemp = (tp - tig) / 3600 / 3
+    itemp = 3               # ici on force provisoirement la valeur a 3
     ilati = (latitude + 90)
     ilong = (longitude) % 360
 
     print ('indices',itemp,ilati,ilong )
+    print (GR[itemp,int(ilati),int(ilong)].real)
+    print (GR[itemp,int(ilati),int(ilong)].imag)
 
     vcplx = fn3((itemp, ilati, ilong))
     #print('vcplx',vcplx)
@@ -330,76 +333,90 @@ def prevision_tableau2 (GR,temp,point):
     #print (angle_vent)
 
     return vitesse, angle_vent
+
+
+def vents_encode2(latini,latfin,longini,longfin):
+    ''' extrait du grib GR les donnees entre ini et fin sur 24 h et l'exporte en json'''
+    #les latitudes et longitudes sont en coordonnees leaflet positives au nord la latitude initiale est la plus petite (plus au sud )
+    # on les transforme en indices grib
+    ilatini=90 -latini    #ilatini est l'indice de grib dans GR ( ex pour latini= 60 nord ilatini=30)
+    ilatfin=90 -latfin
+    # pour les longitudes longini est la plus a l'ouest 
+
+    if (longini <longfin) :
+        U10=GR[0:12,ilatini:ilatfin,longini:longfin].real
+        V10=GR[0:12,ilatini:ilatfin,longini:longfin].imag
+    else :
+        fin = 360-longini         # sert a determiner la coupe a la fin 
+        debut =longfin+1
+        U10=np.concatenate((GR[0:12,ilatini:ilatfin,longini:359].real,GR[0:12,ilatini:ilatfin,0:longfin].real),axis=2)
+        V10=np.concatenate((GR[0:12,ilatini:ilatfin,longini:359].imag,GR[0:12,ilatini:ilatfin,0:longfin].imag),axis=2)
+    u10=[arr.tolist() for arr in U10]
+    v10=[arr.tolist() for arr in V10]
+    return u10,v10
+
+
+def equivalentjs(u10,v10,latini,lngini,lat, lng,tig):
+    tic0=time.time()
+    print()
+    print ( 'instant prevision en s ',tic0)
+    print ( 'tig               en s ',tig)
+
+    i_t=(tic0-tig)/3600/3     # Ecart en heures avec le tig  modulo 3h
+    i_t=3
+    i_lat=-(lat-latini)       # ecart avec la latitude du grib chargé
+    i_lng=(360+lng-lngini)%360
     
+ 
+    print('indices',i_t, i_lat,i_lng,)
+    print (i_t)
+    print  ('u10 ',u10[i_t][i_lat][i_lng])
+    print ('v10 ',v10[i_t][i_lat][i_lng])
+    return 
+
 
 if __name__ == '__main__':
-
-    #chargement_grib()
+ #chargement_grib()
     tig, GR = chargement_grib()
     tic = time.time()
-
-    print()
-    print ('tig en s ',tig)
-    print ('tic en s ',tic)
-    print ('Ecart', (tic-tig)/3600,'h')
 
     tig_formate_utc = time.strftime(" %d %b %Y %H:%M:%S ", time.gmtime(tig))
     tic_formate_local = time.strftime(" %d %b %Y %H:%M:%S ", time.localtime(tic))
     print('\nDate et Heure UTC du dernier Grib             ',tig_formate_utc) 
     print('Date et Heure locales                         ',tic_formate_local) 
-    #**********************************************************************************************************
+    #*****************************************************************************
 
-    print ("\nTest position fixee temps fixe\
-            \n---------------------------------")
 
-    latitude='046-28-16-N'
-    longitude='001-49-53-W'
-    d = chaine_to_dec(latitude, longitude)  # co
-    dateprev=datetime(2020 , 11 , 3, 16, 0 ,  0)  #date prevision en heure locale
-    print ('\nDateprev : ',dateprev , ' local')
-    # je peux la transformer en secondes mais ce sont des secondes locales15.712287.5
 
+
+    latini=56
+    latfin=36
+    lngini=338
+    lngfin=18
+
+    lat=54
+    lng=-2
+    
+    ecartlat=90-latini
+    ecartlng=lngini
+
+    print ('ecart en lat ',ecartlat  ) 
+    print ('ecart en lng ', ecartlng )
+    u10,v10=vents_encode2(latini,latfin,lngini,lngfin)
+   
+    equivalentjs(u10,v10,latini,lngini,lat, lng,tig)
 
     
-    tprev=time.mktime(dateprev.timetuple())
-    j,h,mn=secondes_to_hmn(tprev-tig)
-    print('Decalage temporel {:4.2f}h soit {:2.0f}h {:2.0f}mn  en indice {:4.3f}'.format((tprev-tig)/3600,h,mn,(tprev-tig)/3600/3))
-    #print('decalage temporel indice',(tic-tig)/3600/3)
-    print('Latitude {:6.2f} et Longitude {:6.2f} '.format( d[1], d[0]))
-    
-    
-    
-  #  print('\nLe {} heure Locale Pour latitude {:6.2f} et longitude{:6.2f} '.format(dateprev_formate_local, d[1], d[0]))
-    print ('prevision')
-    vit_vent_n, angle_vent = prevision(tig, GR,tprev, d[1], d[0])
-    print('\n\tAngle du vent   {:6.1f} °'.format(angle_vent))
-    print('\tVitesse du vent {:6.3f} Noeuds'.format(vit_vent_n))
-    print()
-    print ('previsionv2')
-    vit_vent_n, angle_vent = previsionv2(tig, GR,tprev, d[1], d[0])
-    print('\n\tAngle du vent   {:6.1f} °'.format(angle_vent))
-    print('\tVitesse du vent {:6.3f} Noeuds'.format(vit_vent_n))
-    print()
 
 
+    latitude='054-00-00-N'
+    longitude='002-00-00-W'
+    d = chaine_to_dec(latitude, longitude)  
 
 
-
-
-
-
-    print('******************************************************************************************************')
-
-    # Depart
-    latitude_d = '046-28-16-N'
-    longitude_d = '001-49-53-W'
-    d = chaine_to_dec(latitude_d, longitude_d)  # co
-    print ('latitude et longitude',d)
- 
 # prevision avec temps instantane
     print ("\nPrévision à l'instant de l'heure locale\
             \n---------------------------------")
-    print('Heure Locale ',tic_formate_local)
     j,h,mn=secondes_to_hmn(tic-tig)
     print('Decalage temporel {:4.2f}h soit {:2.0f}h {:2.0f}mn  en indice {:4.3f}'.format((tic-tig)/3600,h,mn,(tic-tig)/3600/3))
     #print('decalage temporel indice',(tic-tig)/3600/3)
@@ -413,24 +430,86 @@ if __name__ == '__main__':
 
 
 
-# # prevision avec date donnee    
 
-#     print ('\nPrévision à date et heure données \
-#             \n---------------------------------')
-#     print('\nLatitude {:6.2f} et Longitude{:6.2f} '.format( d[1], d[0]))
-#     dateprev=datetime(2020 , 11 , 10, 19, 0 ,  0)
+
+
+   
+
+#     print()
+#     print ('tig en s ',tig)
+#     print ('tic en s ',tic)
+#     print ('Ecart', (tic-tig)/3600,'h')
+
+#     tig_formate_utc = time.strftime(" %d %b %Y %H:%M:%S ", time.gmtime(tig))
+#     tic_formate_local = time.strftime(" %d %b %Y %H:%M:%S ", time.localtime(tic))
+#     print('\nDate et Heure UTC du dernier Grib             ',tig_formate_utc) 
+#     print('Date et Heure locales                         ',tic_formate_local) 
+#     #**********************************************************************************************************
+#     print ("\nTest position fixee temps fixe\
+#             \n---------------------------------")
+
+    
+#     dateprev=datetime(2020 , 11 , 3, 16, 0 ,  0)  #date prevision en heure locale
 #     print ('\nDateprev : ',dateprev , ' local')
-#     # je peux la transformer en secondes mais ce sont des secondes locales
-#     dateprev_s=time.mktime(dateprev.timetuple())
-#     print ('dateprev_s en local ',dateprev_s )
-#     dateprev_formate_local = time.strftime(" %d %b %Y %H:%M:%S ", time.localtime(dateprev_s))
-#     print('dateprev_formate_local',dateprev_formate_local)
-#    # attention date prevs est un temps local  l'ecart avec le grib doit etre compense
-# # prevision proprement dite
-#     vit_vent_n, angle_vent = prevision(tig, GR,dateprev_s, d[1], d[0])
+#     # je peux la transformer en secondes mais ce sont des secondes locales15.712287.5
+
+
+    
+#     tprev=time.mktime(dateprev.timetuple())
+#     j,h,mn=secondes_to_hmn(tprev-tig)
+#     print('Decalage temporel {:4.2f}h soit {:2.0f}h {:2.0f}mn  en indice {:4.3f}'.format((tprev-tig)/3600,h,mn,(tprev-tig)/3600/3))
+#     #print('decalage temporel indice',(tic-tig)/3600/3)
+#     print('Latitude {:6.2f} et Longitude {:6.2f} '.format( d[1], d[0]))
+  
+    
 #   #  print('\nLe {} heure Locale Pour latitude {:6.2f} et longitude{:6.2f} '.format(dateprev_formate_local, d[1], d[0]))
-#     print('\tAngle du vent   {:6.1f} °'.format(angle_vent))
+#     print ('prevision')
+#     vit_vent_n, angle_vent = prevision(tig, GR,tprev, d[1], d[0])
+#     print('\n\tAngle du vent   {:6.1f} °'.format(angle_vent))
 #     print('\tVitesse du vent {:6.3f} Noeuds'.format(vit_vent_n))
+#     print()
+#     print ('previsionv2')
+#     vit_vent_n, angle_vent = previsionv2(tig, GR,tprev, d[1], d[0])
+#     print('\n\tAngle du vent   {:6.1f} °'.format(angle_vent))
+#     print('\tVitesse du vent {:6.3f} Noeuds'.format(vit_vent_n))
+#     print()
+
+
+
+
+
+
+
+
+#     print('******************************************************************************************************')
+
+#     # Depart
+#     latitude_d = '046-28-16-N'
+#     longitude_d = '001-49-53-W'
+#     d = chaine_to_dec(latitude_d, longitude_d)  # co
+#     print ('latitude et longitude',d)
+ 
+
+
+
+# # # prevision avec date donnee    
+
+# #     print ('\nPrévision à date et heure données \
+# #             \n---------------------------------')
+# #     print('\nLatitude {:6.2f} et Longitude{:6.2f} '.format( d[1], d[0]))
+# #     dateprev=datetime(2020 , 11 , 10, 19, 0 ,  0)
+# #     print ('\nDateprev : ',dateprev , ' local')
+# #     # je peux la transformer en secondes mais ce sont des secondes locales
+# #     dateprev_s=time.mktime(dateprev.timetuple())
+# #     print ('dateprev_s en local ',dateprev_s )
+# #     dateprev_formate_local = time.strftime(" %d %b %Y %H:%M:%S ", time.localtime(dateprev_s))
+# #     print('dateprev_formate_local',dateprev_formate_local)
+# #    # attention date prevs est un temps local  l'ecart avec le grib doit etre compense
+# # # prevision proprement dite
+# #     vit_vent_n, angle_vent = prevision(tig, GR,dateprev_s, d[1], d[0])
+# #   #  print('\nLe {} heure Locale Pour latitude {:6.2f} et longitude{:6.2f} '.format(dateprev_formate_local, d[1], d[0]))
+# #     print('\tAngle du vent   {:6.1f} °'.format(angle_vent))
+# #     print('\tVitesse du vent {:6.3f} Noeuds'.format(vit_vent_n))
 
 
 

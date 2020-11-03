@@ -44,7 +44,7 @@
             U10 = {{ U10 }}
 			V10 = {{ V10 }}
 			tig = {{ tig   }}
-            tsimul  = {{ t0    }}
+            tsimation  = {{ t0    }}
 
 			latini= {{ latini }}
 			latfin= {{ latfin }}
@@ -74,6 +74,7 @@
             var poly
             var circle1=new Array();
             var circle2=new Array();
+            var circle3=new Array();
             var poly = new L.Polyline ([[0,0],[1,1]]).setStyle({color:'red',weight:1,});
             var poly2= new L.Polyline ([[0,0],[1,1]]).setStyle({color:'red',weight:1,});
             var polylinesimul=new L.Polyline ([[0,0],[1,1]]).setStyle({color:'red',weight:1,});  
@@ -82,7 +83,8 @@
                 {      circle1[i] = new L.circle([1][1], {  color: 'yellow',radius: 200,});}
             for ( var i=0 ; i<74 ; i++ )
                 {      circle2[i] = new L.circle([1][1], {color: 'yellow',radius: 200,});}
-
+            for ( var i=0 ; i<74 ; i++ )
+                {      circle3[i] = new L.circle([1][1], {color: 'yellow',radius: 200,});}
 
 
             dist=((latdep-latar)**2+(lngdep-lngar)**2)**.5
@@ -93,17 +95,17 @@
             else {zoomp=5}
 
             console.log('Zoom carte : '+zoomp)
-            console.log('Temps en s simulation',tsimul)
+            console.log('Temps en s simulation',tsimation)
             console.log('Prise en compte du fichier js :'+arrondi(10.123456789,3))
-            console.log ('test prise en compte du temps sec '+(comment[0][2]+tig)+'ecart avec grib'+ (comment[0][2]+tig-tsimul))
+            console.log ('test prise en compte du temps sec '+(comment[0][2]+tig)+'ecart avec grib'+ (comment[0][2]+tig-tsimation))
             console.log ('tig' +intl.format(1000*(tig)))
 
             console.log (intl.format(1000*(comment[0][2]+tig))) // a priori t0 du demarrage serveur
-            console.log (intl.format(1000*(comment[0][2]+tsimul)))
+            console.log (intl.format(1000*(comment[0][2]+tsimation)))
 
             for ( var i=0 ; i<comment.length ; i++ )
             {              
-            sec= comment[i][2]-(tsimul-tig);    //    sec=sec-(sec%60) ; // secondes depuis le depart  
+            sec= comment[i][2]-(tsimation-tig);    //    sec=sec-(sec%60) ; // secondes depuis le depart  
             tooltip[i]='<b>'+intl.format(1000*(comment[i][2]+tig))+' soit +  '+h_mn(sec)+  '<br> Lat : '+comment[i][0].toFixed(4) +'° ('+pos_dec_mn(comment[i][0])+')<br>Lng : ' +comment[i][1].toFixed(4) +'° (' +pos_dec_mn(comment[i][1])+')<br> TWS : ' +comment[i][3].toFixed(2)
                 +' Noeuds  -  TWD : ' +comment[i][4].toFixed(0)+'° <br>  Cap ' +comment[i][5].toFixed(1) +'°     -  TWA ' +comment[i][6].toFixed(1) +'° <br> Vitesse :  ' +comment[i][7].toFixed(2) +' Noeuds'
             }    
@@ -181,13 +183,13 @@
 
         valid.addEventListener("click", function (evt){ 
             map.removeLayer(polylinesimul);
-            console.log ('(html l184 ) '+ tsimul)
-            polylinesim=testPolyline(tsimul)
-            //[[latdep,lngdep],[latdep,lngdep+2],[latdep+1,lngdep+3],[latdep+2,lngdep+4]]
-           
+            //console.log ('(html l184 ) '+ tsimul)
+            polylinesim=testPolyline(tsimation)
             polylinesimul=L.polyline(polylinesim).setStyle({ color: 'yellow', weight:3, opacity:1, }).addTo(map);
+            for ( var j=1 ; j<74 ; j++ )  {map.removeLayer(circle3[j]);}
+            for ( var i=0 ; i<polylinesim.length ; i++ )
+            { circle3[i] = L.circle(polylinesim[i],{color: 'black',fillColor: '#f03',opacity:0.9,fillOpacity: 0.3,radius: 200,}).addTo(map);}  
             
-            //L.marker([latdep+10, lngdep+10],  {icon: blackIcon}).addTo(map)
         
         });
 
@@ -214,8 +216,12 @@
             valinit=document.formu.capm.value                       // recuperation de cap 0 par le formulaire  
            // twainit=document.getElementById('stocka1').innerHTML  //recuperation de la valeur
             twainit=document.formu.twam.value
-            meteodepart=vit_angle_vent (latdep,lngdep ,tsimul)  //meteo au point de depart 
-            try{meteocurseur=vit_angle_vent (e.latlng.lat,e.latlng.lng ,tsimul) }
+
+
+            meteodepart=vit_angle_vent (latdep,lngdep ,tsimation)  //meteo au point de depart 
+
+
+            try{meteocurseur=vit_angle_vent (e.latlng.lat,e.latlng.lng ,tsimation) }
             catch(err){meteocurseur=meteodepart} //meteo au curseur 
             direction=dist_cap_ortho(latdep,lngdep,e.latlng.lat,e.latlng.lng) //direction distance vers le curseur
             twac=ftwao(direction[1],meteodepart[1]).toFixed(0) 
@@ -229,6 +235,7 @@
             document.formu.lngm.value=e.latlng.lng.toFixed(4)+' soit  '+pos_dec_mn(e.latlng.lng)
             document.formu.twsm.value=meteocurseur[0].toFixed(2)
             document.formu.twdm.value=meteocurseur[1].toFixed(2)
+            document.getElementById('twasimul1').innerHTML=
             document.formu.capm.value=direction[1].toFixed(0) 
             document.formu.twam.value=twac  
             valcal=direction[1].toFixed(0)
@@ -251,26 +258,27 @@
             //document.getElementById('stocka1').innerHTML=twac 
             //recuperation de la valeur  de stockage
 
-            if (valinit!=valcal)
-            {            
-            polytwa=polyline_twa3(latdep,lngdep,twac,tsimul)
-            polycap=polyline_cap2(latdep,lngdep,valcal,tsimul)
-            map.removeLayer(poly);   map.removeLayer(poly2);
-            for ( var j=1 ; j<74 ; j++ )  {map.removeLayer(circle1[j]); map.removeLayer(circle2[j]);}
             
-            for ( var i=1 ; i<polycap[0].length ; i++ )
-            { if (i%6 != 0)
-                { circle1[i] = L.circle(polycap[0][i], {color: 'orange' ,fillColor: '#f03',opacity:0.9,fillOpacity: 0.3,radius: 150,}).addTo(map);} 
-                else
-                { circle1[i] = L.circle(polycap[0][i], {color: 'red' ,fillColor: '#f03',opacity:0.9,fillOpacity: 0.3,radius: 150,}).addTo(map);}
-            }    
-            for ( var i=1 ; i<polytwa[0].length ; i++ )
-            { if (i%6 != 0)
-                {circle2[i] = L.circle(polytwa[0][i], {color: 'lime' ,fillColor: '#f03',opacity:0.9,fillOpacity: 0.3,radius: 150,}).addTo(map);}
-              else  
-               {circle2[i] = L.circle(polytwa[0][i], {color: 'green' ,fillColor: '#f03',opacity:0.9,fillOpacity: 0.3,radius: 150,}).addTo(map);}
-            } 
-            }
+            // if (valinit!=valcal)
+            // {            
+            // polytwa=polyline_twa3(latdep,lngdep,twac,tsimation)
+            // polycap=polyline_cap2(latdep,lngdep,valcal,tsimation)
+            // map.removeLayer(poly);   map.removeLayer(poly2);
+            // for ( var j=1 ; j<74 ; j++ )  {map.removeLayer(circle1[j]); map.removeLayer(circle2[j]);}
+            
+            // for ( var i=1 ; i<polycap[0].length ; i++ )
+            // { if (i%6 != 0)
+            //     { circle1[i] = L.circle(polycap[0][i], {color: 'orange' ,fillColor: '#f03',opacity:0.9,fillOpacity: 0.3,radius: 150,}).addTo(map);} 
+            //     else
+            //     { circle1[i] = L.circle(polycap[0][i], {color: 'red' ,fillColor: '#f03',opacity:0.9,fillOpacity: 0.3,radius: 150,}).addTo(map);}
+            // }    
+            // for ( var i=1 ; i<polytwa[0].length ; i++ )
+            // { if (i%6 != 0)
+            //     {circle2[i] = L.circle(polytwa[0][i], {color: 'lime' ,fillColor: '#f03',opacity:0.9,fillOpacity: 0.3,radius: 150,}).addTo(map);}
+            //   else  
+            //    {circle2[i] = L.circle(polytwa[0][i], {color: 'green' ,fillColor: '#f03',opacity:0.9,fillOpacity: 0.3,radius: 150,}).addTo(map);}
+            // } 
+            // }
             //else{console.log(" les deux valeurs sont identiques pas de recalcul")}
          
             document.getElementById('infosimul').innerHTML="<b><font color='red'> Cap : " +valcal +"</font>&nbsp;&nbsp;<font color='green' > TWA : "+twac
