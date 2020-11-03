@@ -81,8 +81,8 @@ def vents_encode2(latini,latfin,longini,longfin):
     else :
         fin = 360-longini         # sert a determiner la coupe a la fin 
         debut =longfin+1
-        U10=np.concatenate((GR[0:12,ilatini:ilatfin,longini:359].real,GR[0:12,ilatini:ilatfin,0:longfin].real),axis=2)
-        V10=np.concatenate((GR[0:12,ilatini:ilatfin,longini:359].imag,GR[0:12,ilatini:ilatfin,0:longfin].imag),axis=2)
+        U10=np.concatenate((GR[0:12,ilatini:ilatfin,longini:360].real,GR[0:12,ilatini:ilatfin,0:longfin].real),axis=2)
+        V10=np.concatenate((GR[0:12,ilatini:ilatfin,longini:360].imag,GR[0:12,ilatini:ilatfin,0:longfin].imag),axis=2)
 
         # U10=np.concatenate((GR[0:12,ilatini:ilatfin,-fin:].real,GR[0:12,ilatini:ilatfin,:debut].real),axis=2)
         # V10=np.concatenate((GR[0:12,ilatini:ilatfin,-fin:].imag,GR[0:12,ilatini:ilatfin,:debut].imag),axis=2)
@@ -563,7 +563,7 @@ def leaflet():
 def windleaf():
    
     global x0,y0,x1,y1,nb_points_ini
-    nb_points_ini=50
+    nb_points_ini=150
     # valeurs par defaut si pas de retour de dashboard
   
     course="440"

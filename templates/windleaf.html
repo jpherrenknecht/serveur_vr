@@ -131,9 +131,13 @@
         verbose: true,
 
         // Centrage initial de la carte et zoom 
-        lat: (latdep+latar)/2,
-        lon: (lngdep+lngar)/2,
-        zoom: zoomp,
+        lat:latdep,
+        lon:lngdep,
+        //lat: (latdep+latar)/2,
+        //lon: (lngdep+lngar)/2,
+
+        //zoom: zoomp,
+        zoom:5
         }
 
        
@@ -152,7 +156,7 @@
               
 
         L.marker([latini, lngini],    {icon: redIcon}).addTo(map);
-        L.marker([latfin, lngfin],    {icon: blackIcon}).addTo(map);
+       // L.marker([latfin, lngfin],    {icon: blackIcon}).addTo(map);
 
         if (lngfin>lngini)
         {latlngpoly=[[latini, lngini],[latini, lngfin],[latfin, lngfin],[latfin, lngini],[latini, lngini]]
@@ -222,7 +226,7 @@
 
 
             try{meteocurseur=vit_angle_vent (e.latlng.lat,e.latlng.lng ,tsimation) }
-            catch(err){meteocurseur=meteodepart} //meteo au curseur 
+            catch(err){console.log ('erreur sur la meteo');meteocurseur=meteodepart} //meteo au curseur 
             direction=dist_cap_ortho(latdep,lngdep,e.latlng.lat,e.latlng.lng) //direction distance vers le curseur
             twac=ftwao(direction[1],meteodepart[1]).toFixed(0) 
 
@@ -251,34 +255,37 @@
             document.formu.dism.value=direction[0].toFixed(1)}
             catch(err){console.log("erreur ligne 188") }
             cap0= Math.floor(direction[1])
-            // on stocke dans un element exterieur 
+            //on stocke dans un element exterieur 
             //document.formu.stockage.value=cap0                      //stockage valeur dans formulaire
             
             //document.getElementById('stocka0').innerHTML=cap0        // stockage valeur dans id
             //document.getElementById('stocka1').innerHTML=twac 
             //recuperation de la valeur  de stockage
 
+
+
+
+
+            if (valinit!=valcal)
+            {            
+            polytwa=polyline_twa3(latdep,lngdep,twac,tsimation)
+            polycap=polyline_cap2(latdep,lngdep,valcal,tsimation)
+            map.removeLayer(poly);   map.removeLayer(poly2);
+            for ( var j=1 ; j<74 ; j++ )  {map.removeLayer(circle1[j]); map.removeLayer(circle2[j]);}
             
-            // if (valinit!=valcal)
-            // {            
-            // polytwa=polyline_twa3(latdep,lngdep,twac,tsimation)
-            // polycap=polyline_cap2(latdep,lngdep,valcal,tsimation)
-            // map.removeLayer(poly);   map.removeLayer(poly2);
-            // for ( var j=1 ; j<74 ; j++ )  {map.removeLayer(circle1[j]); map.removeLayer(circle2[j]);}
-            
-            // for ( var i=1 ; i<polycap[0].length ; i++ )
-            // { if (i%6 != 0)
-            //     { circle1[i] = L.circle(polycap[0][i], {color: 'orange' ,fillColor: '#f03',opacity:0.9,fillOpacity: 0.3,radius: 150,}).addTo(map);} 
-            //     else
-            //     { circle1[i] = L.circle(polycap[0][i], {color: 'red' ,fillColor: '#f03',opacity:0.9,fillOpacity: 0.3,radius: 150,}).addTo(map);}
-            // }    
-            // for ( var i=1 ; i<polytwa[0].length ; i++ )
-            // { if (i%6 != 0)
-            //     {circle2[i] = L.circle(polytwa[0][i], {color: 'lime' ,fillColor: '#f03',opacity:0.9,fillOpacity: 0.3,radius: 150,}).addTo(map);}
-            //   else  
-            //    {circle2[i] = L.circle(polytwa[0][i], {color: 'green' ,fillColor: '#f03',opacity:0.9,fillOpacity: 0.3,radius: 150,}).addTo(map);}
-            // } 
-            // }
+            for ( var i=1 ; i<polycap[0].length ; i++ )
+            { if (i%6 != 0)
+                { circle1[i] = L.circle(polycap[0][i], {color: 'orange' ,fillColor: '#f03',opacity:0.9,fillOpacity: 0.3,radius: 150,}).addTo(map);} 
+                else
+                { circle1[i] = L.circle(polycap[0][i], {color: 'red' ,fillColor: '#f03',opacity:0.9,fillOpacity: 0.3,radius: 150,}).addTo(map);}
+            }    
+            for ( var i=1 ; i<polytwa[0].length ; i++ )
+            { if (i%6 != 0)
+                {circle2[i] = L.circle(polytwa[0][i], {color: 'lime' ,fillColor: '#f03',opacity:0.9,fillOpacity: 0.3,radius: 150,}).addTo(map);}
+              else  
+               {circle2[i] = L.circle(polytwa[0][i], {color: 'green' ,fillColor: '#f03',opacity:0.9,fillOpacity: 0.3,radius: 150,}).addTo(map);}
+            } 
+            }
             //else{console.log(" les deux valeurs sont identiques pas de recalcul")}
          
             document.getElementById('infosimul').innerHTML="<b><font color='red'> Cap : " +valcal +"</font>&nbsp;&nbsp;<font color='green' > TWA : "+twac

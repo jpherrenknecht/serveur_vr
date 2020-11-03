@@ -411,6 +411,10 @@ if __name__ == '__main__':
     print('\tVitesse du vent {:6.3f} Noeuds'.format(vit_vent_n))
 
 
+    vit_vent_n, angle_vent = previsionv2(tig, GR,tic, d[1], d[0])
+  #  print('\nLe {} heure Locale Pour latitude {:6.2f} et longitude{:6.2f} '.format(dateprev_formate_local, d[1], d[0]))
+    print('\n\tAngle du vent   {:6.1f} °'.format(angle_vent))
+    print('\tVitesse du vent {:6.3f} Noeuds'.format(vit_vent_n))
 
 
 # # prevision avec date donnee    

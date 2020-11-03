@@ -124,6 +124,7 @@ var intl=new Intl.DateTimeFormat("fr-EU",{month:"2-digit",day:"2-digit", year:"2
 				dec_t   = i_t%1						// partie decimale				
 				dec_lat = i_lat%1
 				dec_lng = i_lng%1
+				console.log ('Valeurs dans interpolation 3d lat0 '+lat0+' lng0 '+lng0+' dec_t '+dec_t+' dec_lat '+dec_lat+' dec_lng '+dec_lng)
 				r1      = interpol2d(XX,t0,i_lat,i_lng)
 				r2      = interpol2d(XX,t0+1,i_lat,i_lng)
 				r       = r1+(r2-r1)*dec_t
@@ -210,30 +211,70 @@ var intl=new Intl.DateTimeFormat("fr-EU",{month:"2-digit",day:"2-digit", year:"2
 
 			function vit_angle_vent (lat,lng ,t1000)
 			{
-
-			//correction heure hiver ?	
-			i_lat=-(lat-latini)       // ecart avec la latitude du grib chargé
-			i_lng=(360+lng-lngini)%360
-			i_t=(t1000-tig)/3600/3     // Ecart en heures avec le tig  modulo 3h
+			itemp=(t1000-tig)/3600/3     // Ecart en heures avec le tig  modulo 3h
+		    ilati=-(lat-latini)       // ecart avec la latitude du grib chargé
+			ilong=(360+lng-lngini)%360
+			// console.log(' ')
+			// console.log ('Indices : '+itemp+' '+ilati+' '+ilong)		
 			
-			//  console.log()
-			//  console.log (' Temps depuis le grib en h '+i_t*3+ ' Indice '+i_t)
-			//  console.log()
+			iitemp    = Math.floor(itemp)       // partie entiere
+			iilati    = Math.floor(ilati)
+			iilong    = Math.floor(ilong)
+			ditemp    = itemp%1						// partie decimale				
+			dilati    = ilati%1
+			dilong    = ilong%1
+			
+			u000=U10[iitemp][iilati][iilong]
+    		u010=U10[iitemp][iilati+1][iilong]
+    		u001=U10[iitemp][iilati][iilong+1]
+			u011=U10[iitemp][iilati+1][iilong+1]
+			
+			v000=V10[iitemp][iilati][iilong]
+    		v010=V10[iitemp][iilati+1][iilong]
+    		v001=V10[iitemp][iilati][iilong+1]
+    		v011=V10[iitemp][iilati+1][iilong+1]
+			// console.log ( 'valeurs u000 ... '+u000+' '+u010+ ' '+u001+ ' '+u011)
+			// console.log ( 'valeurs v000 ... '+v000+' '+v010+ ' '+v001+ ' '+v011)
+			
+			u0x0=u000+dilati*(u010-u000)
+    		u0x1=u001+dilati*(u011-u001)
+			u0xx=u0x0+dilong*(u0x1-u0x0)
 
-			//  console.log ('* latini : '+latini+' Latfin '+ latfin+' Latitude  '+lat+' i_lat : '+i_lat)
-			//  console.log()
-			//  console.log ('* lngini : '+lngini+' lngfin  '+lngfin+ ' Longitude ' +lng+' i_lng : '+i_lat)
-			//  console.log()
-			console.log ('Indices : '+i_t+' '+i_lat+' '+i_lat)		
-			u10=interpol3d(U10,i_t,i_lat,i_lng)	
+			v0x0=v000+dilati*(v010-v000)
+    		v0x1=v001+dilati*(v011-v001)
+			v0xx=v0x0+dilong*(v0x1-v0x0)
 
-			v10=interpol3d(V10,i_t,i_lat,i_lng)	
+			// console.log ( 'valeurs u0x0 ... '+u0x0+' '+u0x1+ ' '+u0xx)
+			// console.log ( 'valeurs v0x0 ... '+v0x0+' '+v0x1+ ' '+v0xx)
 
+			u100=U10[iitemp+1][iilati][iilong]
+    		u110=U10[iitemp+1][iilati+1][iilong]
+    		u101=U10[iitemp+1][iilati][iilong+1]
+    		u111=U10[iitemp+1][iilati+1][iilong+1]
 
-			console.log(' u10 et v10  ' +u10+' '+v10)
-			res=cvent(u10,v10) 
-			vitesse=res[0], angle=res[1] 
-			//console.log('resultat'+ res)
+			v100=V10[iitemp+1][iilati][iilong]
+    		v110=V10[iitemp+1][iilati+1][iilong]
+    		v101=V10[iitemp+1][iilati][iilong+1]
+    		v111=V10[iitemp+1][iilati+1][iilong+1]
+
+			u1x0=u100+dilati*(u110-u100)
+    		u1x1=u101+dilati*(u111-u101)
+    		u1xx=u1x0+dilong*(u1x1-u1x0)
+			uxxx=u0xx+ditemp*(u1xx-u0xx) 
+			  
+			v1x0=v100+dilati*(v110-v100)
+    		v1x1=v101+dilati*(v111-v101)
+    		v1xx=v1x0+dilong*(v1x1-v1x0)
+    		vxxx=v0xx+ditemp*(v1xx-v0xx)  
+		
+			vit = Math.sqrt(uxxx*uxxx + vxxx*vxxx)
+			angle= Math.acos(vxxx/vit)*180/Math.PI+180;
+			if (uxxx<0)
+			{angle=360-angle}
+			vit*= 1.94384     // Vitesse en noeuds
+			//console.log('vitesse : '+vit+' angle : '+angle)	
+
+			res=[vit,angle]
 			return res	
 
 			}

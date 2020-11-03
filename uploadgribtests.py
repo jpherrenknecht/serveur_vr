@@ -211,13 +211,13 @@ def prevision(tig, GR, tp, latitude, longitude):
    # tp =tp-3600    # ajustement pour VR qui semble ne fonctionner qu'en UTC et ne pas tenir compte de l'heure locale
     fn3 = RegularGridInterpolator((ix, iy, iz), GR)
     itemp = (tp - tig) / 3600 / 3
-    itemp = 3               # ici on force provisoirement la valeur a 3
+    #itemp = 3               # ici on force provisoirement la valeur a 3
     ilati = (latitude + 90)
     ilong = (longitude) % 360
 
-    print ('indices',itemp,ilati,ilong )
-    print (GR[itemp,int(ilati),int(ilong)].real)
-    print (GR[itemp,int(ilati),int(ilong)].imag)
+    # print ('indices',itemp,ilati,ilong )
+    # print (GR[itemp,int(ilati),int(ilong)].real)
+    # print (GR[itemp,int(ilati),int(ilong)].imag)
 
     vcplx = fn3((itemp, ilati, ilong))
     #print('vcplx',vcplx)
@@ -230,27 +230,42 @@ def previsionv2(tig, GR, tp, latitude, longitude):
     itemp = (tp - tig) / 3600 / 3
     ilati = (latitude + 90)
     ilong = (longitude) % 360
+    print ('indices dans prevision2 ',itemp,ilati,ilong )
+
     iitemp=math.floor(itemp)
     iilati=math.floor(ilati)
     iilong=math.floor(ilong)
     ditemp=itemp%1
     dilati=ilati%1
     dilong=ilong%1
+
+    print( 'indices dans prev2 : ', iitemp,iilati,iilong,ditemp,dilati,dilong)
+    print()
     v000=GR[iitemp][iilati][iilong]
     v010=GR[iitemp][iilati+1][iilong]
     v001=GR[iitemp][iilati][iilong+1]
     v011=GR[iitemp][iilati+1][iilong+1]
+    print ('valeurs suivant les indices plancher')
+    print ( ' valeurs de u10 ', v000.real,v010.real,v001.real,v011.real)
+    print ( ' valeurs de v10 ', v000.imag,v010.imag,v001.imag,v011.imag)
+
     v0x0=v000+dilati*(v010-v000)
     v0x1=v001+dilati*(v011-v001)
     v0xx=v0x0+dilong*(v0x1-v0x0)
+    print (' valeurs de u0x0',v0x0.real,v0x1.real,v0xx.real)
+    print (' valeurs de u0x0',v0x0.imag,v0x1.imag,v0xx.imag)
+
     v100=GR[iitemp+1][iilati][iilong]
     v110=GR[iitemp+1][iilati+1][iilong]
     v101=GR[iitemp+1][iilati][iilong+1]
     v111=GR[iitemp+1][iilati+1][iilong+1]
+
+
     v1x0=v100+dilati*(v110-v100)
     v1x1=v101+dilati*(v111-v101)
     v1xx=v1x0+dilong*(v1x1-v1x0)
     vxxx=v0xx+ditemp*(v1xx-v0xx)   
+    
     vit_vent_n = np.abs(vxxx) * 1.94384
     angle_vent = (270 - np.angle(vxxx, deg=True)) % 360
     
@@ -358,20 +373,23 @@ def vents_encode2(latini,latfin,longini,longfin):
 
 def equivalentjs(u10,v10,latini,lngini,lat, lng,tig):
     tic0=time.time()
-    print()
-    print ( 'instant prevision en s ',tic0)
-    print ( 'tig               en s ',tig)
+    # print()
+    # print ( 'instant prevision en s ',tic0)
+    # print ( 'tig               en s ',tig)
 
     i_t=(tic0-tig)/3600/3     # Ecart en heures avec le tig  modulo 3h
-    i_t=3
     i_lat=-(lat-latini)       # ecart avec la latitude du grib chargé
     i_lng=(360+lng-lngini)%360
     
  
-    print('indices',i_t, i_lat,i_lng,)
-    print (i_t)
-    print  ('u10 ',u10[i_t][i_lat][i_lng])
-    print ('v10 ',v10[i_t][i_lat][i_lng])
+    print('indices equivalent js ',i_t, i_lat,i_lng,)
+    ecartlat=90-latini
+    ecartlng=lngini
+    print('indices       corriges',i_t,i_lat+ecartlat,i_lng+ecartlng)
+
+
+    # print  ('u10 ',u10[i_t][i_lat][i_lng])
+    # print ('v10 ',v10[i_t][i_lat][i_lng])
     return 
 
 
@@ -394,26 +412,26 @@ if __name__ == '__main__':
     lngini=338
     lngfin=18
 
-    lat=54
-    lng=-2
-    
+    lat=46.4711
+    lng=-1.8314
+
     ecartlat=90-latini
     ecartlng=lngini
-
+    print('\n Calcul avec equivalent js')
     print ('ecart en lat ',ecartlat  ) 
     print ('ecart en lng ', ecartlng )
     u10,v10=vents_encode2(latini,latfin,lngini,lngfin)
-   
     equivalentjs(u10,v10,latini,lngini,lat, lng,tig)
 
-    
 
 
-    latitude='054-00-00-N'
-    longitude='002-00-00-W'
+
+
+    print('\n Calcul avec python')
+# calcul avec fonction python
+    latitude='046-28-16-N'
+    longitude='001-49-53-W'
     d = chaine_to_dec(latitude, longitude)  
-
-
 # prevision avec temps instantane
     print ("\nPrévision à l'instant de l'heure locale\
             \n---------------------------------")
@@ -424,10 +442,16 @@ if __name__ == '__main__':
     
     vit_vent_n, angle_vent = prevision(tig, GR,tic, d[1], d[0])
   #  print('\nLe {} heure Locale Pour latitude {:6.2f} et longitude{:6.2f} '.format(dateprev_formate_local, d[1], d[0]))
+    print('\nPrevisionv1')
     print('\n\tAngle du vent   {:6.1f} °'.format(angle_vent))
     print('\tVitesse du vent {:6.3f} Noeuds'.format(vit_vent_n))
 
 
+    vit_vent_n, angle_vent = previsionv2(tig, GR,tic, d[1], d[0])
+  #  print('\nLe {} heure Locale Pour latitude {:6.2f} et longitude{:6.2f} '.format(dateprev_formate_local, d[1], d[0]))
+    print('\nPrevisionv2')
+    print('\tAngle du vent   {:6.1f} °'.format(angle_vent))
+    print('\tVitesse du vent {:6.3f} Noeuds'.format(vit_vent_n))
 
 
 
