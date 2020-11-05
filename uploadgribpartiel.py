@@ -12,17 +12,17 @@ from scipy.interpolate import RegularGridInterpolator
 from pathlib import Path
 
 #le debut de chargement des gribs intervient en heure UTC à
-# 03h30 (gfs00) - 9h30(gfs06) - 15h30(gfs12) -  21h30(gfs18) - 
-# crontab declenche un chargement en heure utc à  
+# 03h30 (gfs00) - 9h30(gfs06) - 15h30(gfs12) -  21h30(gfs18) -
+# crontab declenche un chargement en heure utc à
 # 03h40 4h10 4h40 5h10
 
 
 # les gribs complets sont disponibles en heure UTC à
-# 05 h (gfs00) - 11h(gfs06) - 17(gfs12) -  23(gfs18) - 
+# 05 h (gfs00) - 11h(gfs06) - 17(gfs12) -  23(gfs18) -
 # les gribs complets sont disponibles en heure d'hiver à
-# 06 h (gfs00) - 12h(gfs06) - 18(gfs12) -  00(gfs18) - 
+# 06 h (gfs00) - 12h(gfs06) - 18(gfs12) -  00(gfs18) -
 # les gribs complets sont disponibles en heure d'ete à
-# 07 h (gfs00) - 13h(gfs06) - 19(gfs12) -  01(gfs18) - 
+# 07 h (gfs00) - 13h(gfs06) - 19(gfs12) -  01(gfs18) -
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 ix = np.arange(129)  # temps
@@ -65,7 +65,7 @@ def selection_grib ():
     utc = time.gmtime()
     decalage_h = t[3] - utc[3]
     #date=datetime(utc[0] , utc[1] , utc[2] , int(heure_grib),0, 0)# date qui servira pour les noms de gribs
-      
+
     hdmja= [210,240,270,300,  570,600,630,660,  930,960,990,1020, 1290,1320,1350,1380]      # 210 = 3h30
     dicgrib={(210):('00','000','012'),(240):('00','015','072'),(270):('00','075','168'),(300):('00','171','384'),
             (570):('06','000','012'),(600):('06','015','072'),(630):('06','075','168'),(660):('06','171','384'),
@@ -80,18 +80,18 @@ def selection_grib ():
     ngrib = dicgrib[ hdmja[indice]][0]                  # reference du grib
     v0    = dicgrib[ hdmja[indice]][1]                  # valeur de l'indice de debut
     v1    = dicgrib[ hdmja[indice]][2]                  # valeur de l'indice de fin
-    
+
 
 
     indicem1=i-2                                        #indice du grib precedent
     ngribm1=dicgrib[ hdmja[indicem1]][0]
     v0m1   = dicgrib[ hdmja[indicem1]][1]
     v1m1    = dicgrib[ hdmja[indicem1]][2]              # valeur de l'indice de fin
-    
+
     dateheuretig=datetime(utc[0] , utc[1] , utc[2] , int(ngrib),0, 0)
     #print ('dateheuretig',dateheuretig)
-    tig=time.mktime(dateheuretig.timetuple())+decalage_h*3600    #temps initial du grib en sec locales 
-    dategrib= str(dateheuretig) 
+    tig=time.mktime(dateheuretig.timetuple())+decalage_h*3600    #temps initial du grib en sec locales
+    dategrib= str(dateheuretig)
     date=dategrib[0:10].replace("-","")
 
     #print ('ngrib,v0,v1,ngribm1,vom1,v1m1 , date ',ngrib,v0,v1,'  ',ngribm1,v0m1,v1m1, ' ',date)
@@ -109,7 +109,7 @@ def selection_grib ():
         #recherche de la date precedente heure  on recule de 6 h
         utcm1 = time.gmtime(time.time() -21600)         #21600
         dategrib_tpm1=datetime(utcm1[0] , utcm1[1] , utcm1[2] ,18,0, 0)
-        dategribm1= str(dategrib_tpm1) 
+        dategribm1= str(dategrib_tpm1)
         datec=dategribm1[0:10].replace("-","")
         #print('datec ',datec)
         filenamem1="gribs/gfs_"+datec +"-18-384.hdf5"
@@ -121,11 +121,11 @@ def selection_grib ():
 
     # dategrib= str(utcgrib[0])+'-'+str(utcgrib[1])+'-'+str(utcgrib[2])+'-18'
     # print('dategrib',dategrib)
-    
-                   
+
+
     # dategrib_tpl=datetime(utc[0] , utc[1] , utc[2] , int(heure_grib),0, 0)
-    # tig=time.mktime(dategrib_tpl.timetuple())+decalage_h*3600    #temps initial du grib en sec locales 
-    # dategrib= str(dategrib_tpl) 
+    # tig=time.mktime(dategrib_tpl.timetuple())+decalage_h*3600    #temps initial du grib en sec locales
+    # dategrib= str(dategrib_tpl)
     # date=dategrib[0:10].replace("-","")
     return filenamem1,filename
 
@@ -181,34 +181,84 @@ def datemoinsunjour(date):
     month=int(date[4:6])
     day=int(date [6:8])
     datejour=datetime(year, month, day ,0,0,0)
-    djs=time.mktime(datejour.timetuple())-3600   # moins une heure
+    djs=time.mktime(datejour.timetuple())-24*3600   # moins un jour
     datem1 = time.strftime("%Y%m%d", time.localtime(djs))
     return datem1
 
 
-def ffilename():
-    t = time.localtime()
-    utc = time.gmtime()
-    decalage_h = t[3] - utc[3]
-    tic=time.time()
-    date = time.strftime("%Y%m%d", time.localtime(time.time()-decalage_h*3600))
-    hdmja= [210,240,270,300,  570,600,630,660,  930,960,990,1020, 1290,1320,1350,1380]      # 210 = 3h30
+def ffilename(tsec):
+    ''' Fichier telecheargeable a l'instant donne '''
+
+    hdmja= [210,240,270,300,  570,600,630,660,  930,960,990,1020, 1290,1320,1350,1380,2000]      # 210 = 3h30
     dicgrib={(210):('00','000','012'),(240):('00','015','072'),(270):('00','075','168'),(300):('00','171','384'),
             (570):('06','000','012'),(600):('06','015','072'),(630):('06','075','168'),(660):('06','171','384'),
             (930):('12','000','012'),(960):('12','015','072'),(990):('12','075','168'),(1020):('12','171','384'),
             (1290):('18','000','012'),(1320):('18','015','072'),(1350):('18','075','168'),(1380):('18','171','384')}
-    hutc=utc[3]*60+utc[4]                               # temps utc actuel en minutes depuis 0 h sert a selectionner le fichier
-    i=0
-    while hutc >hdmja[i]:                               # on cherche l'indice du grib disponible
-        i=i+1
-    indice=i-1                                          #indice du grib dans la journee
-    ngrib = dicgrib[ hdmja[indice]][0]                  # reference du grib
-    #v0    = dicgrib[ hdmja[indice]][1]                  # valeur de l'indice de debut
-    v1    = dicgrib[ hdmja[indice]][2]                  # valeur de l'indice de fin
+    dic1={'00':'18','06':'00','12':'06','18':'12'}
+    dic2={'012':'384' ,'072':'012','168':'072','384':'168'}
 
-    filename="gribs/gfs-"+date +"-"+ngrib+"-"+v1+".hdf5"
-    
-    return filename
+    t = time.localtime()
+    utc = time.gmtime()
+    decalage_h = t[3] - utc[3]
+    #transformation de tsec en heures et mn utc
+
+    ttuple=time.gmtime(tsec)
+    #print ('ttuple ',ttuple)
+    hutc=ttuple[3]*60+ttuple[4]
+    date = time.strftime("%Y%m%d", time.localtime(tsec-decalage_h*3600))
+    #print ('date', date )
+    print ('hutc dansffilename',hutc)
+    if (hutc<210):
+        filename="gribs/gfs-"+datemoinsunjour(date) +"-18-384.hdf5"
+        dernier384=filename
+        ngrib='18'
+        v1='384'
+
+    else :
+        i=0
+        while hutc >hdmja[i]:                               # on cherche l'indice du grib disponible
+            i=i+1
+        indice=i-1                                          #indice du grib dans la journee
+        ngrib = dicgrib[ hdmja[indice]][0]                  # reference du grib
+        #v0    = dicgrib[ hdmja[indice]][1]                  # valeur de l'indice de debut
+        v1    = dicgrib[ hdmja[indice]][2]                  # valeur de l'indice de fin
+        filename="gribs/gfs-"+date +"-"+ngrib+"-"+v1+".hdf5"
+
+    # dernier384
+
+    if hutc<310:
+        dernier384="gribs/gfs-"+datemoinsunjour(date) +"-18-384.hdf5"
+    elif hutc<670:
+        dernier384="gribs/gfs-"+date+"-00-384.hdf5"
+    elif hutc<1030:
+        dernier384="gribs/gfs-"+date+"-06-384.hdf5"
+    elif hutc<1390:
+        dernier384="gribs/gfs-"+date+"-12-384.hdf5"
+    else:
+        dernier384="gribs/gfs-"+date+"-18-384.hdf5"
+
+    #precedent
+    print (' pour test ngrib v1 hutc ',ngrib,v1,hutc )
+    if ngrib=='00':
+        if v1=='012':
+            filenamem1="gribs/gfs-"+datemoinsunjour(date) +"-18-384.hdf5"
+        else:
+            filenamem1="gribs/gfs-"+date +"-00-"+dic2[v1]+".hdf5"
+        # if ( hutc <310) :
+        #     filenamem1="gribs/gfs-"+datemoinsunjour(date) +"-18-384.hdf5"
+
+
+    else:
+        if v1=='012':
+            filenamem1="gribs/gfs-"+date +"-"+dic1[ngrib]+"-384.hdf5"
+        else:
+            filenamem1="gribs/gfs-"+date +"-"+ngrib+"-"+dic2[v1]+".hdf5"
+            # if v1==384:
+            #     filenamem1="gribs/gfs-"+datemoinsunjour(date) +"-18-168.hdf5"
+    if (v1=='384' and hutc <310) :  
+        filenamem1="gribs/gfs-"+datemoinsunjour(date) +"-18-168.hdf5"
+
+    return dernier384,filenamem1,filename
 
 
 
@@ -224,12 +274,12 @@ def fichier_precedent(filename):
         if vmax=='012':
             datem1=datemoinsunjour(date)
             filenamem1="gribs/gfs-"+datem1 +"-18-384.hdf5"
-        else:    
+        else:
             filenamem1="gribs/gfs-"+date +"-00-"+dic2[vmax]+".hdf5"
     else:
         if vmax=='012':
             filenamem1="gribs/gfs-"+date +"-"+dic1[strhour]+"-384.hdf5"
-        else:        
+        else:
             filenamem1="gribs/gfs-"+date +"-"+strhour+"-"+dic2[vmax]+".hdf5"
     return filenamem1
 
@@ -242,7 +292,7 @@ def fdernier384(filename):
         dernier384="gribs/gfs-"+datem1 +"-18-384.hdf5"
     else :
         dernier384="gribs/gfs-"+date +"-"+dic1[strhour]+"-384.hdf5"
-    return dernier384          
+    return dernier384
 
 def ftig(filename):
     ''' donne l'instant initial du grib en secondes locales '''
@@ -261,12 +311,12 @@ def ftig(filename):
 
 def upload384(name) :
     '''reconstitue le nom du dernier grib disponible
-      le charge sur nmea au besoin 
+      le charge sur nmea au besoin
       et le charge pour la simulation s'il existe deja '''
     GR = np.zeros((129, 181, 360),dtype=complex)  # initialise le np array de complexes qui recoit les donnees
     date=name[10:18]
     strhour=name [19:21]
-   
+
     leftlon, rightlon, toplat, bottomlat = 0, 360, 90, -90
     if os.path.exists(name) == False:        #si ce fichier n'existe pas deja
         iprev = ()
@@ -282,7 +332,7 @@ def upload384(name) :
             urlretrieve(url, nom_fichier)                               # recuperation des fichiers provisoires
             print(' Enregistrement prévision {}-{}-{} {} heures effectué: '.format(date,strhour,384,prev))  # destine a suivre le chargement des previsions
             if prev=='000':
-                print('url 384', url)  
+                print('url 384', url)
             # exploitation du fichier et mise en memoire dans GR
             ds = xr.open_dataset(nom_fichier, engine='cfgrib')
             GR[indexprev] = ds.variables['u10'].data + ds.variables['v10'].data * 1j
@@ -293,7 +343,7 @@ def upload384(name) :
         GR=np.concatenate((GR,GR[:,:,0:1]), axis=2)
         # on calacule le tig a partir de la date dans le fichier
         tig=ftig(filename)
-        
+
         f1 = h5py.File(name, "w")
         dset1 = f1.create_dataset("dataset_01", GR.shape, dtype='complex', data=GR)
         dset1.attrs['time_grib'] = tig  # transmet le temps initial du grib en temps local en s pour pouvoir faire les comparaisons
@@ -308,7 +358,7 @@ def upload_borne(filename,inf,sup):
     #print('bornes',int(inf/3),int(sup/3)+1)
     PR = np.zeros((dimpr+1, 181, 360),dtype=complex)  # initialise le np array de complexes qui recoit les donnees
     leftlon, rightlon, toplat, bottomlat = 0, 360, 90, -90
-    
+
     if os.path.exists(filename) == True:        # Valeur normale false si ce fichier n'existe pas deja
         iprev = ()
         for a in range(int(inf),int(sup)+1, 3):  # Construit le tuple des indexs des fichiers maxi 387
@@ -321,52 +371,73 @@ def upload_borne(filename,inf,sup):
                   + str(leftlon) + "&rightlon=" + str(rightlon) + "&toplat=" + str(toplat) + "&bottomlat=" + str(
                 bottomlat) + "&dir=%2Fgfs." + date + "%2F" + strhour
             if prev=='000':
-                print('url partiel',url)    
+                print('url partiel',url)
             nom_fichier = "gribs/grib_" + date + "_" + strhour + "_" + prev   # nom sous lequ fichier est sauvegarde provisoirement
             urlretrieve(url, nom_fichier)                               # recuperation des fichiers provisoires
             print(' Enregistrement prévision {}-{}-{} {} heures effectué: '.format(date,strhour,384,prev))  # destine a suivre le chargement des previsions
            # exploitation du fichier et mise en memoire dans GR
 
-            
+
             ds = xr.open_dataset(nom_fichier, engine='cfgrib')
             PR[indexprev] = ds.variables['u10'].data + ds.variables['v10'].data * 1j
             os.remove(nom_fichier)  # On efface le fichier pour ne pas encombrer
             os.remove(nom_fichier + '.4cc40.idx')
 
     return PR,inf,sup
-        
-    
-def chargement_complet():
-    filename=ffilename()    # nom du dernier chargeable partiel
-    if os.path.exists(filename) == True:      # la valeur normale est False True est pour les tests
+
+
+def chargement_complet(tic):
+
+    dernier384,filenamem1,filename=ffilename(tic)
+    if os.path.exists(filename) == False:      # la valeur normale est False True est pour les tests
     # on analyse le nom du fichier
         date=filename[10:18]
         strhour=filename [19:21]
         vmax=filename[22:25]
         datem1=datemoinsunjour(date)
 
-        dernier384=fdernier384(filename)      # on cherche le nom du dernier fichier 384
-        if os.path.exists(dernier384) == False: 
-            print("Le dernier fichier 384 n'a pas ete charge") 
-            upload384(filename)               #si le dernier 384 n'existe pas on le charge
-                                        # on cherche le fichier precedent
-        # on recupere GR et tig  sur le dernier 384
+        if os.path.exists(dernier384) == False:
+            print("Le dernier fichier 384 n'a pas ete charge")
+            upload384(dernier384)               #si le dernier 384 n'existe pas on le charge en entier (et GR360=GR0)
+                                       
+        # on recupere GR et tig  sur le dernier 384 qui vient si necessaire d'etre chargé
         f2 = h5py.File(dernier384, 'r')
         list(f2.keys())
         dset1 = f2['dataset_01']
         GR = dset1[:]
         tig = dset1.attrs['time_grib']
         f2.close()
+        print (' le fichier GR a bien été chargé pour modification ')
         print (GR[0,0,0])
 
-          
-        PR,inf,sup=upload_borne(filename,0,384)
-        print(filename)
-        print(inf,sup)
-        print (PR[0,0,0])
-        #if os.path.exists(filename) == False:        #si ce fichier n'existe pas deja
+        # on verifie que le precedent fichier a été chargé sinon on charge tout depuis 0
+        if os.path.exists(filenamem1) == False:
+            #le fichier precedent n'a pas ete charge on va tout charger le possible 
+            PR,inf,sup=upload_borne(filename,0,384)
 
-    return None    
+
+        # s'il a ete charge on se contente de charger entre les bornes
+        PR,inf,sup=upload_borne(filename,0,384)
+        
+        # on remplace dans Gr les valeurs de PR
+        print ('on effectue la substitution dans le precedent ')
+        GR[inf:sup+1,:,:]=PR   # a verifier !
+        #on copie l'indice longitude 0 dans l'indice longitude 360 qui existe deja
+        GR[:,:,360]=GR[:,:,0]
+        # on sauve GR sous forme de fichier et on met à jour le nom
+        # on calcule tig  reste a faire !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        f1 = h5py.File(filename, "w")
+        dset1 = f1.create_dataset("dataset_01", GR.shape, dtype='complex', data=GR)
+        dset1.attrs['time_grib'] = tig  # transmet le temps initial du grib en temps local en s pour pouvoir faire les comparaisons
+        f1.close()
+       
+    f2 = h5py.File(filename, 'r')
+    list(f2.keys())
+    dset1 = f2['dataset_01']
+    GR = dset1[:]
+    tig = dset1.attrs['time_grib']
+    f2.close()
+    return tig,GR
 
 
 
@@ -374,9 +445,35 @@ def chargement_complet():
 
 if __name__ == '__main__':
 
-    filename=ffilename()
+
+
+    tic=time.time()
+
+    datejour       = datetime(2020, 11, 4 , 0, 32,0)   # en heures locales
+    djs            = time.mktime(datejour.timetuple())   # transformation en secondes
+    datem1         = time.strftime("%Y%m%d", time.localtime(djs))
+    datem1_formate = time.strftime(" %d %b %Y %H: %M: %S ", time.localtime(djs))
+    tic_formate    = time.strftime(" %d %b %Y %H: %M: %S ", time.localtime(tic))
+    djstuple=time.gmtime(djs)
+
+
     print()
-    print('nom du fichier chargeable :',filename)
-    print('Nom du dernier 384        :',fdernier384(filename))
+    print ('Date               temps local',tic_formate)
+    print ('Date simulation en temps local',datem1_formate)
+
+    # print ('tic en s : ',tic)
+    # print ('djs-tic',djs-tic)
+    # print()
+
+    dernier384,filenamem1,filename=ffilename(djs)
     print()
-    chargement_complet()
+
+    print('Nom du dernier 384          :',dernier384)
+    print('Nom du precedent chargeable :',filenamem1)
+    print('Nom du   fichier chargeable :',filename)
+    print()
+
+    #print('Nom du dernier 384        :',fdernier384(filename))
+    #print()
+
+    chargement_complet(djs)

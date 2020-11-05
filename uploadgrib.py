@@ -182,7 +182,7 @@ def chargement_grib():
     tig = dset1.attrs['time_grib']
     f2.close()
     return tig, GR
-    return None
+  
 
 
 
@@ -355,7 +355,7 @@ if __name__ == '__main__':
     latitude='046-28-16-N'
     longitude='001-49-53-W'
     d = chaine_to_dec(latitude, longitude)  # co
-    dateprev=datetime(2020 , 11 , 3, 16, 0 ,  0)  #date prevision en heure locale
+    dateprev=datetime(2020 , 11 , 10 ,16, 0 ,  0)  #date prevision en heure locale
     print ('\nDateprev : ',dateprev , ' local')
     # je peux la transformer en secondes mais ce sont des secondes locales15.712287.5
 
