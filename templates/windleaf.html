@@ -12,7 +12,7 @@
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/windleaf.css') }}">
 
         <script  type="text/javascript" src="{{ url_for('static', filename='js/windleaf.js') }}"></script>
-        <script  type="text/javascript" src="{{ url_for('static', filename='js/windleaf2.js') }}"></script>
+        
     </head>
    
 
@@ -26,13 +26,34 @@
 
     <script type="text/javascript">
 
-              
+        //    var requestURL=   '../../courses.json'
+        //    var request = new XMLHttpRequest();
+        //    request.open('GET', requestURL);
+        //    request.responseType = 'json';
+        //    request.send();
+        //    request.onload = function()
+        //     {
+        //    var courses= request.response;
+        //     }
+
+
+
+
+        
+
+
+
+
+        //    bateau=courses["438.1"][nom]
+        //    console.log(bateau)
+
          // on recupere les donnees postées
             latdep        = - {{ latdep }}
             lngdep        =   {{ lngdep }}
             latar         = - {{  latar }}
             lngar         =   {{  lngar }}
-            
+           
+
             polylinered   =   {{  multipolyred }}
             polylineblack =   {{  multipolyblack }}
             polylineblue  =   {{  route }}
@@ -40,6 +61,7 @@
             l1            =   {{ l1 }}           // cles pour lire les tableaux de polaire
             l2            =   {{ l2 }}
             polairesjs    =   {{ polairesjs }} 
+            course= {{ course }}
             
             U10 = {{ U10 }}
 			V10 = {{ V10 }}
@@ -49,8 +71,11 @@
 			latini= {{ latini }}
 			latfin= {{ latfin }}
 			lngini= {{ lngini }}
-			lngfin= {{ lngfin }} 
+            lngfin= {{ lngfin }} 
+            //nomcourse= {{ nomcourse }} 
             
+           
+
 
             console.log('tig : ' + tig )
             
@@ -61,9 +86,13 @@
 			console.log('latfin : '+ latfin)
 			console.log( 'lngini : '+ lngini)
             console.log('lngfin : '+ lngfin)
+            console.log('course : '+ course)
 
+            // console.log ('Nomcourse : '+nomcourse)
+            //console.log ('Bateau : '+ typebateau)
+           
 
-
+            
             
             var numero_point_jp=0
             var timestampjp=0
@@ -110,16 +139,15 @@
                 +' Noeuds  -  TWD : ' +comment[i][4].toFixed(0)+'° <br>  Cap ' +comment[i][5].toFixed(1) +'°     -  TWA ' +comment[i][6].toFixed(1) +'° <br> Vitesse :  ' +comment[i][7].toFixed(2) +' Noeuds'
             }    
             
- 
-           
+            
 
 
         function initialize()
         {            
-            document.formu.latdep.value = latdep.toFixed(4)+' soit '+pos_dec_mn(latdep) 
-            document.formu.lngdep.value = lngdep.toFixed(4)+' soit '+pos_dec_mn(lngdep)
-            document.formu.latar.value  = latar.toFixed(4)+' soit '+pos_dec_mn(latar) 
-            document.formu.lngar.value  = lngar.toFixed(4)+' soit '+pos_dec_mn(lngar)
+            // document.formu.latdep.value = latdep.toFixed(4)+' soit '+pos_dec_mn(latdep) 
+            // document.formu.lngdep.value = lngdep.toFixed(4)+' soit '+pos_dec_mn(lngdep)
+            // document.formu.latar.value  = latar.toFixed(4)+' soit '+pos_dec_mn(latar) 
+            // document.formu.lngar.value  = lngar.toFixed(4)+' soit '+pos_dec_mn(lngar)
             
             //console.log('test de a'+a)
             
@@ -137,7 +165,7 @@
         //lon: (lngdep+lngar)/2,
 
         //zoom: zoomp,
-        zoom:5
+        zoom:6
         }
 
        
@@ -155,7 +183,7 @@
         L.marker([latar, lngar],    {icon: redIcon}).addTo(map);
               
 
-        L.marker([latini, lngini],    {icon: redIcon}).addTo(map);
+        //L.marker([latini, lngini],    {icon: redIcon}).addTo(map);
        // L.marker([latfin, lngfin],    {icon: blackIcon}).addTo(map);
 
         if (lngfin>lngini)
@@ -170,22 +198,41 @@
         latlngpoly2=[[latini, +0.01],[latini, lngfin],[latfin, lngfin],[latfin,+0.01]]
         L.polyline(latlngpoly2).setStyle({ color: 'blue', weight:2, opacity:0.3, }).addTo(map);
         }
-        
-        
+      
+
+        var date0=new Date(tsimation*1000) 
+          
+            
+
         const newElt = document.createElement("div");
             let elt = document.getElementById("windy");
             elt.appendChild(newElt);
             newElt.classList.add("boite"); 
-            newElt.innerHTML="<a >Simulations :  </a> <span id='infosimul'  ></span> </p>"
-            +" TWA<input type='radio' id ='twa1' name='s1' ,value='twa' ><input type='text' id = 'twasimul1' size =2 value= -134 >CAP<input type='radio' id='cap1' name='s1' value='cap' value=270 > <input type='text' id = 'capsimul1' value= 120 size =2> Duree <input type='text' id = 'tsimul1' size =2 value =60 >mn <br> "  
-            +" TWA<input type='radio' id ='twa2' name='s2' ,value='twa' ><input type='text' id = 'twasimul2' size =2 value= -135 >CAP<input type='radio' id='cap2' name='s2' value='cap'> <input type='text' id = 'capsimul2' value= 0   size =2> Duree <input type='text' id = 'tsimul2' size =2 value =60   >mn <br> "  
-            +" TWA<input type='radio' id ='twa3' name='s3' ,value='twa' ><input type='text' id = 'twasimul3' size =2 value= -138 >CAP<input type='radio' id='cap3' name='s3' value='cap'> <input type='text' id = 'capsimul3' value= 0   size =2> Duree <input type='text' id = 'tsimul3' size =2 value =60   >mn <br> "  
-            +" TWA<input type='radio' id ='twa4' name='s4' ,value='twa' ><input type='text' id = 'twasimul4' size =2 value= -130 >CAP<input type='radio' id='cap4' name='s4' value='cap'> <input type='text' id = 'capsimul4' value= 0   size =2> Duree <input type='text' id = 'tsimul4' size =2 value =60   >mn <br> "  
+            newElt.innerHTML="<h3>Simulation : <br> "
+            +"<table>"
+            +"<tr><td>TWA</td> <td> CAP</td> <td>Duree</td> <td id = 'heure0' class='large' >"+intlhmn.format(date0)+"</td> </tr>"
+            +"<tr><td><input type='text' id = 'twasimul1' size =2 value =-135 ><input type='radio' id ='twa1' name='s1' value='twa' ></td>"
+            +"    <td><input type='text' id = 'capsimul1' size =2 value =-135  ><input type='radio' id ='cap1' name='s1' value='cap' ></td>"
+            +"    <td><input type='text' id = 'tsimul1'   size =2 value =  60  >mn</td><td id ='heure1'></td></tr>"    
+            
+            +"<tr><td><input type='text' id = 'twasimul2' size =2 value = -135 ><input type='radio' id ='twa2' name='s2' value='twa' ></td>"
+            +"    <td><input type='text' id = 'capsimul2' size =2 value =170 ><input type='radio' id ='cap2' name='s2' value='cap' ></td>"
+            +"    <td><input type='text' id = 'tsimul2'   size =2 value = 120 >mn</td><td id ='heure2'></td></tr>"   
+            
+            +"<tr><td><input type='text' id = 'twasimul3' size =2 value =+135 ><input type='radio' id ='twa3' name='s3' value='twa' ></td>"
+            +"    <td><input type='text' id = 'capsimul3' size =2 value =140 ><input type='radio' id ='cap3' name='s3' value='cap' ></td>"
+            +"    <td><input type='text' id = 'tsimul3'   size =2 value =120  >mn</td><td id ='heure3'></td></tr>" 
+
+            +"<tr><td><input type='text' id = 'twasimul4' size =2 value =+140 ><input type='radio' id ='twa4' name='s4' value='twa' ></td>"
+            +"    <td><input type='text' id = 'capsimul4' size =2 value =120 ><input type='radio' id ='cap4' name='s4' value='cap' ></td>"
+            +"    <td><input type='text' id = 'tsimul4'   size =2 value =120 >mn</td><td id ='heure4'></td></tr>" 
+            +"</table>"            
             +" <input type=button id = 'valid' name='valid' value='Ok'  >";
+           
+            
 
-
-
-        valid.addEventListener("click", function (evt){ 
+        valid.addEventListener("click", function (evt)
+        { 
             map.removeLayer(polylinesimul);
             //console.log ('(html l184 ) '+ tsimul)
             polylinesim=testPolyline(tsimation)
@@ -194,8 +241,53 @@
             for ( var i=0 ; i<polylinesim.length ; i++ )
             { circle3[i] = L.circle(polylinesim[i],{color: 'black',fillColor: '#f03',opacity:0.9,fillOpacity: 0.3,radius: 200,}).addTo(map);}  
             
-        
+
+            var deltat1=parseInt(document.getElementById('tsimul1').value)
+            var deltat2=parseInt(document.getElementById('tsimul2').value)
+            var deltat3=parseInt(document.getElementById('tsimul3').value)
+            var deltat4=parseInt(document.getElementById('tsimul4').value)
+
+           
+            var date1=new Date(tsimation*1000+(+deltat1)*60000)
+            var date2=new Date((tsimation*1000+(+deltat1+deltat2)*60000))
+            var date3=new Date(tsimation*1000+(+deltat1+deltat2+deltat3)*60000)
+            var date4=new Date(tsimation*1000+(+deltat1+deltat2+deltat3+deltat4)*60000)
+
+
+
+            document.getElementById('heure0').innerHTML=intlhmn.format(date0)
+            document.getElementById('heure1').innerHTML=intlhmn.format(date1)
+            document.getElementById('heure2').innerHTML=intlhmn.format(date2)
+            document.getElementById('heure3').innerHTML=intlhmn.format(date3)
+            document.getElementById('heure4').innerHTML=intlhmn.format(date4)
+       
+       
         });
+
+            const newElt2 = document.createElement("div2");  
+            newElt2.classList.add("boite2"); 
+            newElt2.innerHTML="<span id='nomcourse'> </span>   <span id='bateau' ></span> <span id='date'></span> "
+            +"<div class= 'tableau'><form name='formu2'><span class='col1'>Depart</span><span><input type='text' name='latdep2' class= 'coords' value = '' size=15 /></span>"
+            +"<span><input type='text' name='latlng2' class= 'coords' value = '' size=15 /></span>"
+            +"<span class='col1'>Arrivee</span><span><input type='text' name='latar2' class= 'coords' value = '' size=15 /></span>"
+            +"<span><input type='text' name='lngar2' class= 'coords' value = '' size=15 /></span> "
+            +"<span class='col1'>Curseur</span><span><input type='text' name='latcurseur' class= 'coords' value = '' size=15 /></span>"
+            +"<span><input type='text' name='lngcurseur' class= 'coords' value = '' size=15 /></span> "
+            +"<span class='col4'>TWS</span><span><input type='text' size=5 name='tws2'></span><span class='col4'>TWD</span>"
+            +"<span><input type='text' size=5 name='twd2'></span><span class='col4'>Dist</span><span><input type='text' size=5 name='dist2'></span>"
+            +"<span class='col4'> </span><span id='infosimul2'  >Cap et TWA: </span>"
+            +"<input type='hidden' id='capm2'><input type='hidden' id='twam2'>"
+            +"</form></div>"    
+            elt.appendChild(newElt2);              
+            
+            document.getElementById('nomcourse').innerHTML=nomcourse
+            document.getElementById('bateau').innerHTML=bateau
+            document.getElementById('date').innerHTML=intlhmn.format(date0)
+            document.formu2.latdep2.value = latdep.toFixed(3)+'N '+pos_dec_mn(latdep)
+            document.formu2.latlng2.value = latdep.toFixed(3)+'W '+pos_dec_mn(lngdep)
+            document.formu2.latar2.value  = latar.toFixed(3)+'N '+pos_dec_mn(latar) 
+            document.formu2.lngar2.value  = lngar.toFixed(3)+'W '+pos_dec_mn(lngar)
+
 
         console.log( 'twasimul1 v2  : '+document.getElementById('twasimul1').value)
 
@@ -217,11 +309,9 @@
 
         map.on('mousemove', function(e)
         {  // valinit=document.getElementById('stocka0').innerHTML  //recuperation de la valeur cap0 par inner html
-            valinit=document.formu.capm.value                       // recuperation de cap 0 par le formulaire  
+            valinit=document.formu2.capm2.value                       // recuperation de cap 0 par le formulaire  
            // twainit=document.getElementById('stocka1').innerHTML  //recuperation de la valeur
-            twainit=document.formu.twam.value
-
-
+            twainit=document.formu2.twam2.value
             meteodepart=vit_angle_vent (latdep,lngdep ,tsimation)  //meteo au point de depart 
 
 
@@ -235,13 +325,21 @@
             // console.log('Depart latitude '+latdep+' longitude '+ lngdep )
             // console.log('meteo au depart '+meteodepart[0]+' '+ meteodepart[1])
             
-            document.formu.latm.value=e.latlng.lat.toFixed(4)+' soit  '+pos_dec_mn(e.latlng.lat)
-            document.formu.lngm.value=e.latlng.lng.toFixed(4)+' soit  '+pos_dec_mn(e.latlng.lng)
-            document.formu.twsm.value=meteocurseur[0].toFixed(2)
-            document.formu.twdm.value=meteocurseur[1].toFixed(2)
-            document.getElementById('twasimul1').innerHTML=
-            document.formu.capm.value=direction[1].toFixed(0) 
-            document.formu.twam.value=twac  
+            // document.formu.latm.value=e.latlng.lat.toFixed(4)+'N ('+pos_dec_mn(e.latlng.lat)+')'
+            // document.formu.lngm.value=e.latlng.lng.toFixed(4)+'W ('+pos_dec_mn(e.latlng.lng)+')'
+            document.formu2.latcurseur.value=e.latlng.lat.toFixed(3)+'N ('+pos_dec_mn(e.latlng.lat)+')'
+            document.formu2.lngcurseur.value=e.latlng.lng.toFixed(3)+'W ('+pos_dec_mn(e.latlng.lng)+')'
+            document.formu2.tws2.value=meteocurseur[0].toFixed(2)
+            document.formu2.twd2.value=meteocurseur[1].toFixed(2)
+            document.formu2.dist2.value=direction[0].toFixed(0) 
+            document.formu2.twam2.value=twac 
+            
+            // document.formu.twsm.value=meteocurseur[0].toFixed(2)
+            // document.formu.twdm.value=meteocurseur[1].toFixed(2)
+            
+
+            //document.formu.capm.value=direction[1].toFixed(0) 
+ //           document.formu.twam.value=twac  
             valcal=direction[1].toFixed(0)
             // console.log ( 'valeur calculee cap '+valcal ) 
             // console.log ('ecart '+(valcal-valinit))
@@ -288,8 +386,8 @@
             }
             //else{console.log(" les deux valeurs sont identiques pas de recalcul")}
          
-            document.getElementById('infosimul').innerHTML="<b><font color='red'> Cap : " +valcal +"</font>&nbsp;&nbsp;<font color='green' > TWA : "+twac
-                       
+          //  document.getElementById('infosimul').innerHTML="<b><font color='red'> Cap : " +valcal +"</font>&nbsp;&nbsp;<font color='green' > TWA : "+twac
+            document.getElementById('infosimul2').innerHTML="<b><font color='red'> Cap : " +valcal +"</font>&nbsp;&nbsp;<font color='green' > TWA : "+twac           
        
             });
 
@@ -301,7 +399,7 @@
         map.on('contextmenu', function(e)
         {
             tooltiptest='<b> tooltiptest</b>'
-            circletest = L.circle([e.latlng.lat,e.latlng.lng], {color: 'black' ,fillColor: '#f03',opacity:0.9,fillOpacity: 0.3,radius: 1,}).bindPopup(tooltiptest).addTo(map);
+           // circletest = L.circle([e.latlng.lat,e.latlng.lng], {color: 'black' ,fillColor: '#f03',opacity:0.9,fillOpacity: 0.3,radius: 1,}).bindPopup(tooltiptest).addTo(map);
             popup
                 .setLatLng(e.latlng)
                 .setContent( "<a href=javascript:void(0); onclick=alert('test') ;>Definir comme depart</a><br>"
@@ -456,10 +554,11 @@
  
     <body onload="initialize()">
         <div id ="container">
-            <div id="header">
+           
                     
-                            <form action="http://localhost:8080/windleaf" method="get" name='formu'>
-                                <table>
+                            <!-- <form action="http://localhost:8080/windleaf" method="get" name='formu'>
+                            </form>      -->
+                                <!-- <table>
                                 <tr>
                                     <td>Depart</td>
                                     <td> Latitude : </td>
@@ -485,24 +584,24 @@
                                     <td>Longitude : </td>
                                     <td> <input type="text" name="lngm" /></td>
                                     <td></td>    
-                                    <td class="red" > CAP :</td>
+                                     <td class="red" > CAP :</td>
                                     <td><input type="text" name="capm" size="8"/></td>
                                     <td class="green" >TWA :</td>
-                                    <td><input type="text" name="twam" size="8"/></td>
-                                    <td>TWS :</td>
+                                    <td><input type="text" name="twam" size="8"/></td> -->
+                                    <!-- <td>TWS :</td>
                                     <td><input type="text" name="twsm" size='8'/></td>
                                     <td>TWD :</td>
                                     <td><input type="text" name="twdm" size='8'/> </td>
                                     <td>Dist:</td>
                                     <td><input type="text" name="dism" size="8"/></td>
 
-                                </tr>
-                                    <!-- <input type="hidden" id ="stocksimul" name="stocksimul"> -->
-                            </form>   
+                                </tr> 
+                                     <input type="hidden" id ="stocksimul" name="stocksimul"> 
+                              
                                 </table>
 
-                                <div id=infos ></div>
-                                             
+                                <div id=infos ></div> -->
+                                              
                                   
 
                     <!-- Click       Latitude            : <input type="text" name="latc" /> 
@@ -522,11 +621,11 @@
                             <!-- Test :<input type="text" name="test3" /> -->
                             <!-- GFS :<input type="text" name="gfs" /> -->
                 
-            </div>
+           
 
             <div id="windy"> </div>
            
         </div>
-        
+    <script  type="text/javascript" src="{{ url_for('static', filename='js/windleaf2.js') }}"></script>  
     </body>
 </html>

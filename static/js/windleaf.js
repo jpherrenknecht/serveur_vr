@@ -1,6 +1,6 @@
 
 var intl=new Intl.DateTimeFormat("fr-EU",{month:"2-digit",day:"2-digit", year:"2-digit",hour12: false,hour:"2-digit", minute:"2-digit" });
-
+var intlhmn=new Intl.DateTimeFormat("fr-FR",{day:"2-digit",month:"2-digit", hour12: false,hour:"2-digit", minute:"2-digit" });
             function arrondi(a,n)
             {return(Math.round(a*10**n)/10**n);}
 
@@ -492,7 +492,6 @@ var intl=new Intl.DateTimeFormat("fr-EU",{month:"2-digit",day:"2-digit", year:"2
 				for (var i=0;i<=72;i++)
 				{tsimul3 = t+i*dt
 				meteo=vit_angle_vent (lat6,lng6,tsimul3)
-				
 				
 				vit_polaire=polinterpol2d(polairesjs,twa,meteo[0])	
 

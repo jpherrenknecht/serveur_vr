@@ -1,0 +1,193 @@
+{  "457":
+
+        {"numero"  : "457" ,
+        "nom":"DREAMH CUP",
+        "bateau":"imoca",
+        "depart":{"lat":10 ,"lng":25},
+        "bouee1":{"lat":10 ,"lng":25}
+                        
+        },
+    
+    "438":
+        {"numero"  : "438" ,
+         "nom":"Atlantic record",
+         "bateau":"maxitri",
+         "depart":{"lat":10 ,"lng":25},
+         "bouee1":{"lat":10 ,"lng":25}
+        },
+        
+    "463":
+        {"numero"  : "463" ,
+        "nom":"Solitaire figaro",
+        "bateau":"Figaro III",
+        "depart":{"lat":10 ,"lng":25},
+        "bouee1":{"lat":10 ,"lng":25}
+       },   
+
+    "439": 
+        {"numero"  : "438" ,
+        "nom":"pacific recordSolitaire",
+        "bateau":"maxitri",
+        "depart":{"lat":10 ,"lng":25},
+        "bouee1":{"lat":10 ,"lng":25}
+       },   
+       
+       "447":   
+       {"numero"  : "447" ,
+           "nom":"Eurosaf",
+           "bateau":"mini650",
+           "polaires":"polaires_mono_mini_650_v2.py",
+           "depart":{"lat":"043-28-20-N" ,"lng":"009-28-58-E"},
+           "bouee1":{"lat":"043-01-00-N" ,"lng":"009-24-00-E"},
+           "bouee2":{"lat":"043-04-00-N" ,"lng":"009-49-00-E"},
+           "bouee3":{"lat":"042-35-00-N" ,"lng":"010-05-00-E"},
+           "bouee4":{"lat":"043-32-00-N" ,"lng":"010-13-00-E"},
+           "bouee5":{"lat":"044-01-00-N" ,"lng":"009-51-12-E"}
+          }  , 
+   
+          "463":   
+          {"numero"  : "463" ,
+              "nom":"Solitaire Figaro 2ème manche",
+              "bateau":"Figaro III",
+              "polaires":"polaires_figaro2.py",
+              "depart":{"lat":"048-37-00-N" ,"lng":"002-42-10-W"},
+              "courant":{"lat":"048-57-02-N" ,"lng":"002-49-01-W"},
+              "brehat" :{"lat":"048-01-00-N" ,"lng":"009-24-00-W"},
+              "bouee1":{"lat":"043-01-00-N" ,"lng":"009-24-00-W"}, 
+              "bouee2":{"lat":"050-10-47-N" ,"lng":"004-15-21-W"},
+              "bouee3":{"lat":"049-45-14-N" ,"lng":"000-06-24-W"},
+              "test" :{"lat":"050-55-14-N" ,"lng":"001-06-24-W"},
+              "arrivee":{"lat":"051-01-30-N" ,"lng":"002-10-20-E"}
+              
+             }   ,
+      
+             "463":   
+             {"numero"  : "463" ,
+                 "nom":"Solitaire Figaro 2ème manche",
+                 "bateau":"Figaro III",
+                 "polaires":"polaires_figaro2.py",
+                 "depart":{"lat":"048-37-00-N" ,"lng":"002-42-10-W"},
+                 "courant":{"lat":"048-57-02-N" ,"lng":"002-49-01-W"},
+                 "brehat" :{"lat":"048-01-00-N" ,"lng":"009-24-00-W"},
+                 "bouee1":{"lat":"043-01-00-N" ,"lng":"009-24-00-W"}, 
+                 "bouee2":{"lat":"050-10-47-N" ,"lng":"004-15-21-W"},
+                 "bouee3":{"lat":"049-45-14-N" ,"lng":"000-06-24-W"},
+                 "test" :{"lat":"050-55-14-N" ,"lng":"001-06-24-W"},
+                 "dunkerque":{"lat":"051-02-40-N" ,"lng":"002-09-30-E"},
+                 "arrivee":{"lat":"050-20-40-N" ,"lng":"002-00-30-W"}
+                }   ,
+
+                "4633":   
+                {"numero"  : "4633" ,
+                    "nom":"Solitaire Figaro 3ème manche",
+                    "bateau":"Figaro III",
+                    "polaires":"polaires_figaro2.py",
+                    "dunkerque":{"lat":"051-03-30-N" ,"lng":"002-09-30-E"},
+                    "ouessant":{"lat":"048-27-05-N" ,"lng":"005-08-45-W"}, 
+                    "belle_ile":{"lat":"047-23-27-N" ,"lng":"003-15-05-W"},
+                    "bouee3":{"lat":"043-01-00-N" ,"lng":"009-24-00-W"}
+                   }   ,
+
+                   "4635":   
+                   {"numero"  : "4633" ,
+                       "nom":"Normandy Channel",
+                       "bateau":"Class40",
+                       "polaires":"polaires_class40.py",
+                       "depart":{"lat":"051-01-30-N" ,"lng":"002-10-20-E"},
+                       "ile1":{"lat":"049-29-36-N" ,"lng":"001-09-13-W"}, 
+                       "wight":{"lat":"050-41-13-N" ,"lng":"001-04-11-W"},
+                       "pointe":{"lat":"050-02-00-N" ,"lng":"005-40-55-W"},
+                       "bouee3":{"lat":"052-14-28-N" ,"lng":"006-17-23-W"},
+                       "fastnet":{"lat":"051-24-00-N" ,"lng":"009-26-00-W"},
+                       "scilly":{"lat":"049-52-10-N" ,"lng":"006-26-33-W"},
+                       "guernesey":{"lat":"049-24-09-N" ,"lng":"002-22-03-W"},
+                       "pt_cotentin":{"lat":"049-43-54-N" ,"lng":"001-57-20-W"},
+                       "arrivee":{"lat":"047-21-30-N" ,"lng":"002-14-52-W"}
+
+                      } ,  
+
+
+                      "4634":   
+                      {"numero"  : "4634" ,
+                          "nom":"Solitaire Figaro 4ème manche",
+                          "bateau":"Figaro III",
+                          "polaires":"polaires_figaro2.py",
+                          "position":{"lat":"046-43-20-N" ,"lng":"002-29-00-E"},
+                          "bouee_2":{"lat":"047-01-25-N" ,"lng":"002-52-50-W"}, 
+                          "belle_ile":{"lat":"047-23-27-N" ,"lng":"003-15-05-W"},
+                          "bouee3":{"lat":"043-01-00-N" ,"lng":"009-24-00-W"}
+                         }   ,
+
+
+                    "429":   
+                         {"numero"  : "429" ,
+                             "nom":"Vendée globe prologue",
+                             "bateau":"imoca",
+                             "polaires":"polaires_imoca.py",
+                             "depart":{"nom":"Les Sables d'Olonne","lat":"046-29-00-N" ,"lng":"001-47-00-W"},
+                             "bouee1":{"nom":"Santa Maria","lat":"036-55-38-N" ,"lng":"025-00-57-W"}, 
+                             "bouee2":{"nom":"ilha das flores","lat":"039-22-31-N" ,"lng":"031-15-17-W"},
+                             "arrivee":{"nom":"Les Sables d'Olonne","lat":"046-29-00-N" ,"lng":"001-49-00-W"}
+                            }   ,
+
+        "438.1":   
+        {"numero"  : "438.1" ,
+            "nom":"La Mauricienne",
+            "bateau":"maxitrix",
+            "polaires":"polaires_maxitrix.py",
+            "depart":{"nom":"Port louis","lat":"047-41-36-N" ,"lng":"003-23-12-W"},
+            "bouee1":{"nom":"Equateur","lat":"000-00-00-N" ,"lng":"025-00-00-W"}, 
+            "bouee2":{"nom":"Cap de bonne esperance","lat":"034-56-02-S" ,"lng":"020-00-00-E"},
+
+            "arrivee":{"nom":"Port Louis Maurice","lat":"020-27-00-S" ,"lng":"057-18-37-E"}
+        }   ,
+
+
+        "440":   
+        {"numero"  : "440" ,
+            "nom":"Vendee Globe",
+            "bateau":"imoca60vg",
+            "polaires":"polaires_imoca_vg.py",
+            "depart":{"nom":"Les Sables d'Olonne","lat":"046-28-16-N" ,"lng":"001-49-53-W"},
+            "bouee1":{"nom":"Equateur","lat":"000-00-00-N" ,"lng":"025-00-00-W"}, 
+            "bouee2":{"nom":"Cap de bonne esperance","lat":"034-56-02-S" ,"lng":"020-00-00-E"},
+            "bouee3":{"nom":"australie","lat":"050-00-00-N" ,"lng":"116-00-00-E"},
+            "bouee4":{"nom":"Cap Horn","lat":"056-00-00-N" ,"lng":"67-00-00-W"},
+            "arrivee":{"nom":"Les Sables d'Olonne","lat":"046-29-00-N" ,"lng":"001-47-00-W"}
+        },
+
+
+
+        "467.1":   
+        {"numero"  : "467.1" ,
+            "nom":"Bermuda race",
+            "bateau":"class40",
+            "polaires":"polaires_class40.py",
+            "depart":{"nom":"Fort Lauderdale","lat":"025-57-00-N" ,"lng":"080-06-12-W"},
+            "arrivee":{"nom":"Hamilton","lat":"032-18-07-N" ,"lng":"064-47-00-W"}
+
+        }   ,
+
+
+            "9999":   
+        {"numero"  : "9999" ,
+        "nom":"Course test",
+        "bateau":"Figaro III",
+        "polaires":"polaires_figaro2.py",
+        "depart":{"lat":"050-15-50-N" ,"lng":"001-41-50-W"},
+        "courant":{"lat":"048-57-02-N" ,"lng":"002-49-01-W"},
+        "brehat" :{"lat":"048-01-00-N" ,"lng":"009-24-00-W"},
+        "bouee1":{"lat":"043-01-00-N" ,"lng":"009-24-00-W"}, 
+        "bouee2":{"lat":"050-10-47-N" ,"lng":"004-15-21-W"},
+        "bouee3":{"lat":"049-45-14-N" ,"lng":"000-06-24-W"},
+        "test" :{"lat":"050-55-14-N" ,"lng":"001-06-24-W"},
+        "dunkerque":{"lat":"051-02-40-N" ,"lng":"002-09-30-E"},
+        "arrivee":{"lat":"050-30-40-N" ,"lng":"000-20-30-W"}
+        }   
+
+
+   
+
+}     
+   
+

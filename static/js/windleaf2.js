@@ -18,6 +18,15 @@ var LeafletIcon=L.Icon.extend({
 
 
 
+    $.get("courses.json", function(data)       // courses json est dans le repertoire principal
+        {
+   const obj= JSON.parse(data);
+   nomcourse= obj[course]["nom"]
+   console.log('Nom de la course :'+ nomcourse)
+   bateau=obj[course]["bateau"]
+   console.log('Bateau :'+ bateau)
+    });
+
 
     $( function()
      {
@@ -31,9 +40,12 @@ var LeafletIcon=L.Icon.extend({
         var spinnerhdg= $( "#spinner_hdg" ).spinner()
             spinnerhdg.spinner({  min :0 , max :360 });
             spinnerhdg.spinner("value", 60); 
-
+        // $("#nomcourse").innerHTML="<h2>"+nomcourse+"</h2>"
         //$("#spinner_twa").on("spinstop", function(){ alert($(this).spinner('value'));  } );
 
        // $("#spinner_twa").on("spinstop", function(){ alert($(this).spinner('value'));  } );  // fonctionne 
+       //document.getElementById('nomcourse').innerHTML="<h2>"+nomcourse+"</h2>"
+
+
 
     } );

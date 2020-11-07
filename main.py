@@ -483,6 +483,9 @@ def resultat():
 def jsoni():
   return render_template("vents.json")
 
+@app.route('/courses.json')
+def coursesjson():
+  return render_template("courses.json")
 
 # @app.route('/outils.json')
 # def outils():
@@ -561,9 +564,11 @@ def leaflet():
 
 @app.route('/windleaf',methods =["GET", "POST"])
 def windleaf():
-   
+
+    
     global x0,y0,x1,y1,nb_points_ini
-    nb_points_ini=150
+    nb_points_ini=50
+    
     # valeurs par defaut si pas de retour de dashboard
   
     course="440"
@@ -572,21 +577,30 @@ def windleaf():
     t1=time.time() 
     tsimul=time.time()
 
+    with open('courses.json', 'r') as fichier:
+        data1 = json.load(fichier)
+        
+
+
     try:
         (request.args['latdep'])
         latdep = -float(request.args['latdep'])
         lngdep = float(request.args['lngdep'])
         course = request.args['race']
+        nomcourse=data1[course]['nom']
+        bateau=data1[course]['bateau']
         #print('on est dans try')
      
     except :   
-        with open('courses.json', 'r') as fichier:
-            data1 = json.load(fichier)
+        
         # print ('course',course)
         # bateau=  (data1[course]["bateau"])
         lat1 = (data1[course][depart]["lat"])
         lng1 = (data1[course][depart]["lng"])
         lngdep,latdep=chaine_to_dec(lat1, lng1)
+        nomcourse=data1[course]["nom"]
+        bateau=data1[course]['bateau']
+
         #print('on est dans except')
     
     print ('latdep lngdep ',latdep,lngdep )  
@@ -618,7 +632,9 @@ def windleaf():
 
     print('tsimul',tsimul)
     print ('course',course)
-    return render_template("windleaf.html", multipolyred=red,multipolyblack=black,route=route,comment=comment,l1=l1,l2=l2,polairesjs=polairesjs,lngdep=lngdep,latdep=latdep,lngar=lngar,latar=latar, t0=tsimul,tig=tig,latini=latini,lngini=lngini,latfin=latfin,lngfin=lngfin,U10=u10, V10=v10 ,result=request.form)
+    print('Nom de la course',nomcourse)
+    print('Bateau',bateau)
+    return render_template("windleaf.html", multipolyred=red,multipolyblack=black,course=course,nomcourse=nomcourse,bateau=bateau,route=route,comment=comment,l1=l1,l2=l2,polairesjs=polairesjs,lngdep=lngdep,latdep=latdep,lngar=lngar,latar=latar, t0=tsimul,tig=tig,latini=latini,lngini=lngini,latfin=latfin,lngfin=lngfin,U10=u10, V10=v10 ,result=request.form)
 
 
 
