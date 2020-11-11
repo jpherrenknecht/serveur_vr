@@ -143,18 +143,21 @@
         }   ,
 
 
-        "440":   
-        {"numero"  : "440" ,
+        "440.1":   
+        {"numero"  : "440.1" ,
             "nom":"Vendee Globe",
             "bateau":"imoca60vg",
+            "nomcomplet":"Imoca 60",
             "polaires":"polaires_imoca_vg.py",
-            "depart":{"nom":"Les Sables d'Olonne","lat":"046-28-16-N" ,"lng":"001-49-53-W"},
-            "bouee1":{"nom":"Equateur","lat":"000-00-00-N" ,"lng":"025-00-00-W"}, 
+            "sables":{"nom":"Les Sables d'Olonne","lat":"046-27-12-N" ,"lng":"002-02-30-W"},
+            "depart":{"nom":"Position courante","lat":"046-22-18-N" ,"lng":"002-41-49-W"},
+            "bouee1":{"nom":"Equateur","lat":"007-42-00-S" ,"lng":"032-18-48-W"}, 
             "bouee2":{"nom":"Cap de bonne esperance","lat":"034-56-02-S" ,"lng":"020-00-00-E"},
             "bouee3":{"nom":"australie","lat":"050-00-00-N" ,"lng":"116-00-00-E"},
             "bouee4":{"nom":"Cap Horn","lat":"056-00-00-N" ,"lng":"67-00-00-W"},
             "arrivee":{"nom":"Les Sables d'Olonne","lat":"046-29-00-N" ,"lng":"001-47-00-W"}
         },
+
 
 
 

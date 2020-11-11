@@ -5,6 +5,10 @@ import math
 import time
 import datetime
 import os
+
+import json
+from json import dumps
+from json import JSONEncoder
 import folium
 tic = time.time()
 basedir = os.path.abspath(os.path.dirname(__file__))
@@ -331,6 +335,8 @@ def polaire2_vectv2(polaires,tab_twa, tab_tws,vit_vent,angle_vent,tableau_caps):
     valeurs = interpn((tab_twa, tab_tws), polaires, donnees, method='linear')
     return valeurs
 
+
+
 def polaire3_vect(polaires,tab_twa, tab_tws,TWS,TWD,HDG):
     '''Retourne un tableau de polaires en fonction des polaires bateau  de TWS TWD et HDG'''
     '''TWS true Wind speed, TWD true wind direction , HDG caps'''
@@ -357,34 +363,56 @@ def polaire3_vect(polaires,tab_twa, tab_tws,TWS,TWD,HDG):
 
 
 if __name__ == '__main__':
+    course="440.1"
+    #print ('course',course)test de polaires
 
+    with open('static/js/courses.json', 'r') as fichier:    # ce fichier est dans les fichiers static
+        data1 = json.load(fichier)  
+        bateau=  (data1[course]["bateau"])
 
+    with open('static/js/polars.json', 'r') as fichier:   # ce fichier est dans les fichiers static
+        data2 = json.load(fichier)
+        angle_twa_pres=data2[bateau]["pres_mini"]
+        angle_twa_ar= data2[bateau]["var_mini"]
+        l1=data2[bateau]["tab_tws"]
+        l2=data2[bateau]["tab_twa"]
+        polaires=data2[bateau]["polaires"]
 
-   #test de rangenavi
-   # 
-    capa=30
-    capb=50
-    angle_twa_pres = 36
-    angle_twa_ar = 20
+    
+    tab_tws=l1
+    tab_twa=l2
+    vit_vent=15
+    angle_vent=0
+    tableau_caps=np.array([45,60,90,120])   # en fait ce sont les tests sur des twa
+    vitesses_test=polaire2_vectv2(polaires,tab_twa, tab_tws,vit_vent,angle_vent,tableau_caps)
+    print()
+    print('test de polaires sur twa 45 60 90 120 et vent 15 noeuds',vitesses_test)
+    print()
+#    #test de rangenavi
+#    # 
+#     capa=30
+#     capb=50
+#     angle_twa_pres = 36
+#     angle_twa_ar = 20
    
-    angle_pres = 36
-    angle_var = 20
-    direction_objectif=130
-    direction_vent=80
-    a_vue_objectif=180
+#     angle_pres = 36
+#     angle_var = 20
+#     direction_objectif=130
+#     direction_vent=80
+#     a_vue_objectif=180
 
 
 
-    tic = time.time()
-    for i in range (10000):
-        res=range_cap(direction_objectif, direction_vent, a_vue_objectif, angle_pres, angle_var)
+#     tic = time.time()
+#     for i in range (10000):
+#         res=range_cap(direction_objectif, direction_vent, a_vue_objectif, angle_pres, angle_var)
 
-    tac=time.time()  
+#     tac=time.time()  
 
-    print()
-    print (res)
-    print('temps execution base en secondes',tac-tic)
-    print()
+#     print()
+#     print (res)
+#     print('temps execution base en secondes',tac-tic)
+#     print()
     
   
 

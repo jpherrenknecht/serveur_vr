@@ -6,6 +6,7 @@ import time
 import math
 import numpy as np
 from urllib.request import urlretrieve
+
 import xarray as xr
 import h5py
 from datetime import datetime
@@ -355,7 +356,7 @@ if __name__ == '__main__':
     latitude='046-28-16-N'
     longitude='001-49-53-W'
     d = chaine_to_dec(latitude, longitude)  # co
-    dateprev=datetime(2020 , 11 , 10 ,16, 0 ,  0)  #date prevision en heure locale
+    dateprev=datetime(2020 , 11 , 15 ,16, 0 ,  0)  #date prevision en heure locale
     print ('\nDateprev : ',dateprev , ' local')
     # je peux la transformer en secondes mais ce sont des secondes locales15.712287.5
 

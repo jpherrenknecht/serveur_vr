@@ -122,8 +122,8 @@ def f_isochrone2(l, temps_initial_iso):
     else:
         nb_points=50 
 
-    print()
-    print(' Isochrone Variante N° {} '.format(numero_iso ))
+    #print()
+    #print(' Isochrone Variante N° {} '.format(numero_iso ))
   
 
 #variante 
@@ -236,7 +236,7 @@ def f_isochrone2(l, temps_initial_iso):
 # Ajout des points calcules au tableau global des isochrones
     isochrone = np.concatenate((isochrone, points_calcul[:,0:6]))  # On rajoute ces points a la fin du tableau isochrone 
 
-    print('   {}  {} points capmini {:6.2f} capmaxi {:6.2f} coeff {:6.2f} '.format( t_iso_formate,lf,capmini,capmaxi,coeff  ))
+    print('Isochrone {}   {}  {} points capmini {:6.2f} capmaxi {:6.2f} coeff {:6.2f} '.format( numero_iso,t_iso_formate,lf,capmini,capmaxi,coeff  ))
    
     return lf, nouveau_temps, but, indice
 
@@ -257,7 +257,7 @@ def fonction_routeur(course,latdep,lngdep,arrivee,t0=time.time()):
     global isochrone,intervalles,TWS,TWD,tig,GR,angle_objectif,angle_twa_pres,angle_twa_ar,temps_mini,A,polaires,tab_twa,tab_tws
     tig, GR        = chargement_grib()
 
-    with open('courses.json', 'r') as fichier:
+    with open('static/js/courses.json', 'r') as fichier:
         data1 = json.load(fichier)
     print ('course',course)
     bateau=  (data1[course]["bateau"])
@@ -271,17 +271,27 @@ def fonction_routeur(course,latdep,lngdep,arrivee,t0=time.time()):
     print ('Arrivee :',latar, lngar,' ')
     print()
 
-    with open('polars.json', 'r') as fichier:
+    with open('static/js/polars.json', 'r') as fichier:   # ce fichier est dans les fichiers static
         data2 = json.load(fichier)
     
     angle_twa_pres=data2[bateau]["pres_mini"]
     angle_twa_ar= data2[bateau]["var_mini"]
     l1=data2[bateau]["tab_tws"]
     l2=data2[bateau]["tab_twa"]
-    polairesj1=data2[bateau]["polaires"]
-    tab_tws=np.array(l1)
-    tab_twa=np.array(l2)
-    polaires=np.array(polairesj1)
+    polaires=data2[bateau]["polaires"]
+
+    #print('Polairesj1',polairesj1)
+    
+
+    # test des polaires
+    tab_tws=l1
+    tab_twa=l2
+    vit_vent=15
+    angle_vent=0
+    tableau_caps=np.array([45,60,90,120])   # en fait ce sont les tests sur des twa
+    vitesses_test=polaire2_vectv2(polaires,tab_twa, tab_tws,vit_vent,angle_vent,tableau_caps)
+    print('test de polaires sur twa 45 60 90 120 et vent 15 noeuds',vitesses_test)
+
 
     #x0,y0=chaine_to_dec(latdep, lngdep)  # conversion des latitudes et longitudes en tuple
     x0,y0=lngdep,latdep
@@ -299,14 +309,14 @@ def fonction_routeur(course,latdep,lngdep,arrivee,t0=time.time()):
           
     temps=t0                            # Definition du temps à l'isochrone de depart par defaut time.time()
    
-    angle_objectif = 90                 # amplitude des angle balayes vers l'objectif 
+    angle_objectif = 120                 # amplitude des angle balayes vers l'objectif 
     temps_mini = 0                      # initialisation temps entre le dernier isochrone et l'objectif
     but = False
     isochrone = np.array([[x0, y0, 0, 0, 0,0]])# on initialise le tableau isochrone et TWS TWD avec une colonne en plus
     TWS, TWD = prevision_tableau3(tig, GR, t0, pt1_np) # prevision au point de depart identique pour les 2
 
 # definition des temps des isochrones
-    dt1           = np.ones(48) * 600  # intervalles de temps toutes les 10mn pendant une heure puis toutes les heures
+    dt1           = np.ones(60) * 600  # intervalles de temps toutes les 10mn pendant dix heure puis toutes les heures
     dt2           = np.ones(370) * 3600
     intervalles   = np.concatenate(([t0 - tig], dt1, dt2))
     temps_cumules = np.cumsum(intervalles)
@@ -437,7 +447,7 @@ def fonction_routeur(course,latdep,lngdep,arrivee,t0=time.time()):
 
 #print('temps total  {}h {}mn'.format(duree/3600,(duree-duree//3600))/60)
     print('Temps total      v {:2.0f}j {:2.0f}h {:2.0f}mn {:2.0f}s'.format(j, h, mn ,s ))
-    return multipolyline,route3,comment,x0,y0,x1,y1,l1,l2,polairesj1
+    return multipolyline,route3,comment,x0,y0,x1,y1,l1,l2,polaires
 
 
 
@@ -499,14 +509,11 @@ def javascript():
     latfin=-35      # Il faudrait mettra une formule pour que la bonne portion de grib soit chargée
     lngini=330
     lngfin=360
-
     u10,v10=vents_encode2(latini,latfin,lngini,lngfin)   
     l1=[1,2]
     l2=[2,5]
     polairesjs=[10,20]
     tsimul=time.time()
-
-
     #vents2=vents_encode(latini,latfin,longini,longfin)
     return render_template("javascript.html",tig=tig,tsimul=tsimul,latini=latini,lngini=lngini,latfin=latfin,lngfin=lngfin,U10=u10, V10=v10,l1=l1,l2=l2,polairesjs=polairesjs )
 
@@ -565,23 +572,20 @@ def leaflet():
 @app.route('/windleaf',methods =["GET", "POST"])
 def windleaf():
 
-    
+    tsimul=time.time()
     global x0,y0,x1,y1,nb_points_ini
-    nb_points_ini=50
+    nb_points_ini=250
     
     # valeurs par defaut si pas de retour de dashboard
   
-    course="440"
+    course="440.1"
     depart="depart"
     arrivee="bouee1"
-    t1=time.time() 
-    tsimul=time.time()
+    nomcourse="Vendee Globe"
+    bateau="imoca60vg"
 
-    with open('courses.json', 'r') as fichier:
+    with open('static/js/courses.json', 'r') as fichier:                      # change dans fichier courants
         data1 = json.load(fichier)
-        
-
-
     try:
         (request.args['latdep'])
         latdep = -float(request.args['latdep'])
@@ -589,8 +593,9 @@ def windleaf():
         course = request.args['race']
         nomcourse=data1[course]['nom']
         bateau=data1[course]['bateau']
-        #print('on est dans try')
-     
+        print('On est dans try : Valeurs récupérées par get')
+        print ('latdep lngdep ',latdep,lngdep )  
+
     except :   
         
         # print ('course',course)
@@ -600,10 +605,8 @@ def windleaf():
         lngdep,latdep=chaine_to_dec(lat1, lng1)
         nomcourse=data1[course]["nom"]
         bateau=data1[course]['bateau']
-
-        #print('on est dans except')
-    
-    print ('latdep lngdep ',latdep,lngdep )  
+        print('on est dans except')
+        print ('latdep lngdep ',latdep,lngdep )  
   
     # chargement du grib partiel pour utilisation ulterieure en js
     global tig, GR
@@ -611,14 +614,9 @@ def windleaf():
     latfin=(latini -20)
     lngini=(math.floor(lngdep)-20)%360
     lngfin=(lngini+40)%360
-    
     u10,v10=vents_encode2(latini,latfin,lngini,lngfin)   
-    #provisoire
-
-    print ('(586)latdep lngdep dans main.py',latdep,lngdep)
-    print('(587)latini latfin lngini lngfin dans main.py',latini,latfin,lngini,lngfin)
-    # calcul de la route et de la multipolyline des isochrones
    
+    # calcul de la route et de la multipolyline des isochrones
     multipolyline,route,comment,x0,y0,x1,y1,l1,l2,polairesjs=fonction_routeur(course,latdep,lngdep,arrivee,tsimul)
     latar=y1
     lngar=x1
@@ -630,10 +628,14 @@ def windleaf():
         else:
                 red.append(multipolyline[i]) 
 
-    print('tsimul',tsimul)
+
+    print ('(635latdep lngdep dans main.py',latdep,lngdep)
+    print ('(636)latini latfin lngini lngfin dans main.py',latini,latfin,lngini,lngfin)
+    print ('tsimul {:12.0f} s'.format(tsimul))
     print ('course',course)
-    print('Nom de la course',nomcourse)
-    print('Bateau',bateau)
+    print ('Nom de la course: ',nomcourse)
+    print ('Bateau',bateau)
+    print ('latdep lngdep ',latdep,lngdep )  
     return render_template("windleaf.html", multipolyred=red,multipolyblack=black,course=course,nomcourse=nomcourse,bateau=bateau,route=route,comment=comment,l1=l1,l2=l2,polairesjs=polairesjs,lngdep=lngdep,latdep=latdep,lngar=lngar,latar=latar, t0=tsimul,tig=tig,latini=latini,lngini=lngini,latfin=latfin,lngfin=lngfin,U10=u10, V10=v10 ,result=request.form)
 
 

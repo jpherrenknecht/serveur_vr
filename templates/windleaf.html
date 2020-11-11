@@ -182,20 +182,24 @@
         L.marker([latdep, lngdep],  {icon: blackIcon}).addTo(map);
         L.marker([latar, lngar],    {icon: redIcon}).addTo(map);
               
+        if (lngini>180) {lngini2=-360+lngini} else {lngini2=lngini}
+        if (lngfin>180) {lngfin2=-360+lngfin}else {lngfin2=lngfin}
+        // L.marker([latini, lngini2],    {icon: redIcon}).addTo(map);
+        // L.marker([latfin, lngfin2],    {icon: blackIcon}).addTo(map);
 
-        //L.marker([latini, lngini],    {icon: redIcon}).addTo(map);
-       // L.marker([latfin, lngfin],    {icon: blackIcon}).addTo(map);
+        console.log('ligne 189 '+latini+' '+lngini)
 
-        if (lngfin>lngini)
-        {latlngpoly=[[latini, lngini],[latini, lngfin],[latfin, lngfin],[latfin, lngini],[latini, lngini]]
+
+        if (lngfin2>lngini2)
+        {latlngpoly=[[latini, lngini2],[latini, lngfin2],[latfin, lngfin2],[latfin, lngini2],[latini, lngini2]]
          console.log('latlngpoly '+ latlngpoly)   
         L.polyline(latlngpoly).setStyle({ color: 'green', weight:2, opacity:0.3, }).addTo(map);}
         else
         {
-        latlngpoly1=[[latini, -0.01],[latini, lngini-360],[latfin, lngini-360],[latfin,-0.01]]
+        latlngpoly1=[[latini, -0.01],[latini, lngini2-360],[latfin, lngini2-360],[latfin,-0.01]]
         L.polyline(latlngpoly1).setStyle({ color: 'black', weight:2, opacity:0.3, }).addTo(map);
 
-        latlngpoly2=[[latini, +0.01],[latini, lngfin],[latfin, lngfin],[latfin,+0.01]]
+        latlngpoly2=[[latini, +0.01],[latini, lngfin2],[latfin, lngfin2],[latfin,+0.01]]
         L.polyline(latlngpoly2).setStyle({ color: 'blue', weight:2, opacity:0.3, }).addTo(map);
         }
       
@@ -210,22 +214,22 @@
             newElt.classList.add("boite"); 
             newElt.innerHTML="<h3>Simulation : <br> "
             +"<table>"
-            +"<tr><td>TWA</td> <td> CAP</td> <td>Duree</td> <td id = 'heure0' class='large' >"+intlhmn.format(date0)+"</td> </tr>"
-            +"<tr><td><input type='text' id = 'twasimul1' size =2 value =-135 ><input type='radio' id ='twa1' name='s1' value='twa' ></td>"
+            +"<tr><td></td> <td>TWA</td> <td> CAP</td> <td>Duree</td> </tr>"
+            +"<tr><td id = 'heure0' class='large' >"+intlhmn.format(date0)+"</td> <td><input type='text' id = 'twasimul1' size =2 value =-135 ><input type='radio' id ='twa1' name='s1' value='twa' ></td>"
             +"    <td><input type='text' id = 'capsimul1' size =2 value =-135  ><input type='radio' id ='cap1' name='s1' value='cap' ></td>"
-            +"    <td><input type='text' id = 'tsimul1'   size =2 value =  60  >mn</td><td id ='heure1'></td></tr>"    
+            +"    <td><input type='text' id = 'tsimul1'   size =2 value =  60  >mn</td></tr>"    
             
-            +"<tr><td><input type='text' id = 'twasimul2' size =2 value = -135 ><input type='radio' id ='twa2' name='s2' value='twa' ></td>"
+            +"<tr><td id ='heure1'></td><td><input type='text' id = 'twasimul2' size =2 value = -135 ><input type='radio' id ='twa2' name='s2' value='twa' ></td>"
             +"    <td><input type='text' id = 'capsimul2' size =2 value =170 ><input type='radio' id ='cap2' name='s2' value='cap' ></td>"
-            +"    <td><input type='text' id = 'tsimul2'   size =2 value = 120 >mn</td><td id ='heure2'></td></tr>"   
+            +"    <td><input type='text' id = 'tsimul2'   size =2 value = 120 >mn</td></tr>"   
             
-            +"<tr><td><input type='text' id = 'twasimul3' size =2 value =+135 ><input type='radio' id ='twa3' name='s3' value='twa' ></td>"
+            +"<tr><td id ='heure2'></td><td><input type='text' id = 'twasimul3' size =2 value =+135 ><input type='radio' id ='twa3' name='s3' value='twa' ></td>"
             +"    <td><input type='text' id = 'capsimul3' size =2 value =140 ><input type='radio' id ='cap3' name='s3' value='cap' ></td>"
-            +"    <td><input type='text' id = 'tsimul3'   size =2 value =120  >mn</td><td id ='heure3'></td></tr>" 
+            +"    <td><input type='text' id = 'tsimul3'   size =2 value =120  >mn</td></tr>" 
 
-            +"<tr><td><input type='text' id = 'twasimul4' size =2 value =+140 ><input type='radio' id ='twa4' name='s4' value='twa' ></td>"
+            +"<tr><td id ='heure3'></td><td><input type='text' id = 'twasimul4' size =2 value =+140 ><input type='radio' id ='twa4' name='s4' value='twa' ></td>"
             +"    <td><input type='text' id = 'capsimul4' size =2 value =120 ><input type='radio' id ='cap4' name='s4' value='cap' ></td>"
-            +"    <td><input type='text' id = 'tsimul4'   size =2 value =120 >mn</td><td id ='heure4'></td></tr>" 
+            +"    <td><input type='text' id = 'tsimul4'   size =2 value =120 >mn</td></tr>" 
             +"</table>"            
             +" <input type=button id = 'valid' name='valid' value='Ok'  >";
            
@@ -266,8 +270,8 @@
 
             const newElt2 = document.createElement("div2");  
             newElt2.classList.add("boite2"); 
-            newElt2.innerHTML="<span id='nomcourse'> </span>   <span id='bateau' ></span> <span id='date'></span> "
-            +"<div class= 'tableau'><form name='formu2'><span class='col1'>Depart</span><span><input type='text' name='latdep2' class= 'coords' value = '' size=15 /></span>"
+            newElt2.innerHTML="<span id='nomcourse'> </span><span>Le </span><span id='date'></span> <span id='bateau' ></span> "
+            +"<div class= 'tableau'><form name='formu2'><span class='col1'>Position</span><span><input type='text' name='latdep2' class= 'coords' value = '' size=15 /></span>"
             +"<span><input type='text' name='latlng2' class= 'coords' value = '' size=15 /></span>"
             +"<span class='col1'>Arrivee</span><span><input type='text' name='latar2' class= 'coords' value = '' size=15 /></span>"
             +"<span><input type='text' name='lngar2' class= 'coords' value = '' size=15 /></span> "
@@ -276,7 +280,7 @@
             +"<span class='col4'>TWS</span><span><input type='text' size=5 name='tws2'></span><span class='col4'>TWD</span>"
             +"<span><input type='text' size=5 name='twd2'></span><span class='col4'>Dist</span><span><input type='text' size=5 name='dist2'></span>"
             +"<span class='col4'> </span><span id='infosimul2'  >Cap et TWA: </span>"
-            +"<input type='hidden' id='capm2'><input type='hidden' id='twam2'>"
+            +"<input type='hidden' id='capm2'><input type='hidden' id='twam2'><input type='hidden' id='npt'>"
             +"</form></div>"    
             elt.appendChild(newElt2);              
             
@@ -298,7 +302,7 @@
             .addTo(map);
              }    
        
-       // var circlew = L.circle([1,1],{color: 'white',fillColor: '#f03',opacity:0.9,fillOpacity: 0.3,radius: 200,});
+        var circlew = L.circle([1,1],{color: 'white',fillColor: '#f03',opacity:0.9,fillOpacity: 0.3,radius: 200,});
        
         var popup = L.popup();
        
@@ -349,9 +353,9 @@
             //stocksimul1=document.formu.stocksimul.value
             //console.log  ('stocksimul'+stocksimul1)
             
-            try{
-            document.formu.dism.value=direction[0].toFixed(1)}
-            catch(err){console.log("erreur ligne 188") }
+            // try{
+            // document.formu.dism.value=direction[0].toFixed(1)}
+            // catch(err){console.log("erreur ligne 188") }
             cap0= Math.floor(direction[1])
             //on stocke dans un element exterieur 
             //document.formu.stockage.value=cap0                      //stockage valeur dans formulaire
@@ -492,48 +496,48 @@
         //     document.formu.lngc.value =lngclick.toFixed(4)+ ' soit '+  pos_dec_mn(e.latlng.lng);
         //     //document.formu.capc.value =cap_dist2[1].toFixed(2)
         //     //document.formu.twac.value =polytwa[1].toFixed(1)
-        //     //document.formu.disc.value =cap_dist2[0].toFixed(2)
+        //     //document.formu.disc.value =cap_dist2[0].toFixed(2)fnumero
+
         //             //console.log(dist_cap_ortho( latdep ,lngdep,latclick, lngclick))  
         // });
 
-    //     broadcast.once('redrawFinished', () => {
-    //         //picker.open({ lat: 48.4, lon: 14.3 });
-    //         // Opening of a picker (async)
-         
-
-    //         console.log('XXXXXXXXXXXXXXXXXXXXXXAAAAAAAAAA    '+store.get('timestamp'))  
-    //     });
+        broadcast.once('redrawFinished', () => {
+            //picker.open({ lat: 48.4, lon: 14.3 });
+            // Opening of a picker (async)
+            console.log('XXXXXXXXXXXXXXXXXXXXXXAAAAAAAAAA    '+store.get('timestamp'))  
+        });
 
      
 
-    //    broadcast.on('redrawFinished', params => {
+       broadcast.on('redrawFinished', params => {
     // // Wow Windy has finished rendering.
             
             
-    //         console.log ("Test ecart en h")
-    //         console.log (' Ecart en h ' +(store.get('timestamp')-Date.now())/3600/1000)
-    //         console.log (' Ecart en mn ' +(store.get('timestamp')-Date.now())/60/1000)
-    //         console.log (' Ecart en s ' +(store.get('timestamp')-Date.now())/1000)
-    //         var sec=((store.get('timestamp')-Date.now())/1000);
-    //         console.log(' ecart en secondes '+sec+' numero point'+ numero_point(sec))
-    //         numero_point_jp=numero_point(sec)
-    //      if (numero_point_jp<polylineblue.length)  
-    //             map.removeLayer(circlew);
-    //             {try{
+            // console.log ("Test ecart en h")
+            // console.log (' Ecart en h ' +(store.get('timestamp')-Date.now())/3600/1000)
+            // console.log (' Ecart en mn ' +(store.get('timestamp')-Date.now())/60/1000)
+            // console.log (' Ecart en s ' +(store.get('timestamp')-Date.now())/1000)
+            var sec=((store.get('timestamp')-Date.now())/1000);
+            console.log(' ecart en sec '+sec+'point'+ numero_point(sec))
+            numero_point_jp=numero_point(sec)
+            document.formu2.capm2.value= numero_point_jp
+        //  if (numero_point_jp<polylineblue.length)  
+               
+        //         {try{ map.removeLayer(circlew);
                 
                        
-    //                     circlew = L.circle(polylineblue[ numero_point_jp  ], {
-    //                         color: 'white',
-    //                         fillColor: '#f03',
-    //                         opacity:0.9,
-    //                         fillOpacity: 0.3,
-    //                         radius: 5000,
-    //                     }).addTo(map);
-    //                 }   
-    //             catch(err)
-    //                 {console.log ("erreur")}
-    //             }
-    //      })
+        //                 circlew = L.circle(polylineblue[ numero_point_jp  ], {
+        //                     color: 'white',
+        //                     fillColor: '#f03',
+        //                     opacity:0.9,
+        //                     fillOpacity: 0.3,
+        //                     radius: 5000,
+        //                 }).addTo(map);
+        //             }   
+        //         catch(err)
+        //             {console.log ("erreur")}
+        //         }
+         })
 
 
       
@@ -554,6 +558,7 @@
  
     <body onload="initialize()">
         <div id ="container">
+            
            
                     
                             <!-- <form action="http://localhost:8080/windleaf" method="get" name='formu'>
