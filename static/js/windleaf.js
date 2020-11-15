@@ -48,7 +48,7 @@ var intlhmn=new Intl.DateTimeFormat("fr-FR",{day:"2-digit",month:"2-digit", hour
                     {npt=Math.floor (sec/600)}
                 else
                     {npt=Math.floor(sec/3600)+72}
-                return npt;
+                return npt+1;
             }
 
 
@@ -479,7 +479,9 @@ var intlhmn=new Intl.DateTimeFormat("fr-FR",{day:"2-digit",month:"2-digit", hour
 				//hdg_ini=dist_cap_ortho(latdep,lngdep,latf,lngf,)[1]
                 //console.log( 'cap initial :' + hdg_ini)
 				meteo=vit_angle_vent (latdep,lngdep,tsimul)
+
 				//console.log (' (js l 432 )meteo '+meteo)
+				//console.log('polaires pour test dans polylinetwa3'+polairesjs) 
 				tws_ini=meteo[0]
 				twd_ini=meteo[1]
 				polyline= [[latdep,lngdep]]  //initialisation de la polyline
@@ -491,12 +493,13 @@ var intlhmn=new Intl.DateTimeFormat("fr-FR",{day:"2-digit",month:"2-digit", hour
 				t=tsimul
 				for (var i=0;i<=72;i++)
 				{tsimul3 = t+i*dt
-				meteo=vit_angle_vent (lat6,lng6,tsimul3)
-				
+				meteo=vit_angle_vent (lat6,lng6,tsimul3)				
 				vit_polaire=polinterpol2d(polairesjs,twa,meteo[0])	
-
-				capa=twa+meteo[1]
+				//console.log('test de polaires twa'+twa+'Vitesse vent'+ meteo[0] +'vitesse polaire'+vit_polaire)	
+				capa=(+360+twa+meteo[1])%360
+				//console.log ('twa, twd,capa'+twa+' '+ meteo[0]+' '+capa)
 				point=deplacement(lat6,lng6,dt,vit_polaire,capa)     //calcul du nouveau point 
+				//console.log('lat6,lng6,dt,twa,tws,vit_polaire,capa, point : '+lat6+' '+lng6+' '+dt+' '+twa+' '+meteo[0]+' '+vit_polaire+' '+capa+' '+ point) 
 				lat6=point[0];lng6=point[1];
 				polyline.push(point)	
 				}

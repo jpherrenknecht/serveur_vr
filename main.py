@@ -111,9 +111,6 @@ def f_isochrone2(l, temps_initial_iso):
     ''' Retourne les nouveaux points el le nouveau temps et implemente le tableau general des isochrones'''
     ''' isochrone 2 comprend une colonne de plus avec la twa en dernier '''
     global isochrone,TWS,TWD,temps_mini
-
-    
-    
     
     numero_iso           = int(isochrone[-1][2] + 1)
 
@@ -121,10 +118,6 @@ def f_isochrone2(l, temps_initial_iso):
         nb_points=nb_points_ini
     else:
         nb_points=50 
-
-    #print()
-    #print(' Isochrone Variante N° {} '.format(numero_iso ))
-  
 
 #variante 
     points=isochrone[-l:,0:2]  # ici on selectionne -l lignes en partant du bas et les colonnes 0 1 6
@@ -144,6 +137,8 @@ def f_isochrone2(l, temps_initial_iso):
     points_calcul=np.array([[0,0,0,0,0,0,0]]) # initialisation pour Numpy du brouillard des points calcules (inchangé)
 
     TWS, TWD =prevision_tableau3(tig, GR, nouveau_temps, points) # Vitesse vent et direction pour nouveaux points (extraction en double)
+    # if numero_iso==1:
+    #     print ('L 141 TWS TWD ',TWS,'\n',TWD)   
 # pour chacun des points de l'isochrone 
     if numero_iso==1:
         penalite=0
@@ -151,17 +146,15 @@ def f_isochrone2(l, temps_initial_iso):
         penalite=0
     
     for i in range(l):
-
-      #VARIANTE
-     # twa precedente
+        # twa precedente
         twap=twa[i]
         # ici c'est nouveau
         
         # Calcul des caps a etudier pour chaque point (INCHANGÉ)
         HDG = range_cap(dist_cap4(points[i], A)[1], TWD[i], angle_objectif, angle_twa_pres, angle_twa_ar)  
-
         VT  =polaire2_vectv2(polaires,tab_twa, tab_tws, TWS[i], TWD[i], HDG)  #Vitesse polaire pour chaque cap
-        #print ('delta_temps',delta_temps)
+        # if numero_iso==1:
+        #     print ('L 155 HDG et Vt ',HDG,'\n',VT)    
         
         X1,Y1,Da1,Ca1=deplacement2(points[i][0],points[i][1],delta_temps,HDG,TWD[i],VT,A,twap,penalite)
 
@@ -261,6 +254,7 @@ def fonction_routeur(course,latdep,lngdep,arrivee,t0=time.time()):
         data1 = json.load(fichier)
     print ('course',course)
     bateau=  (data1[course]["bateau"])
+    
     # latdep = (data1[course][depart]["lat"])
     # lngdep = (data1[course][depart]["lng"])
     latar  = (data1[course][arrivee]["lat"])
@@ -278,6 +272,7 @@ def fonction_routeur(course,latdep,lngdep,arrivee,t0=time.time()):
     angle_twa_ar= data2[bateau]["var_mini"]
     l1=data2[bateau]["tab_tws"]
     l2=data2[bateau]["tab_twa"]
+
     polaires=data2[bateau]["polaires"]
 
     #print('Polairesj1',polairesj1)
@@ -316,7 +311,7 @@ def fonction_routeur(course,latdep,lngdep,arrivee,t0=time.time()):
     TWS, TWD = prevision_tableau3(tig, GR, t0, pt1_np) # prevision au point de depart identique pour les 2
 
 # definition des temps des isochrones
-    dt1           = np.ones(60) * 600  # intervalles de temps toutes les 10mn pendant dix heure puis toutes les heures
+    dt1           = np.ones(72) * 600  # intervalles de temps toutes les 10mn pendant dix heure puis toutes les heures
     dt2           = np.ones(370) * 3600
     intervalles   = np.concatenate(([t0 - tig], dt1, dt2))
     temps_cumules = np.cumsum(intervalles)
@@ -574,13 +569,15 @@ def windleaf():
 
     tsimul=time.time()
     global x0,y0,x1,y1,nb_points_ini
-    nb_points_ini=250
+
+    #**********************************************************************************
+    nb_points_ini=200
+    #**********************************************************************************
     
     # valeurs par defaut si pas de retour de dashboard
-  
     course="440.1"
     depart="depart"
-    arrivee="bouee1"
+    arrivee="bouee12"
     nomcourse="Vendee Globe"
     bateau="imoca60vg"
 
@@ -617,7 +614,7 @@ def windleaf():
     u10,v10=vents_encode2(latini,latfin,lngini,lngfin)   
    
     # calcul de la route et de la multipolyline des isochrones
-    multipolyline,route,comment,x0,y0,x1,y1,l1,l2,polairesjs=fonction_routeur(course,latdep,lngdep,arrivee,tsimul)
+    multipolyline,route,comment,x0,y0,x1,y1,l1,l2,polairesjs2=fonction_routeur(course,latdep,lngdep,arrivee,tsimul)
     latar=y1
     lngar=x1
     red=[]
@@ -636,7 +633,7 @@ def windleaf():
     print ('Nom de la course: ',nomcourse)
     print ('Bateau',bateau)
     print ('latdep lngdep ',latdep,lngdep )  
-    return render_template("windleaf.html", multipolyred=red,multipolyblack=black,course=course,nomcourse=nomcourse,bateau=bateau,route=route,comment=comment,l1=l1,l2=l2,polairesjs=polairesjs,lngdep=lngdep,latdep=latdep,lngar=lngar,latar=latar, t0=tsimul,tig=tig,latini=latini,lngini=lngini,latfin=latfin,lngfin=lngfin,U10=u10, V10=v10 ,result=request.form)
+    return render_template("windleaf.html", multipolyred=red,multipolyblack=black,course=course,nomcourse=nomcourse,bateau=bateau,route=route,comment=comment,l1=l1,l2=l2,polairesjs=polairesjs2,lngdep=lngdep,latdep=latdep,lngar=lngar,latar=latar, t0=tsimul,tig=tig,latini=latini,lngini=lngini,latfin=latfin,lngfin=lngfin,U10=u10, V10=v10 ,result=request.form)
 
 
 

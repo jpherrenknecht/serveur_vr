@@ -268,6 +268,16 @@
        
         });
 
+
+
+             var sec=((store.get('timestamp')-Date.now())/1000);
+             var numero=numero_point(sec);
+            console.log(' ecart en sec '+sec+'point'+ numero_point(sec))
+            var circlew = L.circle([1,1],{color: 'white',fillColor: '#f03',opacity:0.9,fillOpacity: 0.3,radius: 200,}).addTo(map);
+          
+           console.log ('Polyline  '+polylineblue[ numero  ])
+           // circlew = L.circle(polylineblue[ numero  ], {  color: 'white', fillColor: '#f03', opacity:0.9, fillOpacity: 0.3, radius: 5000, }).addTo(map);
+
             const newElt2 = document.createElement("div2");  
             newElt2.classList.add("boite2"); 
             newElt2.innerHTML="<span id='nomcourse'> </span><span>Le </span><span id='date'></span> <span id='bateau' ></span> "
@@ -292,8 +302,11 @@
             document.formu2.latar2.value  = latar.toFixed(3)+'N '+pos_dec_mn(latar) 
             document.formu2.lngar2.value  = lngar.toFixed(3)+'W '+pos_dec_mn(lngar)
 
-
-        console.log( 'twasimul1 v2  : '+document.getElementById('twasimul1').value)
+        //var circlew = L.circle([1,1],{color: 'white',fillColor: '#f03',opacity:0.9,fillOpacity: 0.3,radius: 200,});
+        //console.log( 'twasimul1 v2  : '+document.getElementById('twasimul1').value)
+        avancement=document.formu2.capm2.value
+        console.log('avancement'+avancement)
+        
 
         for ( var i=0 ; i<polylineblue.length ; i++ )
             { var circle = L.circle(polylineblue[i],
@@ -302,8 +315,7 @@
             .addTo(map);
              }    
        
-        var circlew = L.circle([1,1],{color: 'white',fillColor: '#f03',opacity:0.9,fillOpacity: 0.3,radius: 200,});
-       
+
         var popup = L.popup();
        
          
@@ -391,7 +403,8 @@
             //else{console.log(" les deux valeurs sont identiques pas de recalcul")}
          
           //  document.getElementById('infosimul').innerHTML="<b><font color='red'> Cap : " +valcal +"</font>&nbsp;&nbsp;<font color='green' > TWA : "+twac
-            document.getElementById('infosimul2').innerHTML="<b><font color='red'> Cap : " +valcal +"</font>&nbsp;&nbsp;<font color='green' > TWA : "+twac           
+            document.getElementById('infosimul2').innerHTML="<b><font color='red'> Cap : " +valcal +"</font>&nbsp;&nbsp;<font color='green' > TWA : "+twac   
+         
        
             });
 
@@ -504,9 +517,25 @@
         broadcast.once('redrawFinished', () => {
             //picker.open({ lat: 48.4, lon: 14.3 });
             // Opening of a picker (async)
-            console.log('XXXXXXXXXXXXXXXXXXXXXXAAAAAAAAAA    '+store.get('timestamp'))  
+            console.log('Dans redraw finished once    '+store.get('timestamp'))  
         });
 
+        broadcast.on('paramsChanged', () => {
+            //picker.open({ lat: 48.4, lon: 14.3 });
+            // Opening of a picker (async)
+            var sec=((store.get('timestamp')-Date.now())/1000);
+            console.log(' ecart en sec '+sec+'point'+ numero_point(sec))
+            numero_point_jp=numero_point(sec)
+            map.removeLayer(circlew)
+            circlew = L.circle(polylineblue[ numero_point_jp  ], {
+                            color: 'white',
+                            fillColor: '#f03',
+                            opacity:0.9,
+                            fillOpacity: 0.3,
+                            radius: 5000,
+                        }).addTo(map);
+
+        });
      
 
        broadcast.on('redrawFinished', params => {
@@ -517,10 +546,10 @@
             // console.log (' Ecart en h ' +(store.get('timestamp')-Date.now())/3600/1000)
             // console.log (' Ecart en mn ' +(store.get('timestamp')-Date.now())/60/1000)
             // console.log (' Ecart en s ' +(store.get('timestamp')-Date.now())/1000)
-            var sec=((store.get('timestamp')-Date.now())/1000);
-            console.log(' ecart en sec '+sec+'point'+ numero_point(sec))
-            numero_point_jp=numero_point(sec)
-            document.formu2.capm2.value= numero_point_jp
+            // var sec=((store.get('timestamp')-Date.now())/1000);
+            // console.log(' Ecart en sec dans redraw finished '+sec+'point'+ numero_point(sec))
+            // numero_point_jp=numero_point(sec)
+        //     document.formu2.capm2.value= numero_point_jp
         //  if (numero_point_jp<polylineblue.length)  
                
         //         {try{ map.removeLayer(circlew);

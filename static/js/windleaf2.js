@@ -16,7 +16,7 @@ var LeafletIcon=L.Icon.extend({
     var blackIcon = new LeafletIcon({ iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-black.png'});    
     var redIcon   = new LeafletIcon({ iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png'});   
 
-
+    //'static/js/courses.json'
 
     $.get("courses.json", function(data)       // courses json est dans le repertoire principal
         {
@@ -25,6 +25,7 @@ var LeafletIcon=L.Icon.extend({
    console.log('Nom de la course :'+ nomcourse)
    bateau=obj[course]["bateau"]
    console.log('Bateau :'+ bateau)
+   
     });
 
 
