@@ -626,7 +626,7 @@ if __name__ == '__main__':
     # # test sur les valeurs GR
     # print ('GRold[0,0,0]',GRold[0][0][0])
     # print ('GR[0,0,0]',GR[0][0][0])
-
+    # test
 
     # prevision avec date donnee    
 
