@@ -5,14 +5,12 @@
               
         <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
         <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
-        
+        <script  type="text/javascript" src="{{ url_for('static', filename='js/windleaf.js') }}"></script>
         <script src="https://unpkg.com/leaflet@1.4.0/dist/leaflet.js"></script>
         <script src="https://api.windy.com/assets/map-forecast/libBoot.js"></script>
         <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/windleaf.css') }}">
 
-        <script  type="text/javascript" src="{{ url_for('static', filename='js/windleaf.js') }}"></script>
-        
     </head>
    
 
@@ -35,14 +33,6 @@
         //     {
         //    var courses= request.response;
         //     }
-
-
-
-
-        
-
-
-
 
         //    bateau=courses["438.1"][nom]
         //    console.log(bateau)
@@ -73,15 +63,11 @@
 			lngini= {{ lngini }}
             lngfin= {{ lngfin }} 
             //nomcourse= {{ nomcourse }} 
-            
-           
 
 
             console.log('tig : ' + tig )
-            
             console.log('latdep : '+ latdep)
 			console.log('lngdep : '+ lngdep)
-
 			console.log('latini : '+ latini)
 			console.log('latfin : '+ latfin)
 			console.log( 'lngini : '+ lngini)
@@ -128,7 +114,7 @@
             console.log('Prise en compte du fichier js :'+arrondi(10.123456789,3))
             console.log ('test prise en compte du temps sec '+(comment[0][2]+tig)+'ecart avec grib'+ (comment[0][2]+tig-tsimation))
             console.log ('tig' +intl.format(1000*(tig)))
-
+            
             console.log (intl.format(1000*(comment[0][2]+tig))) // a priori t0 du demarrage serveur
             console.log (intl.format(1000*(comment[0][2]+tsimation)))
 
@@ -154,16 +140,15 @@
         }
    
 
-        const options = {
+        const options =
+        {
         key: 'ydO74Xuxv2WWOEShDpel1kaiae8zCnLO',
         verbose: true,
-
         // Centrage initial de la carte et zoom 
         lat:latdep,
         lon:lngdep,
         //lat: (latdep+latar)/2,
         //lon: (lngdep+lngar)/2,
-
         //zoom: zoomp,
         zoom:6
         }
@@ -203,16 +188,97 @@
         L.polyline(latlngpoly2).setStyle({ color: 'blue', weight:2, opacity:0.3, }).addTo(map);
         }
       
+        var texteboite="  <span id='course2' class='col01'> Course vg </span>"
+                       +" <span id='date2' class='col02'>Date</span>"
+                       +" <span id='bateau2' class='col03'>Bateau</span>  "
+                        +"<form name='formu3'>"
+                       +"<div class='Tableau'>"
+                            +" </p>"
+                            +" <span class='col6'>TWS :</span>"
+                            +" <span class='col6' id='twsini'  ' >000</span>"
+                            +" <span class='col6'>TWD :</span>"
+                            +" <span class='col6'id ='twdini'>000</span>"
+                            +" <span class='col6'>HDG :</span>"
+                            +" <span class='col6'id ='hdgini'><font color='red'>000</font></span>"
+                            +" <span class='col6'>TWA :</span>"
+                            +" <span class='col6'id ='twaini'><font color='green'>30</font></span>"
+                            +" <span class='col7'>Vit  :</span>"
+                            +" <span class='col6'id ='vitini'><font color='blue'>0</font></span>"
+
+                            +" </p>"
+                            +" <p >"
+                            +" <span class='col1'>Depart</span>"
+                            +" <span class='col2'><input type='text' name='latdep3' id ='latdep2' value='test'  size=15></span>"
+                            +" <span class='col2'><input type='text' name='lngdep3' size=15></span>"
+                            +" </p>"
+                            +"<p>"
+                            +"<span class='col1'>Arrivee</span>"
+                            +"<span class='col2'><input type='text' name='latar3' size=15></span>"
+                            +"<span class='col2'><input type='text' name='lngar3' size=15></span>"
+                            +" </p>"
+                            +"<p>"
+                            +"<span class='col1'>Curseur</span>"
+                            +"<span class='col2'><input type='text' name='latcurseur3' size=15></span>"
+                            +"<span class='col2'><input type='text' name='lngcurseur3' size=15></span>"
+                            +"</p> "  
+                            +"</p>"
+                            +"<span class='col3'>"
+                                +"<button title='Previous  wind' class='nnav' style='margin-left: 0px';onmousedown='prev_wind();'>&lt;</button><select id='hours' class='nnav' title='Wind time' onchange='show_wind(this.selectedIndex * 3);'>"
+                                    +"<option selected>Now</option>"
+                                    +"<option >+1 h</option>"
+                                    +"<option >+2 h</option>"
+                                    +"<option >+3 h</option>"
+                                    +"<option >+4 h</option>"
+                                    +"<option >+5 h</option>"
+                                    +"<option >+6 h</option>"
+                                    +"<option >+7 h</option>"
+                                    +"<option >+8 h</option>"
+                                    +"<option >+9 h</option>"
+                                    +"<option >+10 h</option>"
+                                    +"<option >+11 h</option>"
+                                    +"<option >+12 h</option>"
+                                    +"<option >+13 h</option>"
+                                    +"<option >+14 h</option>"
+                                    +"<option >+15 h</option>"
+                                    +"<option >+16 h</option>"
+                                    +"<option >+17 h</option>"
+                                    +"<option >+18 h</option>"
+                                    +"<option >+19 h</option>"
+                                    +"<option >+20 h</option>"
+                                    +"<option >+21 h</option>"
+                                    +"<option >+22 h</option>"
+                                    +"<option >+23 h</option>"
+                                    +"<option >+24 h</option>"	
+                                    +"</select>"
+                                    +"<button class='nnav' title='next wind' style='margin-right: 0px;' onmousedown='next_wind();'>&gt;</button>"
+                                    +" </span>"
+                                    +" <span class='col5'>TWS</span>"
+                                    +" <span class='col4' ><input type='text' name='tws3'size=3 ></span>"
+                                    +"    <span class='col5'>TWD</span>"
+                                    +"    <span class='col4'><input type='text' name='twd3' size=3 ></span>"
+                                +"     <span class='col5'>DIST</span>"
+                                +"    <span class='col4'><input type='text' name='dist3' size=3  ></span>"
+                                +"  </p>"
+                                +"  </p>"
+                                +"      <span class='col8'></span>"
+                                +"      <span id='infosimul3'  >Cap et TWA: </span>"
+                                +"    <span class='col8'></span>"
+                                +" </p>"
+                                +"<input type='hidden' id='capm3'><input type='hidden' id='twam3'><input type='hidden' id='npt'>"
+                                +"</form>"
+                            
+                        //     </div>"
+// </div>  
+
 
         var date0=new Date(tsimation*1000) 
-          
-            
 
         const newElt = document.createElement("div");
             let elt = document.getElementById("windy");
             elt.appendChild(newElt);
             newElt.classList.add("boite"); 
-            newElt.innerHTML="<h3>Simulation : <br> "
+            newElt.innerHTML=
+            "<h3>Simulation : <br> "
             +"<table>"
             +"<tr><td></td> <td>TWA</td> <td> CAP</td> <td>Duree</td> </tr>"
             +"<tr><td id = 'heure0' class='large' >"+intlhmn.format(date0)+"</td> <td><input type='text' id = 'twasimul1' size =2 value =-135 ><input type='radio' id ='twa1' name='s1' value='twa' ></td>"
@@ -244,20 +310,16 @@
             for ( var j=1 ; j<74 ; j++ )  {map.removeLayer(circle3[j]);}
             for ( var i=0 ; i<polylinesim.length ; i++ )
             { circle3[i] = L.circle(polylinesim[i],{color: 'black',fillColor: '#f03',opacity:0.9,fillOpacity: 0.3,radius: 200,}).addTo(map);}  
-            
 
             var deltat1=parseInt(document.getElementById('tsimul1').value)
             var deltat2=parseInt(document.getElementById('tsimul2').value)
             var deltat3=parseInt(document.getElementById('tsimul3').value)
             var deltat4=parseInt(document.getElementById('tsimul4').value)
-
            
             var date1=new Date(tsimation*1000+(+deltat1)*60000)
             var date2=new Date((tsimation*1000+(+deltat1+deltat2)*60000))
             var date3=new Date(tsimation*1000+(+deltat1+deltat2+deltat3)*60000)
             var date4=new Date(tsimation*1000+(+deltat1+deltat2+deltat3+deltat4)*60000)
-
-
 
             document.getElementById('heure0').innerHTML=intlhmn.format(date0)
             document.getElementById('heure1').innerHTML=intlhmn.format(date1)
@@ -270,42 +332,27 @@
 
 
 
-             var sec=((store.get('timestamp')-Date.now())/1000);
-             var numero=numero_point(sec);
+            var sec=((store.get('timestamp')-Date.now())/1000);
+            var numero=numero_point(sec);
             console.log(' ecart en sec '+sec+'point'+ numero_point(sec))
             var circlew = L.circle([1,1],{color: 'white',fillColor: '#f03',opacity:0.9,fillOpacity: 0.3,radius: 200,}).addTo(map);
-          
-           console.log ('Polyline  '+polylineblue[ numero  ])
-           // circlew = L.circle(polylineblue[ numero  ], {  color: 'white', fillColor: '#f03', opacity:0.9, fillOpacity: 0.3, radius: 5000, }).addTo(map);
-
-            const newElt2 = document.createElement("div2");  
-            newElt2.classList.add("boite2"); 
-            newElt2.innerHTML="<span id='nomcourse'> </span><span>Le </span><span id='date'></span> <span id='bateau' ></span> "
-            +"<div class= 'tableau'><form name='formu2'><span class='col1'>Position</span><span><input type='text' name='latdep2' class= 'coords' value = '' size=15 /></span>"
-            +"<span><input type='text' name='latlng2' class= 'coords' value = '' size=15 /></span>"
-            +"<span class='col1'>Arrivee</span><span><input type='text' name='latar2' class= 'coords' value = '' size=15 /></span>"
-            +"<span><input type='text' name='lngar2' class= 'coords' value = '' size=15 /></span> "
-            +"<span class='col1'>Curseur</span><span><input type='text' name='latcurseur' class= 'coords' value = '' size=15 /></span>"
-            +"<span><input type='text' name='lngcurseur' class= 'coords' value = '' size=15 /></span> "
-            +"<span class='col4'>TWS</span><span><input type='text' size=5 name='tws2'></span><span class='col4'>TWD</span>"
-            +"<span><input type='text' size=5 name='twd2'></span><span class='col4'>Dist</span><span><input type='text' size=5 name='dist2'></span>"
-            +"<span class='col4'> </span><span id='infosimul2'  >Cap et TWA: </span>"
-            +"<input type='hidden' id='capm2'><input type='hidden' id='twam2'><input type='hidden' id='npt'>"
-            +"</form></div>"    
-            elt.appendChild(newElt2);              
-            
-            document.getElementById('nomcourse').innerHTML=nomcourse
-            document.getElementById('bateau').innerHTML=bateau
-            document.getElementById('date').innerHTML=intlhmn.format(date0)
-            document.formu2.latdep2.value = latdep.toFixed(3)+'N '+pos_dec_mn(latdep)
-            document.formu2.latlng2.value = latdep.toFixed(3)+'W '+pos_dec_mn(lngdep)
-            document.formu2.latar2.value  = latar.toFixed(3)+'N '+pos_dec_mn(latar) 
-            document.formu2.lngar2.value  = lngar.toFixed(3)+'W '+pos_dec_mn(lngar)
-
-        //var circlew = L.circle([1,1],{color: 'white',fillColor: '#f03',opacity:0.9,fillOpacity: 0.3,radius: 200,});
-        //console.log( 'twasimul1 v2  : '+document.getElementById('twasimul1').value)
-        avancement=document.formu2.capm2.value
-        console.log('avancement'+avancement)
+            console.log ('Polyline  '+polylineblue[ numero  ])
+            const newElt3 = document.createElement("div3");  
+            newElt3.classList.add("boite0");
+            newElt3.innerHTML=texteboite          //remplissage de la boite 
+            elt.appendChild(newElt3);
+            document.getElementById('bateau2').innerHTML=bateau
+            document.getElementById('course2').innerHTML=nomcourse
+            document.getElementById('date2').innerHTML=intlhmn.format(date0)
+            document.formu3.latdep3.value= latdep.toFixed(3)+'W '+pos_dec_mn(latdep)
+            document.formu3.lngdep3.value=lngdep.toFixed(3)+'W '+pos_dec_mn(lngdep)
+            document.formu3.latar3.value  = latar.toFixed(3)+'N '+pos_dec_mn(latar) 
+            document.formu3.lngar3.value  = lngar.toFixed(3)+'W '+pos_dec_mn(lngar)
+            document.formu3.latar3.value  = latar.toFixed(3)+'N '+pos_dec_mn(latar) 
+            document.formu3.lngar3.value  = lngar.toFixed(3)+'W '+pos_dec_mn(lngar)
+           
+            avancement=document.formu3.capm3.value
+            // console.log('avancement'+avancement)
         
 
         for ( var i=0 ; i<polylineblue.length ; i++ )
@@ -325,61 +372,23 @@
 
         map.on('mousemove', function(e)
         {  // valinit=document.getElementById('stocka0').innerHTML  //recuperation de la valeur cap0 par inner html
-            valinit=document.formu2.capm2.value                       // recuperation de cap 0 par le formulaire  
+            valinit=document.formu3.capm3.value                       // recuperation de cap 0 par le formulaire  
            // twainit=document.getElementById('stocka1').innerHTML  //recuperation de la valeur
-            twainit=document.formu2.twam2.value
+            twainit=document.formu3.twam3.value
             meteodepart=vit_angle_vent (latdep,lngdep ,tsimation)  //meteo au point de depart 
-
-
             try{meteocurseur=vit_angle_vent (e.latlng.lat,e.latlng.lng ,tsimation) }
             catch(err){console.log ('erreur sur la meteo');meteocurseur=meteodepart} //meteo au curseur 
             direction=dist_cap_ortho(latdep,lngdep,e.latlng.lat,e.latlng.lng) //direction distance vers le curseur
             twac=ftwao(direction[1],meteodepart[1]).toFixed(0) 
-
-            // console.log(' (html 222) curseur latitude '+e.latlng.lat+' longitude '+ e.latlng.lng )
-            // console.log('meteo au curseur '+meteocurseur[0]+' '+ meteocurseur[1])
-            // console.log('Depart latitude '+latdep+' longitude '+ lngdep )
-            // console.log('meteo au depart '+meteodepart[0]+' '+ meteodepart[1])
             
-            // document.formu.latm.value=e.latlng.lat.toFixed(4)+'N ('+pos_dec_mn(e.latlng.lat)+')'
-            // document.formu.lngm.value=e.latlng.lng.toFixed(4)+'W ('+pos_dec_mn(e.latlng.lng)+')'
-            document.formu2.latcurseur.value=e.latlng.lat.toFixed(3)+'N ('+pos_dec_mn(e.latlng.lat)+')'
-            document.formu2.lngcurseur.value=e.latlng.lng.toFixed(3)+'W ('+pos_dec_mn(e.latlng.lng)+')'
-            document.formu2.tws2.value=meteocurseur[0].toFixed(2)
-            document.formu2.twd2.value=meteocurseur[1].toFixed(2)
-            document.formu2.dist2.value=direction[0].toFixed(0) 
-            document.formu2.twam2.value=twac 
-            
-            // document.formu.twsm.value=meteocurseur[0].toFixed(2)
-            // document.formu.twdm.value=meteocurseur[1].toFixed(2)
-            
-
-            //document.formu.capm.value=direction[1].toFixed(0) 
- //           document.formu.twam.value=twac  
+            document.formu3.latcurseur3.value=e.latlng.lat.toFixed(3)+'N ('+pos_dec_mn(e.latlng.lat)+')'
+            document.formu3.lngcurseur3.value=e.latlng.lng.toFixed(3)+'W ('+pos_dec_mn(e.latlng.lng)+')'
+            document.formu3.tws3.value=meteocurseur[0].toFixed(2)
+            document.formu3.twd3.value=meteocurseur[1].toFixed(2)
+            document.formu3.dist3.value=direction[0].toFixed(0) 
+           
             valcal=direction[1].toFixed(0)
-            // console.log ( 'valeur calculee cap '+valcal ) 
-            // console.log ('ecart '+(valcal-valinit))
-            // console.log ('valeur initiale twa '+twainit)
-            // console.log ( 'valeur calculee twa '+twac ) 
-            // console.log  ('timestampjp'+timestampjp)
-            //stocksimul1=document.formu.stocksimul.value
-            //console.log  ('stocksimul'+stocksimul1)
-            
-            // try{
-            // document.formu.dism.value=direction[0].toFixed(1)}
-            // catch(err){console.log("erreur ligne 188") }
             cap0= Math.floor(direction[1])
-            //on stocke dans un element exterieur 
-            //document.formu.stockage.value=cap0                      //stockage valeur dans formulaire
-            
-            //document.getElementById('stocka0').innerHTML=cap0        // stockage valeur dans id
-            //document.getElementById('stocka1').innerHTML=twac 
-            //recuperation de la valeur  de stockage
-
-
-
-
-
             if (valinit!=valcal)
             {            
             polytwa=polyline_twa3(latdep,lngdep,twac,tsimation)
@@ -389,9 +398,9 @@
             
             for ( var i=1 ; i<polycap[0].length ; i++ )
             { if (i%6 != 0)
-                { circle1[i] = L.circle(polycap[0][i], {color: 'orange' ,fillColor: '#f03',opacity:0.9,fillOpacity: 0.3,radius: 150,}).addTo(map);} 
+                { circle1[i] = L.circle(polycap[0][i], {color: 'red' ,fillColor: '#f03',opacity:0.9,fillOpacity: 0.3,radius: 150,}).addTo(map);} 
                 else
-                { circle1[i] = L.circle(polycap[0][i], {color: 'red' ,fillColor: '#f03',opacity:0.9,fillOpacity: 0.3,radius: 150,}).addTo(map);}
+                { circle1[i] = L.circle(polycap[0][i], {color: 'orange' ,fillColor: '#f03',opacity:0.9,fillOpacity: 0.3,radius: 150,}).addTo(map);}
             }    
             for ( var i=1 ; i<polytwa[0].length ; i++ )
             { if (i%6 != 0)
@@ -401,10 +410,14 @@
             } 
             }
             //else{console.log(" les deux valeurs sont identiques pas de recalcul")}
-         
-          //  document.getElementById('infosimul').innerHTML="<b><font color='red'> Cap : " +valcal +"</font>&nbsp;&nbsp;<font color='green' > TWA : "+twac
-            document.getElementById('infosimul2').innerHTML="<b><font color='red'> Cap : " +valcal +"</font>&nbsp;&nbsp;<font color='green' > TWA : "+twac   
-         
+          console.log ('meteodepart'+meteodepart)
+          document.getElementById('twsini').innerHTML="<font color='purple'>"+meteodepart[0].toFixed(2) +"</font>"
+          document.getElementById('twdini').innerHTML="<font color='purple' >"+meteodepart[1].toFixed(1) +"</font>"
+          document.getElementById('hdgini').innerHTML="<font color='red'>"+comment[0][5].toFixed(1)+"</font>"
+          document.getElementById('twaini').innerHTML="<font color='green'>"+comment[0][6].toFixed(1)+"</font>"
+          document.getElementById('vitini').innerHTML="<font color='blue'>"+comment[0][7].toFixed(2)+"</font>"
+          vit_pol_sim=polinterpol2d(polairesjs,twac,meteodepart[0]).toFixed(2) //vitesse polaire suivantsimulation 
+          document.getElementById('infosimul3').innerHTML="<b><font color='red'> Cap : " +valcal +"</font>&nbsp;&nbsp;<font color='green' > TWA : "+twac +"<font color='blue'>&nbsp;&nbsp; Vit : "+ vit_pol_sim
        
             });
 
@@ -416,7 +429,6 @@
         map.on('contextmenu', function(e)
         {
             tooltiptest='<b> tooltiptest</b>'
-           // circletest = L.circle([e.latlng.lat,e.latlng.lng], {color: 'black' ,fillColor: '#f03',opacity:0.9,fillOpacity: 0.3,radius: 1,}).bindPopup(tooltiptest).addTo(map);
             popup
                 .setLatLng(e.latlng)
                 .setContent( "<a href=javascript:void(0); onclick=alert('test') ;>Definir comme depart</a><br>"
@@ -434,10 +446,7 @@
             console.log ('mouseevent : '+map.mouseEventToLayerPoint(oncontextmenu)  ) 
             console.log ('client x :'+ e.screenX)
             console.log ('position : '+map.project([e.latlng.lat,e.latlng.lng],1  ))
-            //console.log ('position : '+e.pageX +'  y '+ e.pageY  ) 
            
-            // alert("contextmenu")
-
         });
 
 
@@ -449,10 +458,6 @@
 
         //  map.on('click', function(e)
         //  {   console.log('numero_point_jp',+numero_point_jp)
-
-         
-        
-
         //  }  ); 
 
         //     var a=document.getElementById('testjs')
@@ -520,9 +525,8 @@
             console.log('Dans redraw finished once    '+store.get('timestamp'))  
         });
 
-        broadcast.on('paramsChanged', () => {
-            //picker.open({ lat: 48.4, lon: 14.3 });
-            // Opening of a picker (async)
+        broadcast.on('paramsChanged', () => 
+        {
             var sec=((store.get('timestamp')-Date.now())/1000);
             console.log(' ecart en sec '+sec+'point'+ numero_point(sec))
             numero_point_jp=numero_point(sec)
@@ -532,49 +536,12 @@
                             fillColor: '#f03',
                             opacity:0.9,
                             fillOpacity: 0.3,
-                            radius: 5000,
+                            radius: 1000,
                         }).addTo(map);
-
         });
      
 
-       broadcast.on('redrawFinished', params => {
-    // // Wow Windy has finished rendering.
-            
-            
-            // console.log ("Test ecart en h")
-            // console.log (' Ecart en h ' +(store.get('timestamp')-Date.now())/3600/1000)
-            // console.log (' Ecart en mn ' +(store.get('timestamp')-Date.now())/60/1000)
-            // console.log (' Ecart en s ' +(store.get('timestamp')-Date.now())/1000)
-            // var sec=((store.get('timestamp')-Date.now())/1000);
-            // console.log(' Ecart en sec dans redraw finished '+sec+'point'+ numero_point(sec))
-            // numero_point_jp=numero_point(sec)
-        //     document.formu2.capm2.value= numero_point_jp
-        //  if (numero_point_jp<polylineblue.length)  
-               
-        //         {try{ map.removeLayer(circlew);
-                
-                       
-        //                 circlew = L.circle(polylineblue[ numero_point_jp  ], {
-        //                     color: 'white',
-        //                     fillColor: '#f03',
-        //                     opacity:0.9,
-        //                     fillOpacity: 0.3,
-        //                     radius: 5000,
-        //                 }).addTo(map);
-        //             }   
-        //         catch(err)
-        //             {console.log ("erreur")}
-        //         }
-         })
-
-
-      
-
-
-
-
-
+       broadcast.on('redrawFinished', params => {         })
 
 
     }) // Fin de windyInit
@@ -583,13 +550,9 @@
 
 </script>          
     </head>
-
- 
     <body onload="initialize()">
         <div id ="container">
-            
-           
-                    
+                     
                             <!-- <form action="http://localhost:8080/windleaf" method="get" name='formu'>
                             </form>      -->
                                 <!-- <table>
@@ -654,9 +617,6 @@
                       
                             <!-- Test :<input type="text" name="test3" /> -->
                             <!-- GFS :<input type="text" name="gfs" /> -->
-                
-           
-
             <div id="windy"> </div>
            
         </div>

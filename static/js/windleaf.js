@@ -1,7 +1,10 @@
 
 var intl=new Intl.DateTimeFormat("fr-EU",{month:"2-digit",day:"2-digit", year:"2-digit",hour12: false,hour:"2-digit", minute:"2-digit" });
 var intlhmn=new Intl.DateTimeFormat("fr-FR",{day:"2-digit",month:"2-digit", hour12: false,hour:"2-digit", minute:"2-digit" });
-            function arrondi(a,n)
+
+
+
+function arrondi(a,n)
             {return(Math.round(a*10**n)/10**n);}
 
 
@@ -43,11 +46,13 @@ var intlhmn=new Intl.DateTimeFormat("fr-FR",{day:"2-digit",month:"2-digit", hour
             }  
             
             function numero_point(sec)
-            {var nbiso_dixmn=72;
+            {
+				//nombre isochrone a 10mn
+				var nbiso_dixmn=72;
                 if (sec<nbiso_dixmn*600)
                     {npt=Math.floor (sec/600)}
                 else
-                    {npt=Math.floor(sec/3600)+72}
+                    {npt=Math.floor(sec/3600)+60}
                 return npt+1;
             }
 
@@ -243,7 +248,6 @@ var intlhmn=new Intl.DateTimeFormat("fr-FR",{day:"2-digit",month:"2-digit", hour
 			v0x0=v000+dilati*(v010-v000)
     		v0x1=v001+dilati*(v011-v001)
 			v0xx=v0x0+dilong*(v0x1-v0x0)
-
 			// console.log ( 'valeurs u0x0 ... '+u0x0+' '+u0x1+ ' '+u0xx)
 			// console.log ( 'valeurs v0x0 ... '+v0x0+' '+v0x1+ ' '+v0xx)
 
@@ -327,111 +331,7 @@ var intlhmn=new Intl.DateTimeFormat("fr-FR",{day:"2-digit",month:"2-digit", hour
 
 			}
 
-            // function polyline_twa(latdep,lngdep,latf,lngf,tsimul)
-			// {  
-			// 	//console.log ('latdep dans polyline twa :' +latdep+ ' lngdep : ' +lngdep +' latf : ' +latf +' lngf : '+lngf +' tsimul : '+tsimul)
-			// 	//Cap généré par le curseur recherche du vent et twa en consequence 
-			// 	hdg_ini=dist_cap_ortho(latdep,lngdep,latf,lngf,)[1]
-            //     //console.log( 'cap initial :' + hdg_ini)
-			// 	vent_ini=vit_angle_vent (latdep,lngdep,tsimul)
-			// 	tws_ini=vent_ini[0]
-			// 	twd_ini=vent_ini[1]				
-			// 	twa_ini=ftwao(hdg_ini,twd_ini)
-			// 	polyline= [[latdep,lngdep]]  //initialisation de la polyline
-			// 	dt=600   //intervalle entre deux points =10 mn
-
-			// 	lat6 = latdep
-			// 	lng6= lngdep
-				
-            //     twa=twa_ini    // la twa est celle donnée initialement par le curseur
-			// 	capa=hdg_ini
-			// 	t=tsimul
-			// 	for (var i=0;i<=72;i++)
-			// 	{tsimul = t+i*dt
-			// 	meteo=vit_angle_vent (lat6,lng6,tsimul)
-			// 	vit_polaire=polinterpol2d(polairesjs,twa_ini,meteo[0])	
-            //     capa=twa_ini+meteo[1]
-			// 	point=deplacement(lat6,lng6,dt,vit_polaire,capa)     //calcul du nouveau point 
-			// 	lat6=point[0];lng6=point[1];
-			// 	polyline.push(point)	
-			// 	}
-			// 	//console.log (' polyline '+polyline)
-			// return [polyline,twa_ini]  
-			// }
-
-
-			// function polyline_twa2(latdep,lngdep,latf,lngf,tsimul,twaini)
-			// {  
-			// 	//console.log ('latdep dans polyline twa :' +latdep+ ' lngdep : ' +lngdep +' latf : ' +latf +' lngf : '+lngf +' tsimul : '+tsimul)
-			// 	//Cap généré par le curseur recherche du vent et twa en consequence 
-			// 	hdg_ini=dist_cap_ortho(latdep,lngdep,latf,lngf,)[1]
-            //     //console.log( 'cap initial :' + hdg_ini)
-			// 	meteo=vit_angle_vent (latdep,lngdep,tsimul)
-			// 	tws_ini=meteo[0]
-			// 	console.log ('meteo : vitesse et direction '+meteo)
-			// 	twd_ini=meteo[1]				
-			// 	//twa_ini=ftwao(hdg_ini,twd_ini)
-			// 	polyline= [[latdep,lngdep]]  //initialisation de la polyline
-			// 	dt=600   //intervalle entre deux points =10 mn
-
-			// 	lat6 = latdep
-			// 	lng6= lngdep
-				
-			// 	twa=+twaini    // la twa initiale est celle donnée initialement par le curseur
-			// 	capa=(twaini+meteo[1])%360	//le cap initial est deduit de la twa par la twaini et la direction du vent 
-
-			// 	console.log ('CAP a '+capa)
-			// 	t=tsimul
-			// 	for (var i=0;i<=72;i++)
-			// 	{tsimul2 = t+i*dt
-			// 	meteo=vit_angle_vent (lat6,lng6,tsimul2)
-			// 	vit_polaire=polinterpol2d(polairesjs,twaini,meteo[0])	
-            //     capa=twaini+meteo[1]
-			// 	point=deplacement(lat6,lng6,dt,vit_polaire,capa)     //calcul du nouveau point 
-			// 	lat6=point[0];lng6=point[1];
-			// 	polyline.push(point)	
-			// 	}
-			// 	//console.log (' polyline '+polyline)
-			// return [polyline,twaini]  
-			// }
-
-
-
-            // function polyline_cap(latdep,lngdep,latf,lngf,tsimul)
-			// {  
-			// 	console.log (' polyline latdep  :' +latdep+ ' lngdep : ' +lngdep +' latf : ' +latf +' lngf : '+lngf +' tsimul : '+tsimul)
-			// 	//Cap généré par le curseur recherche du vent et twa en consequence 
-			// 	hdg_ini=dist_cap_ortho(latdep,lngdep,latf,lngf,)[1]
-
-            //     // console.log( 'cap initial :' + hdg_ini)
-			// 	vent_ini=vit_angle_vent (latdep,lngdep,tsimul)
-			// 	tws_ini=vent_ini[0]
-			// 	twd_ini=vent_ini[1]				
-			// 	twa_ini=ftwao(hdg_ini,twd_ini)
-			// 	polyline2= [[latdep,lngdep]]  //initialisation de la polyline
-			// 	dt=600   //intervalle entre deux points =10 mn
-			// 	lat7 = latdep
-			// 	lng7= lngdep
-			// 	twa=twa_ini    // la twa est celle donnée initialement par le curseur
-			// 	capi=hdg_ini
-
-			// 	 t=tsimul
-			// 	 for (var i=0;i<=72;i++)
-            //         {tsimul = t+i*dt
-            //          meteo=vit_angle_vent (lat7,lng7,tsimul)
-            //          twa=ftwa(hdg_ini,meteo[1])
-            //         //  console.log ('hdg_ini ' + hdg_ini + ' meteo 1 '+meteo[1] )
-            //         //  console.log( 'test dans polyline_cap   twa : '+ twa + 'cap : ' +capi+' dirvent :'+meteo[1] + 'vit_vent :' + meteo[0]) 
-
-            //          vit_polaire=polinterpol2d(polairesjs,twa,meteo[0])	                
-            //         // console.log('cap dans polylinecap'+capi )
-            //         point=deplacement(lat7,lng7,dt,vit_polaire,capi)     //calcul du nouveau point 
-            //         lat7=point[0];lng7=point[1];
-            //         polyline2.push(point)	
-            //         }
-			// //	console.log (' polyline '+polyline2)
-			// return [polyline2,capi]  
-			// }
+        
 
 
 			function polyline_cap2(latdep,lngdep,cap,tsimul)
@@ -506,28 +406,6 @@ var intlhmn=new Intl.DateTimeFormat("fr-FR",{day:"2-digit",month:"2-digit", hour
 				//console.log (' polyline dans wondleaf js '+polyline)
 			return [polyline,twa_ini]  
 			}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     // Fonction zezo                
         function crsdist(lat1, lon1, lat2, lon2)
@@ -787,31 +665,8 @@ var intlhmn=new Intl.DateTimeFormat("fr-FR",{day:"2-digit",month:"2-digit", hour
 					polyline.push(point)	
 					}
 			}
-
-
-
-
-
-
-
-
-
-
-			//var polylinesimul=[[latdep,lngdep],[latdep,lngdep+2],[latdep+1,lngdep+3],[latdep+2,lngdep+4]]
-		
-			//document.formu.stocksimul.value=polylinesimul
-			
-
-			//alert('latdep : '+ latdep + ' choix1 : '+choix1+ ' valeur '+ valeur1+ ' choix2 : '+choix2+ ' valeur '+ valeur2+'  choix3 : '+choix3+ ' valeur '+ valeur3 )
-			return polyline
+		return polyline
 		
 		}
-
-		// function testPolyline(){
-		// polyline=	[[latdep,lngdep],[latdep,lngdep+2],[latdep+1,lngdep+3],[latdep+2,lngdep+4]]
-		// return polyline
-
-		// }
-			
 
 		

@@ -154,10 +154,11 @@
             "bouee1":{"nom":"Fernando de Noronha","lat":"007-42-00-S" ,"lng":"032-18-48-W"}, 
             "bouee12":{"nom":"Fernando de Noronha","lat":"007-42-00-S" ,"lng":"033-00-00-W"}, 
             "bouee2":{"nom":"Atlantique Sud ","lat":"026-00-00-S" ,"lng":"023-00-00-W"},
-            "bouee21":{"nom":"Atlantique Sud ","lat":"044-00-00-S" ,"lng":"007-00-00-W"},
+            "bouee21":{"nom":"Atlantique Sud ","lat":"043-00-00-S" ,"lng":"015-00-00-W"},
             "bouee22":{"nom":"Atlantique Sud ","lat":"035-00-00-S" ,"lng":"016-00-00-W"},
             "bouee3":{"nom":"Atlantique Sud 2","lat":"040-00-00-S" ,"lng":"005-00-00-E"},
             "bouee4":{"nom":"Cap de bonne esperance","lat":"034-56-02-S" ,"lng":"020-00-00-E"},
+            "bouee41":{"nom":"Cap de bonne esperance","lat":"040-00-00-S" ,"lng":"020-00-00-E"},
             "bouee5":{"nom":"australie","lat":"050-00-00-N" ,"lng":"116-00-00-E"},
             "bouee6":{"nom":"Cap Horn","lat":"056-00-00-N" ,"lng":"67-00-00-W"},
             "arrivee":{"nom":"Les Sables d'Olonne","lat":"046-29-00-N" ,"lng":"001-47-00-W"}

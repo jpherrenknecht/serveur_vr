@@ -117,7 +117,7 @@ def f_isochrone2(l, temps_initial_iso):
     if (numero_iso<48):
         nb_points=nb_points_ini
     else:
-        nb_points=50 
+        nb_points=nb_points_sec 
 
 #variante 
     points=isochrone[-l:,0:2]  # ici on selectionne -l lignes en partant du bas et les colonnes 0 1 6
@@ -311,7 +311,7 @@ def fonction_routeur(course,latdep,lngdep,arrivee,t0=time.time()):
     TWS, TWD = prevision_tableau3(tig, GR, t0, pt1_np) # prevision au point de depart identique pour les 2
 
 # definition des temps des isochrones
-    dt1           = np.ones(72) * 600  # intervalles de temps toutes les 10mn pendant dix heure puis toutes les heures
+    dt1           = np.ones(72) * 600  # intervalles de temps toutes les 10mn pendant 12 heure puis toutes les heures
     dt2           = np.ones(370) * 3600
     intervalles   = np.concatenate(([t0 - tig], dt1, dt2))
     temps_cumules = np.cumsum(intervalles)
@@ -568,16 +568,17 @@ def leaflet():
 def windleaf():
 
     tsimul=time.time()
-    global x0,y0,x1,y1,nb_points_ini
+    global x0,y0,x1,y1,nb_points_ini,nb_points_sec 
 
     #**********************************************************************************
-    nb_points_ini=200
+    nb_points_ini=250
+    nb_points_sec=20 
     #**********************************************************************************
     
     # valeurs par defaut si pas de retour de dashboard
     course="440.1"
     depart="depart"
-    arrivee="bouee12"
+    arrivee="bouee21"
     nomcourse="Vendee Globe"
     bateau="imoca60vg"
 

@@ -334,7 +334,11 @@ def prevision_tableau2 (GR,temp,point):
     
 
 if __name__ == '__main__':
-
+    print()
+    print ('*****************************************************************************************')
+    print ('uploadgrib*******************************************************************************')
+    print ('*****************************************************************************************')
+    print()
     #chargement_grib()
     tig, GR = chargement_grib()
     tic = time.time()
@@ -356,7 +360,7 @@ if __name__ == '__main__':
     latitude='046-28-16-N'
     longitude='001-49-53-W'
     d = chaine_to_dec(latitude, longitude)  # co
-    dateprev=datetime(2020 , 11 , 15 ,16, 0 ,  0)  #date prevision en heure locale
+    dateprev=datetime(2020 , 11 , 27 ,16, 0 ,  0)  #date prevision en heure locale
     print ('\nDateprev : ',dateprev , ' local')
     # je peux la transformer en secondes mais ce sont des secondes locales15.712287.5
 
@@ -416,7 +420,9 @@ if __name__ == '__main__':
   #  print('\nLe {} heure Locale Pour latitude {:6.2f} et longitude{:6.2f} '.format(dateprev_formate_local, d[1], d[0]))
     print('\n\tAngle du vent   {:6.1f} °'.format(angle_vent))
     print('\tVitesse du vent {:6.3f} Noeuds'.format(vit_vent_n))
-
+print('*******************************************************************************************************************')
+print('*******************************************************************************************************************')
+print()
 
 # # prevision avec date donnee    
 

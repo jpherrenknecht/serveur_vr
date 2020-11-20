@@ -2,7 +2,7 @@
 // fonctions jquery au chargement du document
 
 // classes pour les icones
-var LeafletIcon=L.Icon.extend({
+    var LeafletIcon=L.Icon.extend({
     options:{
     shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
     shadowSize: [41, 41],
@@ -20,13 +20,19 @@ var LeafletIcon=L.Icon.extend({
 
     $.get("courses.json", function(data)       // courses json est dans le repertoire principal
         {
-   const obj= JSON.parse(data);
-   nomcourse= obj[course]["nom"]
-   console.log('Nom de la course :'+ nomcourse)
-   bateau=obj[course]["bateau"]
-   console.log('Bateau :'+ bateau)
-   
+        const obj= JSON.parse(data);
+        nomcourse= obj[course]["nom"]
+        console.log('Nom de la course :'+ nomcourse)
+        bateau=obj[course]["bateau"]
+        console.log('Bateau :'+ bateau)
+       
+        
     });
+
+
+    
+
+
 
 
     $( function()
