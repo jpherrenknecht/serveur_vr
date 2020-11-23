@@ -132,15 +132,15 @@ def chargement_grib():
     #si utc inferieur à 5 la date doit etre celle de la veille l'heure est inchangée
     if utc[3]<5:
         utc = time.gmtime(time.time() -18000)
-    dategrib_tpl=datetime(utc[0] , utc[1] , utc[2] , int(heure_grib),0, 0)
-    tig=time.mktime(dategrib_tpl.timetuple())+decalage_h*3600    #temps initial du grib en sec locales 
-    dategrib= str(dategrib_tpl) 
+    dategrib=datetime(utc[0] , utc[1] , utc[2] , int(heure_grib),0, 0)
+    tig=time.mktime(dategrib.timetuple())+decalage_h*3600    #temps initial du grib en sec locales 
+    dategrib= str(dategrib) 
     date=dategrib[0:10].replace("-","")
     strhour=dategrib[11:13]
     filename="gribs/gfs_" + date +"-"+strhour+".hdf5"
     filenamehdf5 = os.path.join(basedir,filename)
 
-    print ('dategrib_tpl',dategrib_tpl)
+    print ('dategrib',dategrib)
 
     if os.path.exists(filenamehdf5) == False:        #si ce fichier n'existe pas deja
         leftlon, rightlon, toplat, bottomlat = 0, 360, 90, -90
@@ -182,7 +182,7 @@ def chargement_grib():
     GR = dset1[:]
     tig = dset1.attrs['time_grib']
     f2.close()
-    return tig, GR
+    return tig, GR,filenamehdf5
   
 
 
@@ -340,7 +340,7 @@ if __name__ == '__main__':
     print ('*****************************************************************************************')
     print()
     #chargement_grib()
-    tig, GR = chargement_grib()
+    tig, GR ,filename = chargement_grib()
     tic = time.time()
 
     print()
@@ -357,8 +357,8 @@ if __name__ == '__main__':
     print ("\nTest position fixee temps fixe\
             \n---------------------------------")
 
-    latitude='046-28-16-N'
-    longitude='001-49-53-W'
+    latitude='021-23-50-N'
+    longitude='030-30-53-W'
     d = chaine_to_dec(latitude, longitude)  # co
     dateprev=datetime(2020 , 11 , 27 ,16, 0 ,  0)  #date prevision en heure locale
     print ('\nDateprev : ',dateprev , ' local')
@@ -396,8 +396,8 @@ if __name__ == '__main__':
     print('******************************************************************************************************')
 
     # Depart
-    latitude_d = '046-28-16-N'
-    longitude_d = '001-49-53-W'
+    latitude_d = '021-22-54-N'
+    longitude_d = '030-31-46-W'
     d = chaine_to_dec(latitude_d, longitude_d)  # co
     print ('latitude et longitude',d)
  

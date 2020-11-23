@@ -11,9 +11,10 @@ from datetime import datetime
 from scipy.interpolate import RegularGridInterpolator
 from pathlib import Path
 
-tic = time.localtime()
+tic=time.time()
+ticstruct = time.localtime()
 utc = time.gmtime()
-decalage_h = tic[3] - utc[3]
+decalage_h = ticstruct[3] - utc[3]
 leftlon, rightlon, toplat, bottomlat = 0, 360, 90, -90
 # constitution d'un nom de fichier
 basedir = os.path.abspath(os.path.dirname(__file__))
@@ -21,6 +22,7 @@ ix = np.arange(129)  # temps
 iy = np.arange(181)  # latitudes
 iz = np.arange(361)  # longitudes
 #filenameold="gribs/gfs_" + datemoinsunjour(datem1) +"-"+strhour+".hdf5"
+
 def chaine_to_dec(latitude, longitude):
     ''' Transforme les chaines latitude et longitude en un tuple (x,y) '''
     ''' Les latitudes nord sont negatives '''
@@ -63,18 +65,24 @@ def datemoinsunjour(date):
     return datem1
 
 def chargement_hdf5(fichierhdf5):
+    print(' nom du fichier hdf5 en chargement',fichierhdf5)
     f2 = h5py.File(fichierhdf5, 'r')
     list(f2.keys())
     dset1 = f2['dataset_01']
     GR =  dset1[:]
     tig = dset1.attrs['time_grib']
     f2.close()
-    return tig,GR 
+    return tig,GR ,fichierhdf5
 
 
-def nomfichiers(dateessai_sec):
-    dateessai_tuple      = time.gmtime(dateessai_sec)             # transformation en tuple utc
+def nomfichiers():
+    tic=time.time()
+    dateessai_tuple      = time.gmtime(tic)             # transformation en tuple utc
     mn_utc=dateessai_tuple[3]*60+dateessai_tuple[4]
+    dateessai_sec        = tic
+    dateessai_formatcourt=time.strftime("%Y%m%d", time.localtime(dateessai_sec))
+    dateessai_formatcourt_utc=time.strftime("%Y%m%d", time.gmtime(dateessai_sec))
+     
     # recherche de l'heure anterieure
     hdja= [0,215,245,275,305,  575,605,635,665,  935,965,995,1025, 1295,1325,1355,1385,1410,1500]      # 210 = 3h30
     hdja2= [0, 305,  665, 1025,1385,1500] 
@@ -110,6 +118,10 @@ def nomfichiers(dateessai_sec):
     else:
         filename384="gribs/gfs_"+dateessai_formatcourt_utc+"-"+dicgrib2[hdja2[indice2]]+".hdf5"
         filenameold="gribs/gfs_"+dateessai_formatcourt_utc+"-"+dicgrib2[hdja2[indice2]][0:2]+".hdf5"
+
+    filename = os.path.join(basedir,filename)
+    filenameold = os.path.join(basedir,filenameold)
+    filename384 = os.path.join(basedir,filename384)
     return  filenameold,filename384,filename   
 
 
@@ -118,10 +130,12 @@ def nomfichiers(dateessai_sec):
 def chargement_fichier_provisoire(filename):
     '''chargement d'un fichier avec le nom defini contenant la date et l'indice max'''
     '''Pour l'instant  par securite on charge tout a partir de 0 '''
-
-    date    =filename[10:18]
-    strhour =filename [19:21]
-    imax=filename [22:25]
+    print('Chargement provisoire')
+    date    =filename[-20:-12]
+    print (date)
+    strhour =filename [-11:-9]
+    print(strhour)
+    imax=filename [-8:-5]
     # print (strhour)
     # print('imax',imax)
     # constitution de la liste des fichiers a charger
@@ -137,6 +151,7 @@ def chargement_fichier_provisoire(filename):
                 bottomlat) + "&dir=%2Fgfs." + date + "%2F" + strhour
        
             nom_fichier = "gribs/grib_" + date + "_" + strhour + "_" + prev   # nom sous lequel le fichier est sauvegarde provisoirement
+            nom_fichier = os.path.join(basedir,nom_fichier)
             urlretrieve(url, nom_fichier)                               # recuperation des fichiers provisoires
             print(' Enregistrement prévision {}-{}-{} {} heures effectué: '.format(date,strhour,imax,prev))  # destine a suivre le chargement des previsions
             
@@ -150,24 +165,30 @@ def chargement_fichier_provisoire(filename):
     return PR
 
 def chargement_fichier384(filename384):
-    imax=filename384 [22:25]
+    imax=filename384 [-8:-5]
+    # print('Chargement_fichier384')
+    # print('imax',imax)
     if imax=='384':
+        # print('imax=384')
         # on verifie qu'il n'existe pas deja
-        if os.path.exists(filename) == False:
-            year =int(filename384[10:14])
-            month=int(filename384[14:16])
-            day  =int(filename384[16:18])
-            date    =filename384[10:18]
-            strhour =filename384 [19:21]
+        if os.path.exists(filename384) == False:
+            # print('le fichier 384 n existe pas')
+            year =int(filename384[-20:-16])
+            # print('year',year)
+            month=int(filename384[-16:-14])
+            # print('month',month)
             
+            day  =int(filename384[-14:-12])
+            # print('day',day)
+            date    =filename384[-20:-12]
+            # print(date)
+            strhour =filename384 [-11:-9]
+            # print(strhour)
             dategrib=datetime(year , month , day , int(strhour),0, 0)
+
             tig=time.mktime(dategrib.timetuple())+decalage_h*3600    #temps initial du grib en sec locales 
             tig_formate    = time.strftime(" %d %b %Y %H: %M: %S ", time.localtime(tig)) #tig en secondes locales 
-            #print ('tig formate_local', tig_formate)
-            # print (strhour)
-            # print('imax',imax)
-            # constitution de la liste des fichiers a charger
-            
+                        
             GR = np.zeros((129, 181, 360),dtype=complex)  # initialise le np array de complexes qui recoit les donnees
             iprev = []
             for a in range(0, 387, 3):  # Construit le tuple des indexs des fichiers maxi 387
@@ -180,6 +201,7 @@ def chargement_fichier384(filename384):
                         bottomlat) + "&dir=%2Fgfs." + date + "%2F" + strhour
             
                     nom_fichier = "gribs/grib_" + date + "_" + strhour + "_" + prev   # nom sous lequel le fichier est sauvegarde provisoirement
+                    nom_fichier = os.path.join(basedir,nom_fichier)
                     urlretrieve(url, nom_fichier)                               # recuperation des fichiers provisoires
                     print(' Enregistrement prévision {}-{}-{} {} heures effectué: '.format(date,strhour,imax,prev))  # destine a suivre le chargement des previsions
                     
@@ -198,10 +220,11 @@ def chargement_fichier384(filename384):
 
 
         else :     # au cas ou le fichier existerai deja
-            tig,GR=chargement_hdf5(filename384)                    
+            print ('le fichier existe deja ')
+            tig,GR,filename384=chargement_hdf5(filename384)                    
     else :
         print("erreur: le fichier n'est pas un 384")    
-    return tig,GR
+    return tig,GR,filename
 
 
 def chargement_old(filenameold):
@@ -212,22 +235,24 @@ def chargement_old(filenameold):
     GR = dset1[:]
     tig = dset1.attrs['time_grib']
     f2.close()
-    return tig,GR
+    return tig,GR,filenameold
  
 
 
-def chargement_global(date_sec):
-    filenameold,filename384,filename=nomfichiers(date_sec) 
+def chargement_grib():
+    date_sec=tic
+    filenameold,filename384,filename=nomfichiers() 
+
     if os.path.exists(filename384) == False:    #s'il n'existe pas on le charge completement
-       tig,GR=chargement_fichier384(filename384)
+       tig,GR,filename384=chargement_fichier384(filename384)
     else :         
-       tig,GR=chargement_hdf5(filename384)
+       tig,GR,filename384=chargement_hdf5(filename384)
 
     if os.path.exists(filename) == False:    #s'il n'existe pas on le charge completement
        PR=chargement_fichier_provisoire(filename)
        # il ne nous reste plus qu'a substituer dans le 384
        # on cherche l indice superieur
-       imax=filename [22:25]
+       imax=filename [-8:-5]
        # on substitue les indices 
        indicemax=int(int(imax)/3+3)
        GR[2:indicemax,:,:]=PR
@@ -238,82 +263,259 @@ def chargement_global(date_sec):
        f1.close()
 
     else :         
-       tig,GR=chargement_hdf5(filename)
-    return tig,GR   
+       tig,GR,filename=chargement_hdf5(filename)
+    return tig,GR,filename   
+
+
+
+
+
+def prevision0(tig, GR, tp, latitude, longitude):
+
+    #tp =tp-3600    # ajustement pour VR qui semble ne fonctionner qu'en UTC et ne pas tenir compte de l'heure locale
+    #fn3 = RegularGridInterpolator((ix, iy, iz), GR)
+    itemp = int((tp - tig) / 3600 / 3)
+    ilati = int((latitude + 90))
+    ilong = int((longitude) % 360)
+
+    print (GR(0,0,0))
+
+    print ('indices',itemp,ilati,ilong )
+
+    #vcplx = fn3((itemp, ilati, ilong))
+    #print('vcplx',vcplx)
+    vit_vent_n = np.abs(vcplx) * 1.94384
+    angle_vent = (270 - np.angle(vcplx, deg=True)) % 360
+    return vit_vent_n, angle_vent
+
+
+
+def prevision(tig, GR, tp, latitude, longitude):
+
+   # tp =tp-3600    # ajustement pour VR qui semble ne fonctionner qu'en UTC et ne pas tenir compte de l'heure locale
+    fn3 = RegularGridInterpolator((ix, iy, iz), GR)
+    itemp = (tp - tig) / 3600 / 3
+    ilati = (latitude + 90)
+    ilong = (longitude) % 360
+
+    print ('indices',itemp,ilati,ilong )
+
+    vcplx = fn3((itemp, ilati, ilong))
+    #print('vcplx',vcplx)
+    vit_vent_n = np.abs(vcplx) * 1.94384
+    angle_vent = (270 - np.angle(vcplx, deg=True)) % 360
+    return vit_vent_n, angle_vent
+
+def previsionv2(tig, GR, tp, latitude, longitude):
+    ''' calcul optimise 1/20eme du temps initial !! '''
+    itemp = (tp - tig) / 3600 / 3
+    ilati = (latitude + 90)
+    ilong = (longitude) % 360
+    iitemp=math.floor(itemp)
+    iilati=math.floor(ilati)
+    iilong=math.floor(ilong)
+    ditemp=itemp%1
+    dilati=ilati%1
+    dilong=ilong%1
+    v000=GR[iitemp][iilati][iilong]
+    v010=GR[iitemp][iilati+1][iilong]
+    v001=GR[iitemp][iilati][iilong+1]
+    v011=GR[iitemp][iilati+1][iilong+1]
+    v0x0=v000+dilati*(v010-v000)
+    v0x1=v001+dilati*(v011-v001)
+    v0xx=v0x0+dilong*(v0x1-v0x0)
+    v100=GR[iitemp+1][iilati][iilong]
+    v110=GR[iitemp+1][iilati+1][iilong]
+    v101=GR[iitemp+1][iilati][iilong+1]
+    v111=GR[iitemp+1][iilati+1][iilong+1]
+    v1x0=v100+dilati*(v110-v100)
+    v1x1=v101+dilati*(v111-v101)
+    v1xx=v1x0+dilong*(v1x1-v1x0)
+    vxxx=v0xx+ditemp*(v1xx-v0xx)   
+    vit_vent_n = np.abs(vxxx) * 1.94384
+    angle_vent = (270 - np.angle(vxxx, deg=True)) % 360
+    
+    return vit_vent_n, angle_vent
+
+
+
+
+
+def prevision_tableau (tig,GR,tp,points):
+    '''Le tableau des points est un tableau de points complexes'''
+    '''retourne un tableau des previsions angles et vitesses '''
+   
+    #tp =tp-3600    # ajustement pour VR qui semble ne fonctionner qu'en UTC et ne pas tenir compte de l'heure locale
+    fn3 = RegularGridInterpolator((ix, iy, iz), GR)
+    itemp=np.ones( points.shape)*(tp - tig) / 3600 / 3
+    #print('shape base',points.shape)
+    #print ('itemp  base',itemp)
+    ilati = np.imag(points) + 90
+    #print('ilati base',ilati)
+    ilong = np.real(points) %360
+    e=np.concatenate((itemp.T,ilati.T,ilong.T ),axis=1)
+
+    #print ('tableau e\n',e)
+
+    # print ('e.shape)',e.shape)
+    # print ('e',e)
+    prevs = fn3((e))   #prevs est un tableau de complexes des vecteurs du vent aux differents points
+    vitesse = np.abs(prevs) * 1.94384
+    #print (vitesse)
+    angle_vent = (270 - np.angle(prevs, deg=True)) % 360
+    #print (angle_vent)
+
+    return vitesse, angle_vent
+
+def prevision_tableau3 (tig,GR,tp,pointsxy):
+    '''Le tableau des points est un tableau de points np array x y'''
+    '''retourne un tableau des previsions angles et vitesses '''
+    #tp =tp-3600    # ajustement pour VR qui semble ne fonctionner qu'en UTC et ne pas tenir compte de l'heure locale
+    fn3 = RegularGridInterpolator((ix, iy, iz), GR)
+
+    itemp=np.ones( pointsxy.shape[0])*(tp - tig) / 3600 / 3
+    #print ('itemp ',itemp)
+    item =itemp.reshape((-1,1))
+
+    ilati =  pointsxy.T[1] + 90
+    #print('ilati',ilati)
+    ilat= ilati.reshape((-1,1))
+
+    ilong =  pointsxy.T[0]%360
+    #print('ilong',ilong)
+    ilon=ilong.reshape((-1,1))
+    e=np.concatenate((item,ilat,ilon ),axis=1)
+
+    #print ('e.shape)',e.shape)
+    #print ('e',e)
+    prevs = fn3((e))   #prevs est un tableau de complexes des vecteurs du vent aux differents points
+    vitesse = np.abs(prevs) * 1.94384
+    #print (vitesse)
+    angle_vent = (270 - np.angle(prevs, deg=True)) % 360
+    #print (angle_vent)
+    return vitesse, angle_vent
+    #return None
+
+
+def prevision_tableau2 (GR,temp,point):
+    ''' calcule les previsions a partir d'une liste des temps par rapport au depart et des points sous forme complexe'''
+    
+    temps = temp.reshape((1, -1))    #-3600              # Ajustement VR 3600 
+    points=point.reshape((1, -1))
+    fn3 = RegularGridInterpolator((ix, iy, iz), GR)
+    tab_itemp=temps.reshape((1,-1))/ 3600 / 3
+    ilati = np.imag(points) + 90
+    ilong = np.real(points) %360
+    e = np.concatenate(( tab_itemp.T, ilati.T, ilong.T), axis=1)
+    prevs = fn3((e))   #prevs est un tableau de complexes des vecteurs du vent aux differents points
+    vitesse = np.abs(prevs) * 1.94384
+    #print (vitesse)
+    angle_vent = (270 - np.angle(prevs, deg=True)) % 360
+    #print (angle_vent)
+
+    return vitesse, angle_vent
+
+
+
+
+
+
+
+
+
 
 
 
 
 
 if __name__ == '__main__':
-    print()
-    tic=time.time()                                    # temps instantane en secondes locales
-    # date et heure simulation chargement grib************************************
-    datejour            = datetime(2020,11,20, 11,6,0)                  # en heures locales
-    # *************************************************************************************
-    dateessai=datejour
-    dateessai_sec        = time.mktime(dateessai.timetuple())  
+    # print()
+    # print('**uploadgrib3.py********************************************************************************************')
+    # tic=time.time()                                    # temps instantane en secondes locales
+    # # date et heure simulation chargement grib************************************
+    # datejour            = datetime(2020,11,20, 11,6,0)                  # en heures locales
+    # # *************************************************************************************
+    # dateessai=datejour
+    # dateessai_sec        = time.mktime(dateessai.timetuple())  
     dateessai_sec=tic           # transformation en secondes
-    dateessai_tuple      = time.gmtime(dateessai_sec)                      # transformation en tuple utc
-    #print(dateessai_tuple)
-    # verification
-    dateessai_formate = time.strftime(" %d %b %Y %H: %M: %S ", time.localtime(dateessai_sec))
-    tic_formate    = time.strftime(" %d %b %Y %H: %M: %S ", time.localtime(tic))
-    dateessai_formatcourt=time.strftime("%Y%m%d", time.localtime(dateessai_sec))
-    dateessai_formatcourt_utc=time.strftime("%Y%m%d", time.gmtime(dateessai_sec))
-    tic_formatcourt=time.strftime("%Y%m%d", time.localtime(tic))
-    print ('Fichiers necessaires a la date du ',dateessai_formate)
-    # print(tic_formate)
-    # print('dateessaiformatcourt',dateessai_formatcourt)
+    # dateessai_tuple      = time.gmtime(dateessai_sec)                      # transformation en tuple utc
+    # # verification
+    # dateessai_formate = time.strftime(" %d %b %Y %H: %M: %S ", time.localtime(dateessai_sec))
+    # tic_formate    = time.strftime(" %d %b %Y %H: %M: %S ", time.localtime(tic))
+    # dateessai_formatcourt=time.strftime("%Y%m%d", time.localtime(dateessai_sec))
+    # dateessai_formatcourt_utc=time.strftime("%Y%m%d", time.gmtime(dateessai_sec))
+    # datem1_utc=time.strftime("%Y%m%d", time.gmtime(dateessai_sec-86400))
+
+    # tic_formatcourt=time.strftime("%Y%m%d", time.localtime(tic))
+    # print ('Fichiers necessaires a la date du ',dateessai_formate)
+    # # print(tic_formate)
+    # # print('dateessaiformatcourt',dateessai_formatcourt)
     # print('dateessaiformatcourt_utc',dateessai_formatcourt_utc)
-    # print('date moins un jour',datem1)
-    # print(tic_formatcourt)
-    # print(dateessai_tuple)
+    # print('date moins un jour',datem1_utc)
+    # # print(tic_formatcourt)
+    # # print(dateessai_tuple)
 
   
 
-    filenameold,filename384,filename=nomfichiers(dateessai_sec)
-    print()
-    print (filenameold)
-    print (filename384)
-    print (filename)
-    print()
-    tig,GR=chargement_global(dateessai_sec)
+    filenameold,filename384,filename=nomfichiers()
+    # print()
+    # print (filenameold)
+    # print (filename384)
+    # print (filename)
+    # print()
+    # #print( filename [-8:-5])
+
+    tig,GR,filename=chargement_grib()
     
     # maintenant on fait des verifications
     # date et heure simulation de prevision meteo ********************************
     dateprev       =datetime(2020,11,25,22, 1,  0)
     dateprev_s=time.mktime(dateprev.timetuple()) # en secondes locales
     dateprev_formate_local = time.strftime(" %d %b %Y %H:%M:%S ", time.localtime(dateprev_s))
+    dateprev=tic
+    print()
     #*****************************************************************************
 
-    latitude_d = '036-35-39-N'
-    longitude_d = '024-21-41-W'
-    d = chaine_to_dec(latitude_d, longitude_d)  
+    # latitude_d = '036-35-39-N'
+    # longitude_d = '024-21-41-W'
+
+
+    latitude='046-28-16-N'
+    longitude='001-49-53-W'
+    d = chaine_to_dec(latitude, longitude)  
 
     print ('\nPrevisions avec Nouveau  grib') 
-    print('Fichier utilise', filename)  
+    tig,GR,filename=chargement_grib()
+    print('Fichier utilise', filename)
+    # print(tig)
+    # tig_formate    = time.strftime(" %d %b %Y %H: %M: %S ", time.localtime(tig))
+    # print('tig formate',tig_formate)
+    # print('tic formate',tic_formate)
+    # print('ecart tic tig ',(tic-tig)/3600)
     vit_vent_n, angle_vent = prevision(tig, GR,dateessai_sec, d[1], d[0])
-    print('\nLe {} heure Locale Pour latitude {:6.2f} et longitude{:6.2f} '.format(dateprev_formate_local, d[1], d[0]))
+    
+    print('Le{} heure Locale Pour latitude {:6.2f} et longitude{:6.2f} '.format(dateprev_formate_local, d[1], d[0]))
     print('\tAngle du vent   {:6.3f} °'.format(angle_vent))
     print('\tVitesse du vent {:6.3f} Noeuds'.format(vit_vent_n))
 
 
     print ('\nPrevisions avec grib 384 ') 
-    print('Fichier utilise', filename384)
-    tig,GR= chargement_fichier384(filename384)
+    tig,GR,filename384= chargement_fichier384(filename384)
+    print('Fichier 384 utilise', filename384)
     vit_vent_n, angle_vent = prevision(tig, GR,dateessai_sec, d[1], d[0])
-    print('\nLe {} heure Locale Pour latitude {:6.2f} et longitude{:6.2f} '.format(dateprev_formate_local, d[1], d[0]))
+    print('Le{} heure Locale Pour latitude {:6.2f} et longitude{:6.2f} '.format(dateprev_formate_local, d[1], d[0]))
     print('\tAngle du vent   {:6.3f} °'.format(angle_vent))
     print('\tVitesse du vent {:6.3f} Noeuds'.format(vit_vent_n))
 
     print ('\nPrevisions avec ancien modele de grib ') 
-    print('Fichier utilise', filenameold)
-    tig,GR= chargement_old(filenameold)
+    tig,GR,filenameold= chargement_old(filenameold)
+    print('Fichier old utilise', filenameold)
     vit_vent_n, angle_vent = prevision(tig, GR,dateessai_sec, d[1], d[0])
-    print('\nLe {} heure Locale Pour latitude {:6.2f} et longitude{:6.2f} '.format(dateprev_formate_local, d[1], d[0]))
+    print('Le{} heure Locale Pour latitude {:6.2f} et longitude{:6.2f} '.format(dateprev_formate_local, d[1], d[0]))
     print('\tAngle du vent   {:6.3f} °'.format(angle_vent))
     print('\tVitesse du vent {:6.3f} Noeuds'.format(vit_vent_n))
+    print('**********************************************************************************************')
+    print()
 
 
     

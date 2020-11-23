@@ -7,60 +7,16 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 #ET = tz.gettz('Europe/Paris') # European time
 
 
-
-
-def filename():
-    ''' retourne le nom du fichier du dernier grib sous lequel le grib chargé sera sauvé ou du dernier grib disponible
-       la date du grib et le tig en secondes locales '''
-    t = time.localtime()
-    utc = time.gmtime()
-    decalage_h = t[3] - utc[3]
-    heures = [0,6,12,18]
-        #on bloque l'heure du grib
-    heure_grib = heures[((utc[3] + 19) // 6) % 4]  #
-    #si utc inferieur à 5 la date doit etre celle de la veille
-    if utc[3]<5:
-        utc = time.gmtime(time.time() -18000)
-    dategrib =datetime(utc[0] , utc[1] , utc[2] , int(heure_grib),0, 0)
-    tig=time.mktime(dategrib.timetuple())+decalage_h*3600
-
-    date= str(dategrib)
-    filename="gribs/grib_gfs_" + date + ".hdf5"
-    filenamehdf5 = os.path.join(basedir,filename)
-    
-    #time.time()- tig correspond bien à l'ecart de temps avec le grib
-    return filenamehdf5,date,tig
-
-
-
-
-
-
-
-print()
-print()
-
-print ('filename : ' ,filename() [0] )
-print ('dategrib : ' ,filename() [1] )
-print ('tig : ' ,filename() [2] )
-
-
-dategrib=filename() [1]
-tig=filename()[2]
-tic=time.time()
-date=dategrib[0:10].replace("-","")
-print ('date', date)
-strhour=dategrib[11:13]
-print('strhour',strhour)
-
-
-tig_formate_utc = time.strftime(" %d %b %Y %H:%M:%S ", time.gmtime(tig))
-
-print('tig_formate_utc',tig_formate_utc)
-print('temps instantane',time.time())
-
-print ('ecart', (tic-tig)/3600)
-
+def datemoinsunjour(date):
+    '''date est sous la forme yyyymmdd par ex 20201102'''
+    '''renvoie le jour precedent sous lameme forme '''
+    year=int(date[0:4])
+    month=int(date[4:6])
+    day=int(date [6:8])
+    datejour=datetime(year, month, day ,0,0,0)
+    djs=time.mktime(datejour.timetuple())-24*3600   # moins un jour
+    datem1 = time.strftime("%Y%m%d", time.localtime(djs))
+    return datem1
 
 
 print('\n')
@@ -117,3 +73,26 @@ print('tig_formate_local',tig_formate_local)
 print()
 
 # ecart en secondes entre le tempts instantané et le temps du grib
+
+
+tic=time.time()                                    # temps instantane en secondes locales
+# date et heure simulation chargement grib************************************
+datejour            = datetime(2020,11,20, 11,6,0)                  # en heures locales
+# *************************************************************************************
+dateessai=datejour
+dateessai_sec        = time.mktime(dateessai.timetuple())  
+dateessai_sec=tic           # transformation en secondes
+dateessai_tuple      = time.gmtime(dateessai_sec)                      # transformation en tuple utc
+# verification
+dateessai_formate = time.strftime(" %d %b %Y %H: %M: %S ", time.localtime(dateessai_sec))
+tic_formate    = time.strftime(" %d %b %Y %H: %M: %S ", time.localtime(tic))
+dateessai_formatcourt=time.strftime("%Y%m%d", time.localtime(dateessai_sec))
+dateessai_formatcourt_utc=time.strftime("%Y%m%d", time.gmtime(dateessai_sec))
+tic_formatcourt=time.strftime("%Y%m%d", time.localtime(tic))
+print ('date formatee ',dateessai_formate)
+print(tic_formate)
+print('dateessaiformatcourt',dateessai_formatcourt)
+print('dateessaiformatcourt_utc',dateessai_formatcourt_utc)
+
+print(tic_formatcourt)
+print(dateessai_tuple)

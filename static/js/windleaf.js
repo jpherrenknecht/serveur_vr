@@ -2,6 +2,10 @@
 var intl=new Intl.DateTimeFormat("fr-EU",{month:"2-digit",day:"2-digit", year:"2-digit",hour12: false,hour:"2-digit", minute:"2-digit" });
 var intlhmn=new Intl.DateTimeFormat("fr-FR",{day:"2-digit",month:"2-digit", hour12: false,hour:"2-digit", minute:"2-digit" });
 
+function itineraire(latdep,lngdep,latar,lngar){
+	document.location.href="http://127.0.0.1:8080/windleaf?latdep="+latdep+"&lngdep="+lngdep+"&latar="+latar+"&lngar="+lngar+"&o=244&twa=-123.43469&userid=59c2706db395b292ed622d84&type=me&race=440.1";
+ 
+}
 
 
 function arrondi(a,n)
@@ -175,6 +179,29 @@ function arrondi(a,n)
 				sec=Math.round(((abs-deg)*60-min)*60)
 				return deg+'°'+min+'mn'+sec+'s'
 			}  
+
+			function pos_dec_mn_lat(pos)
+			{  // transforme les degres decimaux en mn sec
+			 	abs=Math.abs(pos)
+				deg=Math.floor(abs)
+				min=Math.floor((abs-deg)*60)
+				sec=Math.round(((abs-deg)*60-min)*60)
+				if (pos>0) {var hem='N' }
+				else {var hem='S'}
+				return hem+' '+deg+'°'+min+'mn'+sec+'s'
+			}  
+
+			function pos_dec_mn_lng(pos)
+			{  // transforme les degres decimaux en mn sec
+			 	abs=Math.abs(pos)
+				deg=Math.floor(abs)
+				min=Math.floor((abs-deg)*60)
+				sec=Math.round(((abs-deg)*60-min)*60)
+				if (pos>0) {var hem='E'}
+				else{var hem='W'}
+				return hem+' '+deg+'°'+min+'mn'+sec+'s'
+			}  
+
 
 			function h_mn(sec)
 			{
@@ -460,16 +487,19 @@ function arrondi(a,n)
 			twasimul2=+document.getElementById('twasimul2').value
 			twasimul3=+document.getElementById('twasimul3').value
 			twasimul4=+document.getElementById('twasimul4').value
+			twasimul5=+document.getElementById('twasimul5').value
 			
 			capsimul1=+document.getElementById('capsimul1').value
 			capsimul2=+document.getElementById('capsimul2').value
 			capsimul3=+document.getElementById('capsimul3').value
 			capsimul4=+document.getElementById('capsimul4').value
+			capsimul5=+document.getElementById('capsimul5').value
 			
 			tsimulation1=+document.getElementById('tsimul1').value
 			tsimulation2=+document.getElementById('tsimul2').value
 			tsimulation3=+document.getElementById('tsimul3').value
 			tsimulation4=+document.getElementById('tsimul4').value
+			tsimulation5=+document.getElementById('tsimul5').value
 
 			console.log ('*************************************************************')
 			console.log ('********************* SIMULATION ****************************')
@@ -501,6 +531,16 @@ function arrondi(a,n)
 			else if(	document.getElementById('cap4').checked)
 			{choix4='cap';valeur4= capsimul4}
 			else {choix4='rien';valeur4=0}
+
+			if(	document.getElementById('twa5').checked)
+			{choix5='twa';valeur5= twasimul5}
+			else if(	document.getElementById('cap5').checked)
+			{choix5='cap';valeur5= capsimul5}
+			else {choix5='rien';valeur5=0}
+
+
+
+
 			
 
 			//calcul des points 
@@ -522,7 +562,7 @@ function arrondi(a,n)
 			t2=tsimulation2/10 
 			t3=tsimulation3/10 
 			t4=tsimulation4/10 
-			
+			t5=tsimulation5/10 
 			
 			// 1er tronçon
 			console.log('choix1 '+choix1+' : '+valeur1 )
@@ -631,7 +671,7 @@ function arrondi(a,n)
 
 
 			// 4eme troncon
-			console.log('choix3 '+choix4+' : '+valeur4 )
+			console.log('choix4 '+choix4+' : '+valeur4 )
 
 			console.log('tsimulation 1 +2 + 3  : '+(tsimulation1+tsimulation2 +tsimulation3))
 			for (var i=0;i<tsimulation4/10;i++)
@@ -665,6 +705,43 @@ function arrondi(a,n)
 					polyline.push(point)	
 					}
 			}
+
+			// 5eme troncon
+			console.log('choix5 '+choix5+' : '+valeur5 )
+
+			console.log('tsimulation 1 +2 + 3 +4 : '+(tsimulation1+tsimulation2 +tsimulation3+tsimulation4))
+			for (var i=0;i<tsimulation5/10;i++)
+			{tsimul5 = t100+(+tsimulation1+tsimulation2 +tsimulation3+tsimulation4)*60+i*600
+				console.log ('********************************tsimul4  '+tsimul4)
+				console.log ( 'pour test'+lat8 +' '+ lng8+' '+tsimul4)
+				if (choix5=='twa')
+				{	meteo=vit_angle_vent (lat8,lng8,tsimul4) //lat8 lng8 sont les latitudes issues de la sequence precedente
+					twa =twasimul5
+					console.log('twasimul5 : '+twasimul5)
+					vit_polaire=polinterpol2d(polairesjs,twa,meteo[0])
+					console.log('vit_polaire : '+vit_polaire)
+					capa=+twa+meteo[1]
+					console.log('capa : '+capa)
+					point=deplacement(lat8,lng8,dt,vit_polaire,capa) 
+					console.log('nouveau point : '+point) 
+					lat8=point[0];lng8=point[1];
+					polyline.push(point)	
+					}
+				if (choix5=='cap')
+				{	meteo=vit_angle_vent (lat8,lng8,tsimul5)
+					cap5 =capsimul5
+					console.log('capsimul5 : '+capsimul5)
+					twa=ftwa(cap5,meteo[1])
+					vit_polaire=polinterpol2d(polairesjs,twa,meteo[0])
+					console.log('vit_polaire : '+vit_polaire)
+					console.log('capa : '+capa)
+					point=deplacement(lat8,lng8,dt,vit_polaire,cap4) 
+					console.log('nouveau point : '+point) 
+					lat8=point[0];lng8=point[1];
+					polyline.push(point)	
+					}
+			}
+
 		return polyline
 		
 		}

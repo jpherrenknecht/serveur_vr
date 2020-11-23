@@ -1,4 +1,4 @@
-
+# -*- coding: utf-8 -*-
 import os
 import time
 from datetime import timedelta
@@ -12,7 +12,7 @@ from json import dumps
 from json import JSONEncoder
 import folium
 import webbrowser
-from uploadgrib import *
+from uploadgrib3 import *
 from fonctions_vr import *
 from global_land_mask import globe
 import pickle
@@ -35,7 +35,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] =False
 db = SQLAlchemy(app)
 
 tic=time.time()
-tig, GR        = chargement_grib()
+tig, GR ,filename       = chargement_grib()
 nb_points_ini=20
 
 class NumpyArrayEncoder(JSONEncoder):
@@ -240,29 +240,29 @@ def f_isochrone2(l, temps_initial_iso):
 
 
 
-def fonction_routeur(course,latdep,lngdep,arrivee,t0=time.time()):
+def fonction_routeur(course,latdep,lngdep,latar,lngar,t0=time.time()):
     '''x0,y0,x1,y1 depart et arrivee '''
     ''' Le but de la fonction frouteur est a partir de x0 y0 x1 y1 
     de retourner une multipolyline des isochrones'''
     ''' ex d'initialisation : course,depart,arrivee =    457,"bouee_2","arrivee"    '''
 
 
-    global isochrone,intervalles,TWS,TWD,tig,GR,angle_objectif,angle_twa_pres,angle_twa_ar,temps_mini,A,polaires,tab_twa,tab_tws
-    tig, GR        = chargement_grib()
+    global isochrone,intervalles,TWS,TWD,angle_objectif,angle_twa_pres,angle_twa_ar,temps_mini,A,polaires,tab_twa,tab_tws
+    
 
     with open('static/js/courses.json', 'r') as fichier:
         data1 = json.load(fichier)
-    print ('course',course)
+    
     bateau=  (data1[course]["bateau"])
     
     # latdep = (data1[course][depart]["lat"])
     # lngdep = (data1[course][depart]["lng"])
-    latar  = (data1[course][arrivee]["lat"])
-    lngar  = (data1[course][arrivee]["lng"])
-    print('\nBateau : ',bateau)
-
-    print ('Depart :',latdep, lngdep,' ')
-    print ('Arrivee :',latar, lngar,' ')
+    # latar  = (data1[course][arrivee]["lat"])
+    # lngar  = (data1[course][arrivee]["lng"])
+    print ('\nCourse  :',course)
+    print   ('Bateau  :',bateau)
+    print   ('Depart  :',latdep, lngdep,' ')
+    print   ('Arrivee :',latar, lngar,' ')
     print()
 
     with open('static/js/polars.json', 'r') as fichier:   # ce fichier est dans les fichiers static
@@ -285,14 +285,14 @@ def fonction_routeur(course,latdep,lngdep,arrivee,t0=time.time()):
     angle_vent=0
     tableau_caps=np.array([45,60,90,120])   # en fait ce sont les tests sur des twa
     vitesses_test=polaire2_vectv2(polaires,tab_twa, tab_tws,vit_vent,angle_vent,tableau_caps)
-    print('test de polaires sur twa 45 60 90 120 et vent 15 noeuds',vitesses_test)
-
+    print('Test de polaires sur twa 45 60 90 120 et vent 15 noeuds',vitesses_test)
+    
 
     #x0,y0=chaine_to_dec(latdep, lngdep)  # conversion des latitudes et longitudes en tuple
     x0,y0=lngdep,latdep
-    x1,y1=chaine_to_dec(latar, lngar)
-    print ('x0,y0',x0,y0)
-    print ('x1,y1',x1,y1)
+    x1,y1=latar, lngar
+    # print ('x0,y0',x0,y0)
+    # print ('x1,y1',x1,y1)
 
 
 
@@ -538,7 +538,7 @@ def leaflet():
     print ('latar',latar)
     print ('lngar',latar)
 
-
+    
 
     multipolyline,route,comment=fonction_routeur(course,latdep,lngdep,arrivee,t0)
     #print ('route',route)
@@ -568,11 +568,11 @@ def leaflet():
 def windleaf():
 
     tsimul=time.time()
-    global x0,y0,x1,y1,nb_points_ini,nb_points_sec 
-
+    global x0,y0,x1,y1,nb_points_ini,nb_points_sec ,tig,GR
+    tig, GR,filename        = chargement_grib()
     #**********************************************************************************
-    nb_points_ini=250
-    nb_points_sec=20 
+    nb_points_ini=200
+    nb_points_sec=50 
     #**********************************************************************************
     
     # valeurs par defaut si pas de retour de dashboard
@@ -584,6 +584,9 @@ def windleaf():
 
     with open('static/js/courses.json', 'r') as fichier:                      # change dans fichier courants
         data1 = json.load(fichier)
+        latar  = (data1[course][arrivee]["lat"])
+        lngar  = (data1[course][arrivee]["lng"])
+
     try:
         (request.args['latdep'])
         latdep = -float(request.args['latdep'])
@@ -605,17 +608,32 @@ def windleaf():
         bateau=data1[course]['bateau']
         print('on est dans except')
         print ('latdep lngdep ',latdep,lngdep )  
+
+    try :
+        (request.args['latar'])
+        lngar = -float(request.args['latar'])    #interversion a corriger et corriger dans fonction routeur
+        latar = float(request.args['lngar'])
+      
+    except:
+        lat2  = (data1[course][arrivee]["lat"])
+        lng2  = (data1[course][arrivee]["lng"])    
+        latar,lngar=chaine_to_dec(lat2, lng2)    # la aussi il y a inversion
+      
+
   
     # chargement du grib partiel pour utilisation ulterieure en js
-    global tig, GR
+   # global tig, GR,filename
     latini=(math.floor(-latdep)+10)    # latitude la plus au nord en premier et latitude nord negative pour charger le grib pour javascript
     latfin=(latini -20)
     lngini=(math.floor(lngdep)-20)%360
     lngfin=(lngini+40)%360
     u10,v10=vents_encode2(latini,latfin,lngini,lngfin)   
    
+    
+    
     # calcul de la route et de la multipolyline des isochrones
-    multipolyline,route,comment,x0,y0,x1,y1,l1,l2,polairesjs2=fonction_routeur(course,latdep,lngdep,arrivee,tsimul)
+       
+    multipolyline,route,comment,x0,y0,x1,y1,l1,l2,polairesjs2=fonction_routeur(course,latdep,lngdep,latar,lngar,tsimul)
     latar=y1
     lngar=x1
     red=[]
@@ -626,21 +644,33 @@ def windleaf():
         else:
                 red.append(multipolyline[i]) 
 
+    print ('filename',filename)
+    
+    base=os.path.basename(filename)  
+    nomgrib=os.path.splitext(base)[0]    
 
-    print ('(635latdep lngdep dans main.py',latdep,lngdep)
+    print ('Prevision')
+    vit_vent_n, angle_vent = prevision(tig, GR,tsimul, latdep,lngdep)
+    print('\n\tAngle du vent   {:6.1f} °'.format(angle_vent))
+    print('\tVitesse du vent {:6.3f} Noeuds'.format(vit_vent_n))
+    print()     
+    print('nomgrib',nomgrib)
+    
+    print ('(630 latdep lngdep dans main.py',latdep,lngdep)
+    print ('(631 latar lngar dans main.py',latar,lngar)
+
     print ('(636)latini latfin lngini lngfin dans main.py',latini,latfin,lngini,lngfin)
     print ('tsimul {:12.0f} s'.format(tsimul))
     print ('course',course)
     print ('Nom de la course: ',nomcourse)
     print ('Bateau',bateau)
     print ('latdep lngdep ',latdep,lngdep )  
-    return render_template("windleaf.html", multipolyred=red,multipolyblack=black,course=course,nomcourse=nomcourse,bateau=bateau,route=route,comment=comment,l1=l1,l2=l2,polairesjs=polairesjs2,lngdep=lngdep,latdep=latdep,lngar=lngar,latar=latar, t0=tsimul,tig=tig,latini=latini,lngini=lngini,latfin=latfin,lngfin=lngfin,U10=u10, V10=v10 ,result=request.form)
+    return render_template("windleaf.html", nomgrib=nomgrib, multipolyred=red,multipolyblack=black,course=course,nomcourse=nomcourse,bateau=bateau,route=route,comment=comment,l1=l1,l2=l2,polairesjs=polairesjs2,lngdep=lngdep,latdep=latdep,lngar=lngar,latar=latar, t0=tsimul,tig=tig,latini=latini,lngini=lngini,latfin=latfin,lngfin=lngfin,U10=u10, V10=v10 ,result=request.form)
 
 
 
 if __name__ == "__main__" :
     db.create_all()                 #creation de la base de donnees
     app.debug=True
-    app.config['JSON_AS_ASCII']=False
-    
+    app.config['JSON_AS_ASCII']=True
     app.run(host='127.0.0.1', port=8080, debug=True)

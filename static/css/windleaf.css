@@ -15,7 +15,7 @@ body{padding:0;margin:0;background:#fff;behavior:url(csshover.htc)}
 #twasimul{margin-left: 20px;font-weight:800;color:green;}
 
 .noir {color:black; padding:1px; margin:1px;}
- a:hover {background:rgba(131, 131, 202, 0.973); padding:1px;margin:1px;}
+ a:hover {background:rgba(131, 131, 202, 0.973); }
 
 .twa {width: 50px ; height :20px;background:red;padding: 4px; margin: 0px;}
 
@@ -61,7 +61,7 @@ H3{font-size:15;font-family:Lucida Grande,Lucida Sans,Arial,sans-serif;color:rgb
          /* height:200px;  */
     background: rgba(255,255,255, 0.7);
     position: absolute;
-    top:250px;
+    top:260px;
     left:0%;
     padding:0px;
     margin:5px;
@@ -87,7 +87,7 @@ H3{font-size:15;font-family:Lucida Grande,Lucida Sans,Arial,sans-serif;color:rgb
  .tableau span {
   display:inline;
   float:left;
-  /* border:1px solid #FF6600; */
+  border:1px solid #FF6600; */
   margin:0px;
   padding:3px;
  }
@@ -225,10 +225,13 @@ H3{font-size:15;font-family:Lucida Grande,Lucida Sans,Arial,sans-serif;color:rgb
  margin:0px;
  padding:0px;
  height:100% !important; height:1em;
+ border:0px solid #070707;
 }
 .Tableau p.legende {font-weight:bold}
 .Tableau span.col1 {width:80px; text-align:center;}
 .Tableau span.col2 {width:145px; text-align:center;}
+.Tableau span.col2b {width:145px; text-align:center; color :blue;}
+
 .Tableau span.col3 {width:120px; text-align:center;padding:4px;}
 .Tableau span.col4 {width:50px; text-align:center;border:0px solid #070707;}
 
