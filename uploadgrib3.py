@@ -64,15 +64,17 @@ def datemoinsunjour(date):
     datem1 = time.strftime("%Y%m%d", time.localtime(djs))
     return datem1
 
-def chargement_hdf5(fichierhdf5):
-    print(' nom du fichier hdf5 en chargement',fichierhdf5)
-    f2 = h5py.File(fichierhdf5, 'r')
+def chargement_hdf5(fichiergrib):
+    
+    f2 = h5py.File(fichiergrib, 'r')
     list(f2.keys())
     dset1 = f2['dataset_01']
     GR =  dset1[:]
     tig = dset1.attrs['time_grib']
     f2.close()
-    return tig,GR ,fichierhdf5
+    print('\nNom du fichier grib chargé ',fichiergrib)
+    print()
+    return tig,GR ,fichiergrib
 
 
 def nomfichiers():
@@ -130,11 +132,11 @@ def nomfichiers():
 def chargement_fichier_provisoire(filename):
     '''chargement d'un fichier avec le nom defini contenant la date et l'indice max'''
     '''Pour l'instant  par securite on charge tout a partir de 0 '''
-    print('Chargement provisoire')
+    #print('Chargement provisoire')
     date    =filename[-20:-12]
-    print (date)
+    #print (date)
     strhour =filename [-11:-9]
-    print(strhour)
+    #print(strhour)
     imax=filename [-8:-5]
     # print (strhour)
     # print('imax',imax)
@@ -247,23 +249,24 @@ def chargement_grib():
        tig,GR,filename384=chargement_fichier384(filename384)
     else :         
        tig,GR,filename384=chargement_hdf5(filename384)
+    if filename!=filename384 :
+        if os.path.exists(filename) == False:    #s'il n'existe pas on le charge completement
+            PR=chargement_fichier_provisoire(filename)
+            # il ne nous reste plus qu'a substituer dans le 384
+            # on cherche l indice superieur
+            imax=filename [-8:-5]
+            # on substitue les indices 
+            indicemax=int(int(imax)/3+3)
+            GR[2:indicemax,:,:]=PR
+            # et on le sauve
+            f1 = h5py.File(filename, "w")
+            dset1 = f1.create_dataset("dataset_01", GR.shape, dtype='complex', data=GR)
+            dset1.attrs['time_grib'] = tig  # transmet le temps initial du grib en temps local en s pour pouvoir faire les comparaisons
+            f1.close()
 
-    if os.path.exists(filename) == False:    #s'il n'existe pas on le charge completement
-       PR=chargement_fichier_provisoire(filename)
-       # il ne nous reste plus qu'a substituer dans le 384
-       # on cherche l indice superieur
-       imax=filename [-8:-5]
-       # on substitue les indices 
-       indicemax=int(int(imax)/3+3)
-       GR[2:indicemax,:,:]=PR
-       # et on le sauve
-       f1 = h5py.File(filename, "w")
-       dset1 = f1.create_dataset("dataset_01", GR.shape, dtype='complex', data=GR)
-       dset1.attrs['time_grib'] = tig  # transmet le temps initial du grib en temps local en s pour pouvoir faire les comparaisons
-       f1.close()
+        else :         
+            tig,GR,filename=chargement_hdf5(filename)
 
-    else :         
-       tig,GR,filename=chargement_hdf5(filename)
     return tig,GR,filename   
 
 
@@ -278,9 +281,9 @@ def prevision0(tig, GR, tp, latitude, longitude):
     ilati = int((latitude + 90))
     ilong = int((longitude) % 360)
 
-    print (GR(0,0,0))
+    
 
-    print ('indices',itemp,ilati,ilong )
+    #print ('indices',itemp,ilati,ilong )
 
     #vcplx = fn3((itemp, ilati, ilong))
     #print('vcplx',vcplx)
@@ -298,7 +301,7 @@ def prevision(tig, GR, tp, latitude, longitude):
     ilati = (latitude + 90)
     ilong = (longitude) % 360
 
-    print ('indices',itemp,ilati,ilong )
+    #print ('indices',itemp,ilati,ilong )
 
     vcplx = fn3((itemp, ilati, ilong))
     #print('vcplx',vcplx)
@@ -484,9 +487,9 @@ if __name__ == '__main__':
     longitude='001-49-53-W'
     d = chaine_to_dec(latitude, longitude)  
 
-    print ('\nPrevisions avec Nouveau  grib') 
+    #print ('\nPrevisions avec Nouveau  grib') 
     tig,GR,filename=chargement_grib()
-    print('Fichier utilise', filename)
+    #print('Fichier utilise', filename)
     # print(tig)
     # tig_formate    = time.strftime(" %d %b %Y %H: %M: %S ", time.localtime(tig))
     # print('tig formate',tig_formate)

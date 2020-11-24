@@ -35,7 +35,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] =False
 db = SQLAlchemy(app)
 
 tic=time.time()
-tig, GR ,filename       = chargement_grib()
+#tig, GR ,filename       = chargement_grib()
 nb_points_ini=20
 
 class NumpyArrayEncoder(JSONEncoder):
@@ -259,11 +259,11 @@ def fonction_routeur(course,latdep,lngdep,latar,lngar,t0=time.time()):
     # lngdep = (data1[course][depart]["lng"])
     # latar  = (data1[course][arrivee]["lat"])
     # lngar  = (data1[course][arrivee]["lng"])
-    print ('\nCourse  :',course)
-    print   ('Bateau  :',bateau)
-    print   ('Depart  :',latdep, lngdep,' ')
-    print   ('Arrivee :',latar, lngar,' ')
-    print()
+    # print ('\nCourse  :',course)
+    # print   ('Bateau  :',bateau)
+    # print   ('Depart  :',latdep, lngdep,' ')
+    # print   ('Arrivee :',latar, lngar,' ')
+    # print()
 
     with open('static/js/polars.json', 'r') as fichier:   # ce fichier est dans les fichiers static
         data2 = json.load(fichier)
@@ -285,7 +285,8 @@ def fonction_routeur(course,latdep,lngdep,latar,lngar,t0=time.time()):
     angle_vent=0
     tableau_caps=np.array([45,60,90,120])   # en fait ce sont les tests sur des twa
     vitesses_test=polaire2_vectv2(polaires,tab_twa, tab_tws,vit_vent,angle_vent,tableau_caps)
-    print('Test de polaires sur twa 45 60 90 120 et vent 15 noeuds',vitesses_test)
+    # print('Test de polaires sur twa 45 60 90 120 et vent 15 noeuds',vitesses_test)
+    # print(' pour imoca 60 resultat attendu 10.371 12.026 15.832 16;475')
     
 
     #x0,y0=chaine_to_dec(latdep, lngdep)  # conversion des latitudes et longitudes en tuple
@@ -320,15 +321,15 @@ def fonction_routeur(course,latdep,lngdep,latar,lngar,t0=time.time()):
 
 
 # on imprime les donnees de depart    
-    print()
-    print('Depart :      Latitude {:6.4f}     \tLongitude {:6.4f}'.format(y0, x0))
-    print('Arrivee:      Latitude {:6.4f}     \tLongitude {:6.4f}'.format(y1, x1))
-    tig_formate_utc = time.strftime(" %d %b %Y %H:%M:%S ", time.gmtime(tig))
-    tic_formate_local = time.strftime(" %d %b %Y %H:%M:%S ", time.localtime(tic))
-    print('Heure UTC du dernier Grib             ',tig_formate_utc)
-    print('Heure Locale de depart de la prevision',tic_formate_local)
-    print ('Ecart en heures ( = ecart - ecartUTC ) ', (tic-tig)/3600)
-    print() 
+    # print()
+    # print('Depart :      Latitude {:6.4f}     \tLongitude {:6.4f}'.format(y0, x0))
+    # print('Arrivee:      Latitude {:6.4f}     \tLongitude {:6.4f}'.format(y1, x1))
+    # tig_formate_utc = time.strftime(" %d %b %Y %H:%M:%S ", time.gmtime(tig))
+    # tic_formate_local = time.strftime(" %d %b %Y %H:%M:%S ", time.localtime(tic))
+    # print('Heure UTC du dernier Grib             ',tig_formate_utc)
+    # print('Heure Locale de depart de la prevision',tic_formate_local)
+    # print ('Ecart en heures ( = ecart - ecartUTC ) ', (tic-tig)/3600)
+    # print() 
 
 #********************************************************************************************************************
 
@@ -429,9 +430,9 @@ def fonction_routeur(course,latdep,lngdep,latar,lngar,t0=time.time()):
     multipolyline=[arr.tolist() for arr in polyline]
     del multipolyline[0][0]
     # affichage du temps total
-    print ('\nHeure de depart v2 ',time.strftime(" %d %b %Y %H:%M:%S ", time.localtime(t0)))
+    print ('\nHeure de depart  ',time.strftime(" %d %b %Y %H:%M:%S ", time.localtime(t0)))
     #print ("temps à l'arrivee en s ",chem[-1, 2])
-    print ("Heure d'arrivée v2",time.strftime(" %d %b %Y %H:%M:%S ", time.localtime(chem[-1, 2])))
+    print ("Heure d'arrivée  ",time.strftime(" %d %b %Y %H:%M:%S ", time.localtime(chem[-1, 2])))
     
     duree = (temps_cum[-1] - t0)
     #print('temps total2 en s ', duree2)
@@ -441,7 +442,7 @@ def fonction_routeur(course,latdep,lngdep,latar,lngar,t0=time.time()):
     s=duree-(j*3600*24+h*3600+mn*60)
 
 #print('temps total  {}h {}mn'.format(duree/3600,(duree-duree//3600))/60)
-    print('Temps total      v {:2.0f}j {:2.0f}h {:2.0f}mn {:2.0f}s'.format(j, h, mn ,s ))
+    print('Temps de parcours {:2.0f}j {:2.0f}h {:2.0f}mn {:2.0f}s'.format(j, h, mn ,s ))
     return multipolyline,route3,comment,x0,y0,x1,y1,l1,l2,polaires
 
 
@@ -594,8 +595,8 @@ def windleaf():
         course = request.args['race']
         nomcourse=data1[course]['nom']
         bateau=data1[course]['bateau']
-        print('On est dans try : Valeurs récupérées par get')
-        print ('latdep lngdep ',latdep,lngdep )  
+        # print('On est dans try : Valeurs récupérées par get')
+        # print ('latdep lngdep ',latdep,lngdep )  
 
     except :   
         
@@ -606,8 +607,8 @@ def windleaf():
         lngdep,latdep=chaine_to_dec(lat1, lng1)
         nomcourse=data1[course]["nom"]
         bateau=data1[course]['bateau']
-        print('on est dans except')
-        print ('latdep lngdep ',latdep,lngdep )  
+        # print('on est dans except')
+        # print ('latdep lngdep ',latdep,lngdep )  
 
     try :
         (request.args['latar'])
@@ -644,23 +645,23 @@ def windleaf():
         else:
                 red.append(multipolyline[i]) 
 
-    print ('filename',filename)
+    # print ('filename',filename)
     
     base=os.path.basename(filename)  
     nomgrib=os.path.splitext(base)[0]    
 
-    print ('Prevision')
+    print ('Prevision au point de depart')
     vit_vent_n, angle_vent = prevision(tig, GR,tsimul, latdep,lngdep)
-    print('\n\tAngle du vent   {:6.1f} °'.format(angle_vent))
+    print('\tAngle du vent   {:6.1f} °'.format(angle_vent))
     print('\tVitesse du vent {:6.3f} Noeuds'.format(vit_vent_n))
     print()     
-    print('nomgrib',nomgrib)
+    # print('nomgrib',nomgrib)
     
-    print ('(630 latdep lngdep dans main.py',latdep,lngdep)
-    print ('(631 latar lngar dans main.py',latar,lngar)
+    # print ('(630 latdep lngdep dans main.py',latdep,lngdep)
+    # print ('(631 latar lngar dans main.py',latar,lngar)
 
-    print ('(636)latini latfin lngini lngfin dans main.py',latini,latfin,lngini,lngfin)
-    print ('tsimul {:12.0f} s'.format(tsimul))
+    print ('Chargement du grib pour js entre {:6.3f} {:6.3f} et  {:6.3f} {:6.3f}'.format(latini,latfin,lngini,lngfin))
+    print ('Heure de depart de la simulation  {} '.format(time.strftime(" %d %b  %H:%M:%S ", time.localtime(tsimul))))
     print ('course',course)
     print ('Nom de la course: ',nomcourse)
     print ('Bateau',bateau)
