@@ -579,7 +579,7 @@ def windleaf():
     # valeurs par defaut si pas de retour de dashboard
     course="440.1"
     depart="depart"
-    arrivee="bouee21"
+    arrivee="bouee41"
     nomcourse="Vendee Globe"
     bateau="imoca60vg"
 
