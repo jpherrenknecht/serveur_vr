@@ -216,6 +216,7 @@ function arrondi(a,n)
 			function polinterpol2d(bateau,twa,tws)
 			{	// parametres : polaires du bateau twa et tws
 				twa=Math.abs(twa)
+				if (twa==180){twa=179.99}
 			    var i_sup=l2.findIndex(element => element > twa);
 
 				var j_sup=l1.findIndex(element => element > tws);				
@@ -367,7 +368,7 @@ function arrondi(a,n)
 				//Cap généré par le curseur recherche du vent et twa en consequence 
 				hdg_ini=cap    // console.log( 'cap initial :' + hdg_ini)
 				meteo_ini=vit_angle_vent (latdep,lngdep,tsimul)
-	//			console.log ('394 meteo_ini'+ meteo_ini)
+				//console.log ('370 meteo_ini'+ meteo_ini)
 				tws_ini=meteo_ini[0]
 				twd_ini=meteo_ini[1]				
 				twa_ini=ftwao(hdg_ini,twd_ini)
@@ -380,19 +381,49 @@ function arrondi(a,n)
 
 				 t=tsimul
 				 for (var i=0;i<=72;i++)
-                    {tsimul2 = t+i*dt
+					{tsimul2 = t+i*dt
+					
+
 					 meteo=vit_angle_vent (lat7,lng7,tsimul2)
 					//console.log( 'hdg_ini'+ hdg_ini+' angle vent'+meteo[1]) 
                      twa=ftwa(hdg_ini,meteo[1])
                     //  console.log ('hdg_ini ' + hdg_ini + ' meteo 1 '+meteo[1] )
                     //  console.log( 'test dans polyline_cap   twa : '+ twa + 'cap : ' +capi+' dirvent :'+meteo[1] + 'vit_vent :' + meteo[0]) 
 					//console.log('twa : '+twa+' vit vent '+meteo[0])	
-                    vit_polaire=polinterpol2d(polairesjs,twa,meteo[0])	                
+					vit_polaire=polinterpol2d(polairesjs,twa,meteo[0])
+					lat10=lat7
+					lng10=lng7
                     // console.log('cap dans polylinecap'+capi )
                     point=deplacement(lat7,lng7,dt,vit_polaire,capi)     //calcul du nouveau point 
                     lat7=point[0];lng7=point[1];
                     polyline2.push(point)	
-                    }
+					
+					
+					// if (i==0) 
+					// {
+					// console.log( 'pour i=0  tsimul2 = '+ intl.format(1000*tsimul2) ) 
+					// console.log ('meteo pour i=0 ' + meteo)
+					// console.log ('vitesse ' + vit_polaire)
+					// console.log ('dt : '+dt)
+					// console.log ('point de depart' + lat10 + '  '+lng10  )
+					// console.log ('point Arrivee' + lat7+ '  '+lng7  )
+					// }
+
+					// if (i==1) 
+					// {
+					// // console.log( 'pour i=1  tsimul2 = '+ intl.format(1000*tsimul2) ) 
+					// // console.log ('meteo pour i=1 ' + meteo)
+					// // console.log ('vitesse ' + vit_polaire)
+					// // console.log ('dt : '+dt)
+					// // console.log ('point de depart' + lat10 + '  '+lng10  )
+					// // console.log ('point Arrivee' + lat7+ '  '+lng7  )
+					// }
+
+
+
+
+
+				}
 			//	console.log (' polyline '+polyline2)
 			return [polyline2,capi]  
 			}

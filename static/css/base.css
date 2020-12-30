@@ -4,7 +4,12 @@ H2{font-size:20pt;font-family:Lucida Grande,Lucida Sans,Arial,sans-serif;color:#
 H3{font-size:15pt;font-family:Lucida Grande,Lucida Sans,Arial,sans-serif;color:rgb(20, 12, 94);font-weight:800;text-align:center}
 H4{font-size:10pt;font-family:Lucida Grande,Lucida Sans,Arial,sans-serif;color:rgb(20, 12, 94);font-weight:800;text-align:center}
 
+#container {width:1000px;  margin : 0 auto;}
+
 .essai{font-size:15pt;font-family:Lucida Grande,Lucida Sans,Arial,sans-serif;color:rgb(20, 12, 94);font-weight:800;text-align:left}
+
+.simulation{font-family:Lucida Grande,Lucida Sans,Arial,sans-serif;color:rgb(20, 12, 94);font-weight:800;text-align:center}
+
 
 
 .red {color:red;}
@@ -24,3 +29,7 @@ H4{font-size:10pt;font-family:Lucida Grande,Lucida Sans,Arial,sans-serif;color:r
     border-radius: 5px;
     min-width: 160px;
 }
+
+
+
+canvas {position : absolute ; }

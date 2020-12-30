@@ -84,6 +84,7 @@ def nomfichiers():
     dateessai_sec        = tic
     dateessai_formatcourt=time.strftime("%Y%m%d", time.localtime(dateessai_sec))
     dateessai_formatcourt_utc=time.strftime("%Y%m%d", time.gmtime(dateessai_sec))
+    datem1_utc=time.strftime("%Y%m%d", time.gmtime(dateessai_sec-86400))     # jour moins un 
      
     # recherche de l'heure anterieure
     hdja= [0,215,245,275,305,  575,605,635,665,  935,965,995,1025, 1295,1325,1355,1385,1410,1500]      # 210 = 3h30
@@ -95,7 +96,7 @@ def nomfichiers():
     dicgrib2={(0):('18-384'),(305):('00-384'),(665):('06-384'),(1025):('12-384'),(1385):('18-384'),(1500):('18-384')}   
 
     i=0
-    while mn_utc >hdja[i]:                               # on cherche l'indice du grib disponible
+    while mn_utc >=hdja[i]:                               # on cherche l'indice du grib disponible
         i=i+1
     indice=i-1
     if indice==1385:
@@ -386,9 +387,12 @@ def prevision_tableau3 (tig,GR,tp,pointsxy):
 
     ilong =  pointsxy.T[0]%360
     #print('ilong',ilong)
+
+
+
     ilon=ilong.reshape((-1,1))
     e=np.concatenate((item,ilat,ilon ),axis=1)
-
+    #print(e)
     #print ('e.shape)',e.shape)
     #print ('e',e)
     prevs = fn3((e))   #prevs est un tableau de complexes des vecteurs du vent aux differents points
@@ -510,15 +514,15 @@ if __name__ == '__main__':
     print('\tAngle du vent   {:6.3f} °'.format(angle_vent))
     print('\tVitesse du vent {:6.3f} Noeuds'.format(vit_vent_n))
 
-    print ('\nPrevisions avec ancien modele de grib ') 
-    tig,GR,filenameold= chargement_old(filenameold)
-    print('Fichier old utilise', filenameold)
-    vit_vent_n, angle_vent = prevision(tig, GR,dateessai_sec, d[1], d[0])
-    print('Le{} heure Locale Pour latitude {:6.2f} et longitude{:6.2f} '.format(dateprev_formate_local, d[1], d[0]))
-    print('\tAngle du vent   {:6.3f} °'.format(angle_vent))
-    print('\tVitesse du vent {:6.3f} Noeuds'.format(vit_vent_n))
-    print('**********************************************************************************************')
-    print()
+    # print ('\nPrevisions avec ancien modele de grib ') 
+    # tig,GR,filenameold= chargement_old(filenameold)
+    # print('Fichier old utilise', filenameold)
+    # vit_vent_n, angle_vent = prevision(tig, GR,dateessai_sec, d[1], d[0])
+    # print('Le{} heure Locale Pour latitude {:6.2f} et longitude{:6.2f} '.format(dateprev_formate_local, d[1], d[0]))
+    # print('\tAngle du vent   {:6.3f} °'.format(angle_vent))
+    # print('\tVitesse du vent {:6.3f} Noeuds'.format(vit_vent_n))
+    # print('**********************************************************************************************')
+    # print()
 
 
     

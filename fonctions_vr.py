@@ -5,7 +5,6 @@ import math
 import time
 import datetime
 import os
-
 import json
 from json import dumps
 from json import JSONEncoder
@@ -197,6 +196,8 @@ def deplacement2(x0,y0,d_t,HDG,TWD,VT,A,twa,penalite):
     if penalite !=0 :   
         TWAO=ftwaov2( HDG,TWD)
         Virement=np.where(TWAO*twa>0,False,True)
+        # s'il y a virement on est penalise de la duree en secondes donc pour dt =600 s on est penalise de 100s si penalite =100
+        # avec winchs pros 50% pendant 75 s =32 s
         DT=np.ones(len(VT))*d_t-Virement*penalite
         HDG_R = HDG * math.pi / 180     # cap en radians
         X= x0+ DT / 3600 / 60 * VT * (np.sin(HDG_R) / math.cos(y0 * math.pi / 180)) 
@@ -290,6 +291,53 @@ def range_cap(direction_objectif, direction_vent, a_vue_objectif, angle_pres, an
     rangetotal = np.concatenate((range1, range2), axis=0)
     return rangetotal
 
+# barriere=np.array([[-56.0, -180.0], [-56.4167, -175.0], [-56.25, -170.0], [-55.6667, -165.0], [-54.75, -160.0], [-53.9167, -155.0],
+#                      [-53.6667, -150.0], [-53.6667, -140.0], [-53.6667, -145.0], [-53.6667, -135.0], [-53.9167, -130.0], [-54.0833, -125.0], 
+#                      [-54.25, -120.0], [-54.6667, -115.0], [-55.25, -110.0], [-55.75, -105.0], [-56.25, -100.0], [-57.0, -95.0], [-57.75, -90.0],
+#                      [-58.5, -85.0], [-59.0, -80.0], [-58.75, -75.0], [-58.0, -70.0], [-57.0, -65.0], [-56.0, -60.0], [-55.0, -55.0], [-50.0, -50.0], 
+#                      [-47.5, -45.0], [-46.0, -40.0], [-44.5, -35.0], [-44.0, -30.0], [-43.5, -25.0], [-43.5, -20.0], [-43.5, -15.0], [-44.0, -10.0], 
+#                      [-44.5, -5.0], [-44.5, 0.0],
+#                      [-44.6667, 5.0], [-44.8333, 10.0], [-45.0, 15.0], [-45.1667, 20.0], [-45.25, 25.0], [-45.3333, 30.0],
+#                      [-44.3333, 35.0], [-43.500, 40.0], [-42.66667, 45.0], [-42.6667, 50.0],  [-44.5000, 55.0], [-48.667, 60.0], [-50.5833, 65.0],                    
+#                      [-50.9167, 70.0], [-50.9167, 75.0], [-50.6667, 80.0],[-50.4167, 85.0],[-50.0, 90.0], [-49.0, 95.0], [-47.75, 100.0],
+#                      [-46.0, 105.0], [-46.0, 110.0], [-46.0, 115.0], [-46.0, 120.0], [-50.75, 130.0], [-51.9167, 135.0], [-52.25, 140.0],
+#                      [-52.4167, 145.0], [-52.75, 150.0], [-53.25, 155.0], [-53.8333, 160.0], [-54.25, 165.0],[-54.8333, 170.0], [-55.4167, 175.0], [-56.0, 180.0]])
+
+
+      
+
+
+
+
+
+course="440.1"
+fichier='static/js/courses.json'
+
+with open(fichier, 'r') as fichier:                      # change dans fichier courants
+    data2 = json.load(fichier)
+    barriere= np.array(data2[course]['barriere'])    #extraction de la barriere et transformation en np.array
+    
+
+
+
+def inbarriere(lat,lng):
+    a=np.where(barriere[:,1]>=lng)[0][0]
+    b=np.where(barriere[:,1]<=lng)[0][-1]
+    lat1=barriere[a][0]
+    lat2=barriere[b][0]
+    lng1=barriere[a][1]
+    lng2=barriere[b][1]
+    latbarriere=lat1+(lng-lng1)/(lng2-lng1)*(lat2-lat1)
+    if (lat-latbarriere>0):
+        lin=False
+    else :
+        lin=True
+    return lin
+
+
+
+
+
 def filename():
     ''' retourne le nom du fichier du dernier grib sous lequel le grib chargé sera sauvé ou du dernier grib disponible
        la date du grib et le tig en secondes locales '''
@@ -363,9 +411,14 @@ def polaire3_vect(polaires,tab_twa, tab_tws,TWS,TWD,HDG):
 
 
 if __name__ == '__main__':
-    course="440.1"
+    
     #print ('course',course)test de polaires
+    course="440.1"
+    fichier='static/js/courses.json'
+    #extraitbarriere (fichier,course)
 
+
+    # test extraction fichier json
     with open('static/js/courses.json', 'r') as fichier:    # ce fichier est dans les fichiers static
         data1 = json.load(fichier)  
         bateau=  (data1[course]["bateau"])

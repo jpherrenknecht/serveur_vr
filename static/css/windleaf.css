@@ -1,5 +1,5 @@
 body{padding:0;margin:0;background:#fff;behavior:url(csshover.htc)}
-
+form {margin:0px;}
 #container{width:1920px; margin:0 auto;}
 
 #header {padding:10px}
@@ -24,7 +24,7 @@ body{padding:0;margin:0;background:#fff;behavior:url(csshover.htc)}
 #windy {  width: 100%; height: 100%;            }
 #infosimul{margin-left: 30px;}
 #infosimul3{margin-left: 30px;font-size:15pt}
-
+#ok{margin:-5px 0px 2px 10px;}
 
 H1{font-size:30pt;font-family:Lucida Grande,Lucida Sans,Arial,sans-serif;color:rgb(43, 199, 82);font-weight:800;text-align:left}
 H2{font-size:20pt;font-family:Lucida Grande,Lucida Sans,Arial,sans-serif;color:#000;font-weight:800;text-align:left}
@@ -53,12 +53,12 @@ H3{font-size:15;font-family:Lucida Grande,Lucida Sans,Arial,sans-serif;color:rgb
 }
 
 
-
+/* 
 .boite2 {
   display: flex;
   flex-wrap: wrap;
      width:400px; 
-         /* height:200px;  */
+        
     background: rgba(255,255,255, 0.7);
     position: absolute;
     top:260px;
@@ -70,7 +70,7 @@ H3{font-size:15;font-family:Lucida Grande,Lucida Sans,Arial,sans-serif;color:rgb
     border-radius:10px;
     font-size:10pt;
     color:black;
-    /* display:none; */
+  
 }
 
 
@@ -81,8 +81,8 @@ H3{font-size:15;font-family:Lucida Grande,Lucida Sans,Arial,sans-serif;color:rgb
   font-size:15px;
   font-weight: bold;
 }
-
-
+ */
+ .simulation {margin:0px 5px 0px 10px;font-size:15;font-family:Lucida Grande,Lucida Sans,Arial,sans-serif;color:rgb(20, 12, 94);font-weight:800;text-align:left}
 
  .tableau span {
   display:inline;
@@ -146,37 +146,7 @@ H3{font-size:15;font-family:Lucida Grande,Lucida Sans,Arial,sans-serif;color:rgb
   }
 
 
-  .boite3 {
-    width: 400px; 
-    /* height:200px;  */
-    background: rgba(255, 255, 255, 0.7);
-    padding:5px;
-    margin:5px;
-    border:1px solid grey;
-    z-index:10;
-    border-radius:10px;
-    font-size:10pt;
-    color:black;
-   
-  }
-
-
-
-
-
-
-
-  .boite3 span{
-    border:1px solid grey;
-    margin:10px;
-  }
-  .boite3 p{
-    //border:1px solid grey;
-    margin:5px;
-  }
-
-
-  .boite0 {
+  .boite1 {
   
     width:400px; 
     background: rgba(255,255,255, 0.7);
@@ -184,7 +154,7 @@ H3{font-size:15;font-family:Lucida Grande,Lucida Sans,Arial,sans-serif;color:rgb
     top:10px;
     left:0%;
     padding:0px;
-    margin:5px;
+    margin:-8px 0px 0px 5px;
     border:1px solid grey;
     z-index:11;
     border-radius:10px;
@@ -195,12 +165,12 @@ H3{font-size:15;font-family:Lucida Grande,Lucida Sans,Arial,sans-serif;color:rgb
 }
 
   
-.boite {
+.boite2 {
   
   width:400px; 
-  height:200px;
+  height:190px;
   position :absolute ;
-  top:250px;
+  top:210px;
   background: rgba(255,255,255, 0.7);
   padding:0px;
   margin:5px;
@@ -210,6 +180,13 @@ H3{font-size:15;font-family:Lucida Grande,Lucida Sans,Arial,sans-serif;color:rgb
   font-size:17px;
   font-weight: normal;
   color:black;
+}
+
+.Tableau
+{
+  width:400px; 
+  
+  margin:0;
 }
 
 .Tableau span {
@@ -242,6 +219,61 @@ H3{font-size:15;font-family:Lucida Grande,Lucida Sans,Arial,sans-serif;color:rgb
 .Tableau span.col4r {width:58px; text-align:center; color:red;}
 .Tableau span.col4g {width:58px; text-align:center; color:#f0b30b;}
 
-.col01 {float:left;width:130px; text-align:center;border:1px solid #ff000000;border-radius:3px;padding:5px;margin:10px 5px 10px 5px;font-size:17px;}
-.col02 {float:left;width:120px; text-align:center;border:1px solid #ff000000;border-radius:3px;padding:5px;margin:10px 5px 10px 5px;font-size:17px;}
-.col03 {float:left;width:110px;text-align:center;border:1px solid #ff000000;border-radius:3px;padding:5px;margin:10px 5px 10px 5px;font-size:17px;}
+.col01 {float:left;width:130px; text-align:center;border:1px solid #ff000000;border-radius:3px;padding:5px;margin:0px 5px 10px 5px;font-size:17px;}
+.col02 {float:left;width:120px; text-align:center;border:1px solid #ff000000;border-radius:3px;padding:5px;margin:0px 5px 10px 5px;font-size:17px;}
+.col03 {float:left;width:110px;text-align:center;border:1px solid #ff000000;border-radius:3px;padding:5px;margin:0px 5px 10px 5px;font-size:17px;}
+
+
+
+/* 
+.boite3 {
+  width: 400px; 
+  /* height:200px;  
+  background: rgba(255, 255, 255, 0.7);
+  padding:5px;
+  margin:5px;
+  border:1px solid grey;
+  z-index:10;
+  border-radius:10px;
+  font-size:10pt;
+  color:black;
+ 
+} */
+
+.boite3 {
+  
+  width:400px; 
+  height:400px;
+  position :absolute ;
+  top:400px;
+  background: rgba(255,255,255, 0.7);
+  padding:0px;
+  margin:5px;
+  border:1px solid grey;
+  z-index:10;
+  border-radius:10px;
+  font-size:17px;
+  font-weight: normal;
+  color:black;
+}
+
+.boite3 span{
+  border:1px solid grey;
+  margin:10px;
+}
+.boite3 p{
+  //border:1px solid grey;
+  margin:5px;
+}
+
+
+#myCanvas1 {border: 0px solid black}
+#myCanvas2 {border: 0px solid red}
+canvas {position : absolute ; }
+
+
+#textecanvas{position : relative ;top: 20px; left :220px ;height:300px ;width:170px ;font-size: 12px; border:  1px solid red; z-index:5; border-radius: 10px;}
+#titre1     {position : relative ;top: 10px; text-align: center; font-size: 15px; font-weight :800;margin:5px; border:  1px solid rgb(47, 0, 255);  }
+#titre2     {position : relative ;top: 10px; text-align: center; font-size: 1.0em;margin:5px; border:  1px solid rgb(0, 255, 0);}
+#titre3     {position : relative ;top: 10px; text-align: center;font-size: 1.0em; margin:5px; border:  1px solid rgb(255, 0, 212); z-index:5; }
+#titre4     {position : relative ;top: 10px; text-align: center;font-size: 1.0em; margin:5px; border:  1px solid rgb(255, 51, 0); z-index:5; }

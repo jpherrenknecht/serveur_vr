@@ -5,6 +5,8 @@
         <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
         <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
         <script  type="text/javascript" src="{{ url_for('static', filename='js/windleaf.js') }}"></script>
+        <script  type="text/javascript" src="{{ url_for('static', filename='js/canvas.js') }}"></script>
+
         <script src="https://unpkg.com/leaflet@1.4.0/dist/leaflet.js"></script>
         <script src="https://api.windy.com/assets/map-forecast/libBoot.js"></script>
         <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
@@ -22,22 +24,8 @@
 
 
     <script type="text/javascript">
-
-        //    var requestURL=   '../../courses.json'
-        //    var request = new XMLHttpRequest();
-        //    request.open('GET', requestURL);
-        //    request.responseType = 'json';
-        //    request.send();
-        //    request.onload = function()
-        //     {
-        //    var courses= request.response;
-        //     }
-
-        //    bateau=courses["438.1"][nom]
-        //    console.log(bateau)
-
-         // on recupere les donnees postées
-           
+       
+           // on recupere les donnees postées
 
             latdep        = - {{ latdep }}
             lngdep        =   {{ lngdep }}
@@ -75,12 +63,22 @@
             console.log('lngfin : '+ lngfin)
             console.log('course : '+ course)
             console.log('nomgrib: '+nomgrib )
-            // console.log ('Nomcourse : '+nomcourse)
-            //console.log ('Bateau : '+ typebateau)
-           
-
-            
-            
+          
+         // Recuperation de donnees du json
+            var requestURL= " {{ url_for('static', filename='js/courses.json') }}"
+            var request = new XMLHttpRequest();
+            request.open('GET', requestURL);
+            request.responseType = 'json';
+            request.send();
+            request.onload = function()
+            {
+            var courses= request.response;
+            nomcoursetest=courses[course]['nom']
+            barriere=courses[course]['barriere']
+            //console.log('Nom de la course : '+nomcoursetest)
+            //console.log('Barriere : '+barriere)
+            }
+         
             var numero_point_jp=0
             var timestampjp=0
             var latmap=(latdep+latar)/2           
@@ -95,6 +93,9 @@
             var poly2= new L.Polyline ([[0,0],[1,1]]).setStyle({color:'red',weight:1,});
             var polylinesimul=new L.Polyline ([[0,0],[1,1]]).setStyle({color:'red',weight:1,});  
 
+
+
+
             for ( var i=0 ; i<74 ; i++ )
                 {      circle1[i] = new L.circle([1][1], {  color: 'yellow',radius: 200,});}
             for ( var i=0 ; i<74 ; i++ )
@@ -108,7 +109,7 @@
             else if (dist<10){zoomp=6}
             else if (dist<20){zoomp=5}  
             else if (dist<70){zoomp=5}  
-            else {zoomp=5}
+            else {zoomp=6}
 
             console.log('Zoom carte : '+zoomp)
             console.log('Temps en s simulation',tsimation)
@@ -155,7 +156,7 @@
         //lat: (latdep+latar)/2,
         //lon: (lngdep+lngar)/2,
         //zoom: zoomp,
-        zoom:6
+        zoom:8
         }
 
        
@@ -164,25 +165,52 @@
     windyInit(options, windyAPI =>
     {
         const { map,picker, utils, broadcast,store } = windyAPI
+        console.log('Nom de la course test : '+nomcoursetest)
+           var texteboite3= "<canvas id = 'myCanvas1' width='400' height= '400' >  Browser incompatible</canvas>"
+            +"<canvas id = 'myCanvas3' width='400' height= '400' >  Browser incompatible</canvas>"
+            +"<canvas id = 'myCanvas2' width='400' height= '400' >  Browser incompatible</canvas>"
+            +"<div id= 'textecanvas'>"
+            +"    <div id= 'titre1'>Bateau</div>"
+            +"       <div id='titre2' > TWS<br> "
+                  +"            <input type='button' id='bouton1' onclick='moins();' style ='position: relative;left:0px;margin:0px;' value= '<<'> </button>"
+                  +"            <input type='button' id='bouton2' onclick='petitmoins();' style  ='position: relative;left:0px;margin:0px;' value= '<'></button>"
+                 +"         <input type ='text'  id='tws'  size ='1'  style ='position: relative; left:0px; top:0px;   margin:0px;'>"
+                 +"        <input type='button' id='bouton3' onclick='petitplus();'style ='position: relative;left:0px;margin:0px;' value= '>'></button>"
+                 +"        <input type='button' id='bouton4' onclick='plus();' style ='position: relative;left:0px;margin:0px;'value= '>>'></button>"
+            +"       </div>"
+                +"    <div id='titre3' > TWA :   <span id='twa1' class='text1'> XXX </span> </div>"
+                +"    <div id='titre3' > Speed :   <span id='speed1' class='text1'> YYY </span> </div>"
+                +"    <div id='titre3' > Près    <span id='twamax' class='text1'> YYY </span>  <span id='vmgmax'>twamin</span> </div>"
+                +"   <div id='titre3' > V Arr    <span id='twamax2' class='text1'> YYY </span>  <span id='vmvamax'>twamax</div>"
+                +"   <div id='titre3' > Speed    <span id='twaopti' class='text1'> YYY </span>  <span id='speedmax'>twamin</span></div>"
+            +"    </div>"
+            +"</div>"
+
+
+
+
 
         // tous ces elements sont traites quoiqu'il arrive
-        L.polyline(polylineblack).setStyle({ color: 'black', weight:1, opacity:0.3, }).addTo(map);
-        L.polyline(polylinered)  .setStyle({ color: 'red'  , weight:1, opacity:0.3, }).addTo(map);
-        L.polyline(polylineblue) .setStyle({ color: 'blue' , weight:2,              }).addTo(map);
-        L.marker([latdep, lngdep],  {icon: blackIcon}).addTo(map);
-        L.marker([latar, lngar],    {icon: redIcon}).addTo(map);
-             
-        
-        L.polyline(polylinered[isogrib])  .setStyle({ color: 'red'  , weight:3, opacity:0.3, }).addTo(map);
+        console.log(polylineblue)
 
+        L.polyline(polylineblack).setStyle({ color: 'black', weight:1, opacity:0.3, }).addTo(map);          // Isochrones noirs
+        L.polyline(polylinered)  .setStyle({ color: 'red'  , weight:1, opacity:0.3, }).addTo(map);          // Isochrones rouges
+        L.polyline(polylineblue) .setStyle({ color: 'blue' , weight:2,              }).addTo(map);          // Route 
+        L.marker([latdep, lngdep],  {icon: blackIcon}).bindTooltip(tooltip[0]).addTo(map);                  // Depart
+        L.marker([latar, lngar],    {icon: redIcon}).addTo(map);                                            // Arrivee
+        L.polygon(barriere) .setStyle({ color: 'red' , weight:1,    opacity:0.5          }).addTo(map);     // Barriere 
+        L.polyline(polylinered[isogrib])  .setStyle({ color: 'red'  , weight:3, opacity:0.3, }).addTo(map); // Prochain grib
+      
+      
+        // rectangle de chargement des vents decompose en 2 parties
+        
+        
         if (lngini>180) {lngini2=-360+lngini} else {lngini2=lngini}
         if (lngfin>180) {lngfin2=-360+lngfin}else {lngfin2=lngfin}
-        // L.marker([latini, lngini2],    {icon: redIcon}).addTo(map);
-        // L.marker([latfin, lngfin2],    {icon: blackIcon}).addTo(map);
 
-        console.log('ligne 189 '+latini+' '+lngini)
+        console.log ('lngini  ,lngfin ' +lngini +' ' +lngfin)
+        console.log ('lngini2 ,lngfin2 ' +lngini2 +' ' +lngfin2)
 
-        // rectangle de chargement des vents    
         if (lngfin2>lngini2)
         {latlngpoly=[[latini, lngini2],[latini, lngfin2],[latfin, lngfin2],[latfin, lngini2],[latini, lngini2]]
          console.log('latlngpoly '+ latlngpoly)   
@@ -191,12 +219,13 @@
         {
         latlngpoly1=[[latini, -0.01],[latini, lngini2-360],[latfin, lngini2-360],[latfin,-0.01]]
         L.polyline(latlngpoly1).setStyle({ color: 'black', weight:2, opacity:0.3, }).addTo(map);
-
         latlngpoly2=[[latini, +0.01],[latini, lngfin2],[latfin, lngfin2],[latfin,+0.01]]
         L.polyline(latlngpoly2).setStyle({ color: 'blue', weight:2, opacity:0.3, }).addTo(map);
         }
       
-        var texteboite="  <span id='course2' class='col01'> Course vg </span>"
+
+
+        var texteboite1="  <span id='course2' class='col01'> Course vg </span>"
                        +" <span id='date2' class='col02'>Date</span>"
                        +" <span id='bateau2' class='col03'>Bateau</span>  "
                         +"<form name='formu3'>"
@@ -292,9 +321,9 @@
         const newElt = document.createElement("div");
             let elt = document.getElementById("windy");
             elt.appendChild(newElt);
-            newElt.classList.add("boite"); 
+            newElt.classList.add("boite2"); 
             newElt.innerHTML=
-            "<h3>Simulation :  Cap <input type='checkbox'  id= 'lignecap' checked> TWA <input type='checkbox' id='lignetwa' checked><br> "
+            "<div class=simulation>Simulation :   Cap <input type='checkbox'  id= 'lignecap' checked> TWA <input type='checkbox' id='lignetwa' checked><br> "
             +"<table>"
             +"<tr><td></td> <td>TWA</td> <td> CAP</td> <td>Duree</td> </tr>"
             +"<tr><td id = 'heure0' class='large' >"+intlhmn.format(date0)+"</td> <td><input type='text' id = 'twasimul1' size =2 value =-135 ><input type='radio' id ='twa1' name='s1' value='twa' ></td>"
@@ -318,22 +347,23 @@
             +"    <td><input type='text' id = 'tsimul5'   size =2 value =120 >mn</td></tr>" 
                         
             +"</table>"            
-            +" <input type=button id = 'valid' name='valid' value='Ok'  >";
+            +" <div id='ok'><input type=button id = 'valid' name='valid' value='Ok'  ></div>";
+       
+       
+            const newElt3 = document.createElement("div");
+            elt.appendChild(newElt3);
+            newElt3.classList.add("boite3"); 
+            newElt3.innerHTML=texteboite3
+       
+       
+        // afffiche ou non le cap et la twa        
         affichecap=1
         lignecap.addEventListener("click", function (evt)   
-        {   if (document.getElementById('lignecap').checked==true )
-        {affichecap=1}
-        else
-        {affichecap=0}
-        } );
+             {   if (document.getElementById('lignecap').checked==true ) {affichecap=1}  else  {affichecap=0}      } );
            
         affichetwa=1
         lignetwa.addEventListener("click", function (evt)   
-        {   if (document.getElementById('lignetwa').checked==true )
-        {affichetwa=1}
-        else
-        {affichetwa=0}
-        } );   
+        {   if (document.getElementById('lignetwa').checked==true ) {affichetwa=1} else {affichetwa=0}     } );   
 
         valid.addEventListener("click", function (evt)
         { 
@@ -373,19 +403,17 @@
             console.log(' ecart en sec '+sec+'point'+ numero_point(sec))
             var circlew = L.circle([1,1],{color: 'white',fillColor: '#f03',opacity:0.9,fillOpacity: 0.3,radius: 200,}).addTo(map);
             console.log ('Polyline  '+polylineblue[ numero  ])
-            const newElt3 = document.createElement("div3");  
-            newElt3.classList.add("boite0");
-            newElt3.innerHTML=texteboite          //remplissage de la boite 
-            elt.appendChild(newElt3);
+            const newElt2 = document.createElement("div");  
+            newElt2.classList.add("boite1");
+            newElt2.innerHTML=texteboite1          //remplissage de la boite 
+            elt.appendChild(newElt2);
             document.getElementById('bateau2').innerHTML=bateau
             document.getElementById('course2').innerHTML=nomcourse
             document.getElementById('date2').innerHTML=intlhmn.format(date0)
             document.getElementById('idnomgrib').innerHTML=nomgrib
             //document.getElementById('latdep2').innerHTML=latdep.toFixed(3)+'N '+pos_dec_mn(latdep)
-           
             document.formu3.latdep3.value= pos_dec_mn_lat(latdep)+' '+latdep.toFixed(3)
             document.formu3.lngdep3.value= pos_dec_mn_lng(lngdep)+' '+lngdep.toFixed(3)
-
             document.formu3.latar3.value  = pos_dec_mn_lat(latar)+' '+latar.toFixed(3) 
             document.formu3.lngar3.value  = pos_dec_mn_lng(lngar)+' '+lngar.toFixed(3)
            
@@ -407,7 +435,7 @@
          
         
 
-       //elements traites au click de souris 
+       // Elements traites au mouvement de la souris 
 
         map.on('mousemove', function(e)
         {  // valinit=document.getElementById('stocka0').innerHTML  //recuperation de la valeur cap0 par inner html
@@ -428,8 +456,14 @@
             valcal=direction[1].toFixed(0)
             
             cap0= Math.floor(direction[1])
+            // Tracage des lignes twa et cap
+         
+         
             if (valinit!=valcal)
-            {            
+            {  
+                
+          //  console.log ('instant de de part de la simulation '+ tsimation)
+          //  console.log ('instant de de part de la simulation formate '+intl.format(1000*tsimation))   
             polytwa=polyline_twa3(latdep,lngdep,twac,tsimation)
             polycap=polyline_cap2(latdep,lngdep,valcal,tsimation)
             map.removeLayer(poly);   map.removeLayer(poly2);
@@ -460,13 +494,9 @@
 
 
 
-
-
-
-
             }
             //else{console.log(" les deux valeurs sont identiques pas de recalcul")}
-          console.log ('meteodepart'+meteodepart)
+          //console.log ('meteodepart'+meteodepart)
           document.getElementById('twsini').innerHTML="<font color='purple'>"+meteodepart[0].toFixed(2) +"</font>"
           document.getElementById('twdini').innerHTML="<font color='purple' >"+meteodepart[1].toFixed(1) +"</font>"
           document.getElementById('hdgini').innerHTML="<font color='red'>"+comment[0][5].toFixed(1)+"</font>"
@@ -510,73 +540,6 @@
 
 
 
-
-
-
-
-        //  map.on('click', function(e)
-        //  {   console.log('numero_point_jp',+numero_point_jp)
-        //  }  ); 
-
-        //     var a=document.getElementById('testjs')
-        //     //a.innerHTML="<b>Nouveau Test sur Id</b>"
-        //     //var b=document.getElementById('spinnertwa')
-        //     document.getElementById('spinner_twa').value=45   // affecte la valeur 90 au spinner 
-        //     document.getElementById('spinner_hdg').value=-10   // affecte la valeur 90 au spinner 
-
-        //     a.innerHTML=$("#spinner_twa").spinner("value")
-        //     twa=document.getElementById('spinner_twa').value
-        //     hdg=document.getElementById('spinner_hdg').value
-        //     console.log ('windleaf html ligne 236  twa'+twa+'  hdg '+hdg )
-
-        //     // on se met un marqueur pour le plaisir
-        //     //L.marker([twa, hdg],  {icon: blackIcon}).addTo(map);
-
-
-        //     latclick=e.latlng.lat
-        //     lngclick=e.latlng.lng
-        //     latf= latclick
-        //     lngf=lngclick  
-
-        //     // meteocurseur=vit_angle_vent (e.latlng.lat,e.latlng.lng ,tsimul)  //meteo au curseur 
-        //     // meteodepart=vit_angle_vent (latdep,lngdep ,tsimul)  //meteo au point de depart 
-        //     // console.log('curseur latitude '+e.latlng.lat+' longitude '+ e.latlng.lng )
-        //     // console.log('meteo au curseur '+meteocurseur[0]+' '+ meteocurseur[1])
-        //     // console.log('Depart latitude '+latdep+' longitude '+ lngdep )
-        //     // console.log('meteo au depart '+meteodepart[0]+' '+ meteodepart[1])
-
-
-        //     cap_dist  =crsdist( latdep ,lngdep,latclick, lngclick);
-        //     cap_dist2=dist_cap_ortho( latdep ,lngdep,latclick, lngclick)
-        //     polytwa=polyline_twa(latdep,lngdep,latf,lngf,tsimul)
-        //     polycap=polyline_cap(latdep,lngdep,latf,lngf,tsimul)
-            
-        //     console.log(polytwa)
-        //     map.removeLayer(poly);   map.removeLayer(poly2);
-        //     for ( var j=0 ; j<74 ; j++ )  {map.removeLayer(circle1[j]); map.removeLayer(circle2[j]);}
-
-        //     poly2= new L.polyline(polytwa[0]).setStyle({color: 'lime',weight:2,opacity:0.5,}).addTo(map);
-
-        //     for ( var i=1 ; i<polytwa[0].length ; i++ )
-        //         { circle1[i] = L.circle(polytwa[0][i], {color: 'lime',fillColor: '#f03',opacity:0.9,fillOpacity: 0.3,radius: 200,}).addTo(map);}  
-
-        //     for ( var i=1 ; i<polycap[0].length ; i++ )
-        //         { circle2[i] = L.circle(polycap[0][i], {color: 'red' ,fillColor: '#f03',opacity:0.9,fillOpacity: 0.3,radius: 200,}).addTo(map);}   
-
-        //     var popup =L.popup()
-        //     .setLatLng(e.latlng)
-        //     .setContent("<b><font color='red'> Cap : " + 10 +"</font><br><font color='green' > TWA : "+20)
-        //     .openOn(map);
-            
-        //     document.formu.latc.value=latclick.toFixed(4) + ' soit '+  pos_dec_mn(e.latlng.lat);
-        //     document.formu.lngc.value =lngclick.toFixed(4)+ ' soit '+  pos_dec_mn(e.latlng.lng);
-        //     //document.formu.capc.value =cap_dist2[1].toFixed(2)
-        //     //document.formu.twac.value =polytwa[1].toFixed(1)
-        //     //document.formu.disc.value =cap_dist2[0].toFixed(2)fnumero
-
-        //             //console.log(dist_cap_ortho( latdep ,lngdep,latclick, lngclick))  
-        // });
-
         broadcast.once('redrawFinished', () => {
             //picker.open({ lat: 48.4, lon: 14.3 });
             // Opening of a picker (async)
@@ -602,6 +565,15 @@
        broadcast.on('redrawFinished', params => {         })
 
 
+
+        ctx1=document.getElementById("myCanvas1").getContext("2d");
+        ctx2=document.getElementById("myCanvas2").getContext("2d");
+        ctx3=document.getElementById("myCanvas3").getContext("2d");
+
+    dessiner()   
+
+
+
     }) // Fin de windyInit
 
 
@@ -610,73 +582,7 @@
     </head>
     <body onload="initialize()">
         <div id ="container">
-                     
-                            <!-- <form action="http://localhost:8080/windleaf" method="get" name='formu'>
-                            </form>      -->
-                                <!-- <table>
-                                <tr>
-                                    <td>Depart</td>
-                                    <td> Latitude : </td>
-                                    <td><input type="text" name="latdep" class= "coords" value = "" /></td>
-                                    <td>Longitude :</td>
-                                    <td><input type="text" name="lngdep"  value="" /></td>
-                                    <td></td>
-                                    <td>Arrivee</td>
-                                    <td>Latitude : </td> 
-                                    <td colspan=2><input type="text" name="latar" /></td>
-                                    <td>Longitude : </td>
-                                    <td colspan=2><input type="text" name="lngar" /> </td>                        
-                                    <td><input type="submit" value="Ok" /></td>       
-                                </tr>            
-                                           
-                    
-
-                                <tr>
-
-                                    <td>Curseur</td>
-                                    <td>Latitude  :</td>
-                                    <td><input type="text" name="latm" /></td>
-                                    <td>Longitude : </td>
-                                    <td> <input type="text" name="lngm" /></td>
-                                    <td></td>    
-                                     <td class="red" > CAP :</td>
-                                    <td><input type="text" name="capm" size="8"/></td>
-                                    <td class="green" >TWA :</td>
-                                    <td><input type="text" name="twam" size="8"/></td> -->
-                                    <!-- <td>TWS :</td>
-                                    <td><input type="text" name="twsm" size='8'/></td>
-                                    <td>TWD :</td>
-                                    <td><input type="text" name="twdm" size='8'/> </td>
-                                    <td>Dist:</td>
-                                    <td><input type="text" name="dism" size="8"/></td>
-
-                                </tr> 
-                                     <input type="hidden" id ="stocksimul" name="stocksimul"> 
-                              
-                                </table>
-
-                                <div id=infos ></div> -->
-                                              
-                                  
-
-                    <!-- Click       Latitude            : <input type="text" name="latc" /> 
-                                Longitude   : <input type="text" name="lngc" />
-                          
-                                                             <label for="spinner">TWA:</label>
-                                    <input id="spinner_twa" name="twa">
-                                    <label for="spinner">HDG:</label>
-                                    <input id="spinner_hdg" name="hdg"> -->
-					            
-                        <!-- <div id='testjs' >testjsbase</div>
-                        <div id='stocka0' >test covid</div>        stocckage dans un id html
-                        <div id='stocka1' >test grippe</div>   
-                        <div><input name="stockage" id="stocka" type ="text" value=10> -->
-               
-                      
-                            <!-- Test :<input type="text" name="test3" /> -->
-                            <!-- GFS :<input type="text" name="gfs" /> -->
             <div id="windy"> </div>
-           
         </div>
     <script  type="text/javascript" src="{{ url_for('static', filename='js/windleaf2.js') }}"></script>  
     </body>

@@ -27,23 +27,53 @@
 
 
 
-		<script type="text/javascript" >    // test format date 
+		<script type="text/javascript" > 
+		   // test format date 
 			var intl=new Intl.DateTimeFormat("fr-EU",{month:"2-digit",day:"2-digit", hour12: false,hour:"2-digit", minute:"2-digit" });
-		   // ici on charge directement les valeurs, il n'y a pas a attendre
+		   
+			// chargement du fichier des polaires	
+			
+			nombateau='imoca60vg'           
+            var requestURL2= " {{ url_for('static', filename='js/polars.json') }}"
+            var request2 = new XMLHttpRequest();
+            request2.open('GET', requestURL2);
+            request2.responseType = 'json';
+            request2.send();
+            request2.onload = function()
+            {
+                var  toutespolaires=request2.response;
+                polaires=toutespolaires[nombateau]['polaires']
+                l1=toutespolaires[nombateau]['tab_tws']
+                l2=toutespolaires[nombateau]['tab_twa']
+				console.log (polaires)
+				
+				twa=179
+								tws=12
+				res=polinterpol2d(polaires,twa,tws)
+				console.log ('La valeur de la polaire pour twa ='+twa +' et tws = '+tws+ '  est de '+res)
 
-			U10   = {{ U10 }}
-			V10   = {{ V10 }}
-			tig=	{{ tig    }};
-			tsimul=	{{ tsimul  }};
+			}
+			
+			
+			
+			
+			
+			
+			// ici on charge directement les valeurs, il n'y a pas a attendre
 
-			latini= {{ latini }};      // donnees de la portion de grib transmise
-			latfin= {{ latfin }};
-			lngini= {{ lngini }};
-			lngfin= {{ lngfin }}; 
+			// U10   = {{ U10 }}
+			// V10   = {{ V10 }}
+			// tig=	{{ tig    }};
+			// tsimul=	{{ tsimul  }};
 
-			l1={{ l1 }};
-			l2={{ l2 }};
-			polairesjs= {{ polairesjs }};
+			// latini= {{ latini }};      // donnees de la portion de grib transmise
+			// latfin= {{ latfin }};
+			// lngini= {{ lngini }};
+			// lngfin= {{ lngfin }}; 
+
+			// l1={{ l1 }};
+			// l2={{ l2 }};
+			// polairesjs= {{ polairesjs }};
 
 
 
@@ -87,13 +117,17 @@
 
 			function polinterpol2d(bateau,twa,tws)
 			{	// parametres : polaires du bateau twa et tws
-				twa=Math.abs(twa)
-			    var i_sup=l2.findIndex(element => element > twa);
-				var j_sup=l1.findIndex(element => element > tws);				
+				twa=(Math.abs(twa))
+				if (twa==180){twa=179.99}
+				var i_sup=l2.findIndex(element => element > twa);
+				var j_sup=l1.findIndex(element => element > tws);	
+				console.log('i_sup : '+i_sup)
+				console.log ('j_sup : '+j_sup)
 				var twa_inf=l2[i_sup-1]
 				var twa_sup=l2[i_sup]
 				var tws_inf=l1[j_sup-1]
 				var tws_sup=l1[j_sup]
+
 				dx = twa-twa_inf 				// Ecart avec la valeur d'indice mini
 				dy = tws-tws_inf
 				deltax=twa_sup-twa_inf
@@ -235,67 +269,67 @@
 			// r2=crsdist_num(lati,lngi,latf,lngf)
 			
 
-			console.log('***************Verification des donnéées transmises************************************')
-			console.log()
-			console.log('tig : '+ tig )  
-			console.log('tsimul: '+  tsimul.toFixed(0))
-			console.log('Ecart en h avec le grib : ' +((tsimul-tig)/3600).toFixed(2))
-			console.log('latini: '+  latini)
-			console.log('latfin : '+ latfin)
-			console.log('lngini: '+  lngini)
-			console.log('lngfin: '+  lngfin )
-			console.log('tig    : '+ intl.format(tig*1000));
-			console.log('tsimul : '+ intl.format(tsimul*1000));
-			console.log(' ')
+			// console.log('***************Verification des donnéées transmises************************************')
+			// console.log()
+			// console.log('tig : '+ tig )  
+			// console.log('tsimul: '+  tsimul.toFixed(0))
+			// console.log('Ecart en h avec le grib : ' +((tsimul-tig)/3600).toFixed(2))
+			// console.log('latini: '+  latini)
+			// console.log('latfin : '+ latfin)
+			// console.log('lngini: '+  lngini)
+			// console.log('lngfin: '+  lngfin )
+			// console.log('tig    : '+ intl.format(tig*1000));
+			// console.log('tsimul : '+ intl.format(tsimul*1000));
+			// console.log(' ')
 			
-			console.log('***************Données seront recupérées du serveur dans windleaf************************************')
-			latdep=39.4218
-			lngdep=-21.074
-			// Coordonnées du curseur
-			latf=39.3019
-			lngf=-21.2915
+			// console.log('***************Données seront recupérées du serveur dans windleaf************************************')
+			// latdep=39.4218
+			// lngdep=-21.074
+			// // Coordonnées du curseur
+			// latf=39.3019
+			// lngf=-21.2915
 
-			console.log('latdep : '+ latdep)
-			console.log('lngdep: '+  lngdep)
-
-
-			console.log('***************************************************************************************')
-			console.log ('Test de la fonction deplacement')
-			latinidep=44.43336083333
-			lnginidep=13.7150111
-			dt=300
-			vitesse=9.83
-			cap=225.5
-			dep=deplacement(latinidep,lnginidep,dt,vitesse,cap)
-			latf=dep[0]
-			lngf=dep[1]
-			console.log ('DEPLACEMENT Cap :'+cap+ ' Vitesse : '+vitesse+ ' latini : '+latini.toFixed(4)+
-			' Durée '+dt+' lngini '+lngini.toFixed(4) +' latfin '+ latf.toFixed(4)+' Lngfin : '+lngf.toFixed(4))
-			console.log(' ')
+			// console.log('latdep : '+ latdep)
+			// console.log('lngdep: '+  lngdep)
 
 
-			console.log('***************************************************************************************')
-			console.log ('Test de la fonction vit_angle_vent')
-			lat= latdep
-			lng=lngdep
-			// latgrib=-lat00
-			// lnggrib=360+lng00
-			res=vit_angle_vent (lat,lng,tsimul)
-			console.log('Vent en lat :'+ lat + ' lng'+ lng+ ' tws '+res[0]+' twd '+res[1] )
-			console.log('')
+			// console.log('***************************************************************************************')
+			// console.log ('Test de la fonction deplacement')
+			// latinidep=44.43336083333
+			// lnginidep=13.7150111
+			// dt=300
+			// vitesse=9.83
+			// cap=225.5
+			// dep=deplacement(latinidep,lnginidep,dt,vitesse,cap)
+			// latf=dep[0]
+			// lngf=dep[1]
+			// console.log ('DEPLACEMENT Cap :'+cap+ ' Vitesse : '+vitesse+ ' latini : '+latini.toFixed(4)+
+			// ' Durée '+dt+' lngini '+lngini.toFixed(4) +' latfin '+ latf.toFixed(4)+' Lngfin : '+lngf.toFixed(4))
+			// console.log(' ')
 
 
-			console.log('***************************************************************************************')
-			console.log ('Test de la fonction polaires')
-			twa= 63;tws= 7.5;
-			// res=polinterpol2d(polairesjs,twa,tws)
-			// console.log(' Polaire pour twa : '+twa+ ' tws  '+ tws +'  Vitesse '+res.toFixed(3)  )
+			// console.log('***************************************************************************************')
+			// console.log ('Test de la fonction vit_angle_vent')
+			// lat= latdep
+			// lng=lngdep
+			// // latgrib=-lat00
+			// // lnggrib=360+lng00
+			// res=vit_angle_vent (lat,lng,tsimul)
+			// console.log('Vent en lat :'+ lat + ' lng'+ lng+ ' tws '+res[0]+' twd '+res[1] )
+			// console.log('')
+
+
+			// console.log('***************************************************************************************')
+			// console.log ('Test de la fonction polaires')
+			// twa= 63;tws= 7.5;
+			// // res=polinterpol2d(polairesjs,twa,tws)
+			// // console.log(' Polaire pour twa : '+twa+ ' tws  '+ tws +'  Vitesse '+res.toFixed(3)  )
 			
 
-			console.log('***************************************************************************************')
-			console.log ('Test de la fonction h_mn(sec)')
-			res=h_mn(12550)
-			console.log('res '+res)
+			// console.log('***************************************************************************************')
+			// console.log ('Test de la fonction h_mn(sec)')
+			// res=h_mn(12550)
+			// console.log('res '+res)
 			
 			// console.log('***************************************************************************************')
 			// console.log ('Test de la fonction ftwao(cap dvent) ')
@@ -365,22 +399,15 @@
 		</script>	
 
 <script>
-	$( function() {
-	  
-        var spinnertwa= $( "#spinner_twa" ).spinner()
+	$( function() // la on est dans du jquery
+	
+	{
+	    var spinnertwa= $( "#spinner_twa" ).spinner()
             spinnertwa.spinner({ min :40 , max :160  , stop:function(e,ui){var twa= spinnertwa.spinner("value"); console.log(spinnertwa.spinner("value")); }   });
             spinnertwa.spinner("value", 45); 
-            
-
-
         var spinnerhdg= $( "#spinner_hdg" ).spinner()
             spinnerhdg.spinner({  min :0 , max :360 });
             spinnerhdg.spinner("value", 60); 
-
-
-
-	  
-	
 	  $("#spinner_twa").on("spinstop", function(){ alert($(this).spinner('value'));
 
 
@@ -446,21 +473,23 @@
 <body>
 		<h5> javascript.html </h5><br>
 		<h3> Test de fonctions js </h3>
-		<h1> Test CSS </h3>
+		
+					<div id ='container'  >
+						
+						<h1> Test CSS </h3>
+						<div id ='test'>Test </div> 
+						<div id ="test2">Test2 </div> 
+						<div id ="test2" class='essai'>Test2 </div> 
 
-					<div id ='test'>Test </div> 
-					<div id ="test2">Test2 </div> 
-					<div id ="test2" class='essai'>Test2 </div> 
-
-					Variable <input id="variable" type="text" value = "champ texte"> 
-					<p>
-						<span id="labeltwa"  >TWA:</span>
-						<input id="spinner_twa" name="twa" >
-						<label for="spinner">HDG:</label>
-						<input id="spinner_hdg" name="hdg">
-					  </p>
-					  <button id="valeur">Valeur ?</button> 
-
+						Variable <input id="variable" type="text" value = "champ texte"> 
+						<p>
+							<span id="labeltwa"  >TWA:</span>
+							<input id="spinner_twa" name="twa" >
+							<label for="spinner">HDG:</label>
+							<input id="spinner_hdg" name="hdg">
+						</p>
+						<button id="valeur">Valeur ?</button> 
+						</div>
 
 			</form>
 		</body>
