@@ -6,7 +6,6 @@
         <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
         <script  type="text/javascript" src="{{ url_for('static', filename='js/windleaf.js') }}"></script>
         <script  type="text/javascript" src="{{ url_for('static', filename='js/canvas.js') }}"></script>
-
         <script src="https://unpkg.com/leaflet@1.4.0/dist/leaflet.js"></script>
         <script src="https://api.windy.com/assets/map-forecast/libBoot.js"></script>
         <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
@@ -63,8 +62,10 @@
             console.log('lngfin : '+ lngfin)
             console.log('course : '+ course)
             console.log('nomgrib: '+nomgrib )
+
+            var date0=new Date(tsimation*1000) 
           
-         // Recuperation de donnees du json
+         // Recuperation de donnees du json des courses
             var requestURL= " {{ url_for('static', filename='js/courses.json') }}"
             var request = new XMLHttpRequest();
             request.open('GET', requestURL);
@@ -75,10 +76,13 @@
             var courses= request.response;
             nomcoursetest=courses[course]['nom']
             barriere=courses[course]['barriere']
-            //console.log('Nom de la course : '+nomcoursetest)
+        
             //console.log('Barriere : '+barriere)
             }
          
+
+
+
             var numero_point_jp=0
             var timestampjp=0
             var latmap=(latdep+latar)/2           
@@ -93,8 +97,11 @@
             var poly2= new L.Polyline ([[0,0],[1,1]]).setStyle({color:'red',weight:1,});
             var polylinesimul=new L.Polyline ([[0,0],[1,1]]).setStyle({color:'red',weight:1,});  
 
-
-
+            meteodepart=vit_angle_vent (latdep,lngdep ,tsimation) 
+            twsini=meteodepart[0].toFixed(2)
+            twdini=meteodepart[1].toFixed(1)
+            hdgini=comment[0][5].toFixed(1)
+            twaini=comment[0][6].toFixed(1)
 
             for ( var i=0 ; i<74 ; i++ )
                 {      circle1[i] = new L.circle([1][1], {  color: 'yellow',radius: 200,});}
@@ -113,6 +120,8 @@
 
             console.log('Zoom carte : '+zoomp)
             console.log('Temps en s simulation',tsimation)
+            console.log ('Depart TWS :'+twsini+ 'm/s  TWD '+ twdini +'°')
+            console.log ('HDG ini : ' +hdgini +'° Twa ini : '+twaini+'°')
             console.log('Prise en compte du fichier js :'+arrondi(10.123456789,3))
             console.log ('test prise en compte du temps sec '+(comment[0][2]+tig)+'ecart avec grib'+ (comment[0][2]+tig-tsimation))
             console.log ('tig en heure locale' +intl.format(1000*(tig)))
@@ -140,9 +149,7 @@
             // document.formu.lngdep.value = lngdep.toFixed(4)+' soit '+pos_dec_mn(lngdep)
             // document.formu.latar.value  = latar.toFixed(4)+' soit '+pos_dec_mn(latar) 
             // document.formu.lngar.value  = lngar.toFixed(4)+' soit '+pos_dec_mn(lngar)
-            
-            //console.log('test de a'+a)
-            
+                                
         }
    
 
@@ -165,165 +172,96 @@
     windyInit(options, windyAPI =>
     {
         const { map,picker, utils, broadcast,store } = windyAPI
-        console.log('Nom de la course test : '+nomcoursetest)
-           var texteboite3= "<canvas id = 'myCanvas1' width='400' height= '400' >  Browser incompatible</canvas>"
-            +"<canvas id = 'myCanvas3' width='400' height= '400' >  Browser incompatible</canvas>"
-            +"<canvas id = 'myCanvas2' width='400' height= '400' >  Browser incompatible</canvas>"
-            +"<div id= 'textecanvas'>"
-            +"    <div id= 'titre1'>Bateau</div>"
-            +"       <div id='titre2' > TWS<br> "
-                  +"            <input type='button' id='bouton1' onclick='moins();' style ='position: relative;left:0px;margin:0px;' value= '<<'> </button>"
-                  +"            <input type='button' id='bouton2' onclick='petitmoins();' style  ='position: relative;left:0px;margin:0px;' value= '<'></button>"
-                 +"         <input type ='text'  id='tws'  size ='1'  style ='position: relative; left:0px; top:0px;   margin:0px;'>"
-                 +"        <input type='button' id='bouton3' onclick='petitplus();'style ='position: relative;left:0px;margin:0px;' value= '>'></button>"
-                 +"        <input type='button' id='bouton4' onclick='plus();' style ='position: relative;left:0px;margin:0px;'value= '>>'></button>"
-            +"       </div>"
-                +"    <div id='titre3' > TWA :   <span id='twa1' class='text1'> XXX </span> </div>"
-                +"    <div id='titre3' > Speed :   <span id='speed1' class='text1'> YYY </span> </div>"
-                +"    <div id='titre3' > Près    <span id='twamax' class='text1'> YYY </span>  <span id='vmgmax'>twamin</span> </div>"
-                +"   <div id='titre3' > V Arr    <span id='twamax2' class='text1'> YYY </span>  <span id='vmvamax'>twamax</div>"
-                +"   <div id='titre3' > Speed    <span id='twaopti' class='text1'> YYY </span>  <span id='speedmax'>twamin</span></div>"
-            +"    </div>"
-            +"</div>"
-
-
-
-
-
-        // tous ces elements sont traites quoiqu'il arrive
-        console.log(polylineblue)
-
-        L.polyline(polylineblack).setStyle({ color: 'black', weight:1, opacity:0.3, }).addTo(map);          // Isochrones noirs
-        L.polyline(polylinered)  .setStyle({ color: 'red'  , weight:1, opacity:0.3, }).addTo(map);          // Isochrones rouges
-        L.polyline(polylineblue) .setStyle({ color: 'blue' , weight:2,              }).addTo(map);          // Route 
-        L.marker([latdep, lngdep],  {icon: blackIcon}).bindTooltip(tooltip[0]).addTo(map);                  // Depart
-        L.marker([latar, lngar],    {icon: redIcon}).addTo(map);                                            // Arrivee
-        L.polygon(barriere) .setStyle({ color: 'red' , weight:1,    opacity:0.5          }).addTo(map);     // Barriere 
-        L.polyline(polylinered[isogrib])  .setStyle({ color: 'red'  , weight:3, opacity:0.3, }).addTo(map); // Prochain grib
-      
-      
-        // rectangle de chargement des vents decompose en 2 parties
         
+
+    var texteboite1="  <span id='course2' class='col01'> Course vg </span>"
+    +" <span id='date2' class='col02'>Date</span>"
+    +" <span id='bateau2' class='col03'>Bateau</span>  "
+    +"<form name='formu3'>"
+    +"<div class='Tableau'>"
         
-        if (lngini>180) {lngini2=-360+lngini} else {lngini2=lngini}
-        if (lngfin>180) {lngfin2=-360+lngfin}else {lngfin2=lngfin}
+        +" <p >"
+            +"<span class='col1' > Grib :</span>"
+            +"<span class='col2b' id ='idnomgrib'  ><font color='blue'>gfs 20111115-06-384</font></span>"
+            +" <span class='col6'>TWS:</span>"
+        +" <span class='col6' id='twsini'  ' >000</span>"
+        +" <span class='col6'>TWD:</span>"
+        +" <span class='col6'id ='twdini'>000</span>"
+        +" </p >"
 
-        console.log ('lngini  ,lngfin ' +lngini +' ' +lngfin)
-        console.log ('lngini2 ,lngfin2 ' +lngini2 +' ' +lngfin2)
+        +" <p >"
 
-        if (lngfin2>lngini2)
-        {latlngpoly=[[latini, lngini2],[latini, lngfin2],[latfin, lngfin2],[latfin, lngini2],[latini, lngini2]]
-         console.log('latlngpoly '+ latlngpoly)   
-        L.polyline(latlngpoly).setStyle({ color: 'green', weight:2, opacity:0.3, }).addTo(map);}
-        else
-        {
-        latlngpoly1=[[latini, -0.01],[latini, lngini2-360],[latfin, lngini2-360],[latfin,-0.01]]
-        L.polyline(latlngpoly1).setStyle({ color: 'black', weight:2, opacity:0.3, }).addTo(map);
-        latlngpoly2=[[latini, +0.01],[latini, lngfin2],[latfin, lngfin2],[latfin,+0.01]]
-        L.polyline(latlngpoly2).setStyle({ color: 'blue', weight:2, opacity:0.3, }).addTo(map);
-        }
-      
+        +" <span class='col1'>Depart</span>"
+        +" <span class='col2'><input type='text' name='latdep3' id ='latdep2' value='test'  size=16></span>"
+        +" <span class='col2'><input type='text' name='lngdep3' size=16></span>"
+        +" </p>"
+        +" <p>"
+        +" <span class='col6'></span>"
+        +" <span class='col6'></span>"
+        +" <span class='col6'>HDG :</span>"
+        +" <span class='col6'id ='hdgini'><font color='red'>000</font></span>"
+        +" <span class='col6'>TWA:</span>"
+        +" <span class='col6'id ='twaini'><font color='green'>30</font></span>"
+        +" <span class='col7'>Vit:</span>"
+        +" <span class='col6' id ='vitini'><font color='blue'>0</font></span>"
+        +" </p>"
+        +"<p>"
+        +"<span class='col1'>Arrivee</span>"
+        +"<span class='col2'><input type='text' name='latar3' size=16></span>"
+        +"<span class='col2'><input type='text' name='lngar3' size=16></span>"
+        +" </p>"
+        +"<p>"
+        +"<span class='col1'>Curseur</span>"
+        +"<span class='col2'><input type='text' name='latcurseur3' size=16></span>"
+        +"<span class='col2'><input type='text' name='lngcurseur3' size=16></span>"
+        +"</p> "  
+        +"</p>"
+        +"<span class='col3'>"
+            +"<button title='Previous  wind' class='nnav' style='margin-left: 0px';onmousedown='prev_wind();'>&lt;</button><select id='hours' class='nnav' title='Wind time' onchange='show_wind(this.selectedIndex * 3);'>"
+                +"<option selected>Now</option>"
+                +"<option >+1 h</option>"
+                +"<option >+2 h</option>"
+                +"<option >+3 h</option>"
+                +"<option >+4 h</option>"
+                +"<option >+5 h</option>"
+                +"<option >+6 h</option>"
+                +"<option >+7 h</option>"
+                +"<option >+8 h</option>"
+                +"<option >+9 h</option>"
+                +"<option >+10 h</option>"
+                +"<option >+11 h</option>"
+                +"<option >+12 h</option>"
+                +"<option >+13 h</option>"
+                +"<option >+14 h</option>"
+                +"<option >+15 h</option>"
+                +"<option >+16 h</option>"
+                +"<option >+17 h</option>"
+                +"<option >+18 h</option>"
+                +"<option >+19 h</option>"
+                +"<option >+20 h</option>"
+                +"<option >+21 h</option>"
+                +"<option >+22 h</option>"
+                +"<option >+23 h</option>"
+                +"<option >+24 h</option>"	
+                +"</select>"
+                +"<button class='nnav' title='next wind' style='margin-right: 0px;' onmousedown='next_wind();'>&gt;</button>"
+                +" </span>"
+                +" <span class='col5'>TWS</span>"
+                +" <span class='col4' ><input type='text' name='tws3'size=3 ></span>"
+                +"    <span class='col5'>TWD</span>"
+                +"    <span class='col4'><input type='text' name='twd3' size=3 ></span>"
+            +"     <span class='col5'>DIST</span>"
+            +"    <span class='col4'><input type='text' name='dist3' size=3  ></span>"
+            +"  </p>"
+            +"  </p>"
+            +"      <span class='col8'></span>"
+            +"      <span id='infosimul3'  >Cap et TWA: </span>"
+            +"    <span class='col8'></span>"
+            +" </p>"
+            +"<input type='hidden' id='capm3'><input type='hidden' id='twam3'><input type='hidden' id='npt'>"
+            +"</form>"
 
-
-        var texteboite1="  <span id='course2' class='col01'> Course vg </span>"
-                       +" <span id='date2' class='col02'>Date</span>"
-                       +" <span id='bateau2' class='col03'>Bateau</span>  "
-                        +"<form name='formu3'>"
-                       +"<div class='Tableau'>"
-                           
-                            +" <p >"
-                             +"<span class='col1' > Grib :</span>"
-                             +"<span class='col2b' id ='idnomgrib'  ><font color='blue'>gfs 20111115-06-384</font></span>"
-                             +" <span class='col6'>TWS:</span>"
-                            +" <span class='col6' id='twsini'  ' >000</span>"
-                            +" <span class='col6'>TWD:</span>"
-                            +" <span class='col6'id ='twdini'>000</span>"
-                            +" </p >"
-
-                            +" <p >"
-
-                            +" <span class='col1'>Depart</span>"
-                            +" <span class='col2'><input type='text' name='latdep3' id ='latdep2' value='test'  size=16></span>"
-                            +" <span class='col2'><input type='text' name='lngdep3' size=16></span>"
-                            +" </p>"
-                            +" <p>"
-                            +" <span class='col6'></span>"
-                            +" <span class='col6'></span>"
-                            +" <span class='col6'>HDG :</span>"
-                            +" <span class='col6'id ='hdgini'><font color='red'>000</font></span>"
-                            +" <span class='col6'>TWA:</span>"
-                            +" <span class='col6'id ='twaini'><font color='green'>30</font></span>"
-                            +" <span class='col7'>Vit:</span>"
-                            +" <span class='col6' id ='vitini'><font color='blue'>0</font></span>"
-                            +" </p>"
-                            +"<p>"
-                            +"<span class='col1'>Arrivee</span>"
-                            +"<span class='col2'><input type='text' name='latar3' size=16></span>"
-                            +"<span class='col2'><input type='text' name='lngar3' size=16></span>"
-                            +" </p>"
-                            +"<p>"
-                            +"<span class='col1'>Curseur</span>"
-                            +"<span class='col2'><input type='text' name='latcurseur3' size=16></span>"
-                            +"<span class='col2'><input type='text' name='lngcurseur3' size=16></span>"
-                            +"</p> "  
-                            +"</p>"
-                            +"<span class='col3'>"
-                                +"<button title='Previous  wind' class='nnav' style='margin-left: 0px';onmousedown='prev_wind();'>&lt;</button><select id='hours' class='nnav' title='Wind time' onchange='show_wind(this.selectedIndex * 3);'>"
-                                    +"<option selected>Now</option>"
-                                    +"<option >+1 h</option>"
-                                    +"<option >+2 h</option>"
-                                    +"<option >+3 h</option>"
-                                    +"<option >+4 h</option>"
-                                    +"<option >+5 h</option>"
-                                    +"<option >+6 h</option>"
-                                    +"<option >+7 h</option>"
-                                    +"<option >+8 h</option>"
-                                    +"<option >+9 h</option>"
-                                    +"<option >+10 h</option>"
-                                    +"<option >+11 h</option>"
-                                    +"<option >+12 h</option>"
-                                    +"<option >+13 h</option>"
-                                    +"<option >+14 h</option>"
-                                    +"<option >+15 h</option>"
-                                    +"<option >+16 h</option>"
-                                    +"<option >+17 h</option>"
-                                    +"<option >+18 h</option>"
-                                    +"<option >+19 h</option>"
-                                    +"<option >+20 h</option>"
-                                    +"<option >+21 h</option>"
-                                    +"<option >+22 h</option>"
-                                    +"<option >+23 h</option>"
-                                    +"<option >+24 h</option>"	
-                                    +"</select>"
-                                    +"<button class='nnav' title='next wind' style='margin-right: 0px;' onmousedown='next_wind();'>&gt;</button>"
-                                    +" </span>"
-                                    +" <span class='col5'>TWS</span>"
-                                    +" <span class='col4' ><input type='text' name='tws3'size=3 ></span>"
-                                    +"    <span class='col5'>TWD</span>"
-                                    +"    <span class='col4'><input type='text' name='twd3' size=3 ></span>"
-                                +"     <span class='col5'>DIST</span>"
-                                +"    <span class='col4'><input type='text' name='dist3' size=3  ></span>"
-                                +"  </p>"
-                                +"  </p>"
-                                +"      <span class='col8'></span>"
-                                +"      <span id='infosimul3'  >Cap et TWA: </span>"
-                                +"    <span class='col8'></span>"
-                                +" </p>"
-                                +"<input type='hidden' id='capm3'><input type='hidden' id='twam3'><input type='hidden' id='npt'>"
-                                +"</form>"
-                            
-                        //     </div>"
-// </div>  
-
-
-        var date0=new Date(tsimation*1000) 
-
-        const newElt = document.createElement("div");
-            let elt = document.getElementById("windy");
-            elt.appendChild(newElt);
-            newElt.classList.add("boite2"); 
-            newElt.innerHTML=
-            "<div class=simulation>Simulation :   Cap <input type='checkbox'  id= 'lignecap' checked> TWA <input type='checkbox' id='lignetwa' checked><br> "
+            var texteboite2="<div class=simulation>Simulation :   Cap <input type='checkbox'  id= 'lignecap' checked> TWA <input type='checkbox' id='lignetwa' checked><br> "
             +"<table>"
             +"<tr><td></td> <td>TWA</td> <td> CAP</td> <td>Duree</td> </tr>"
             +"<tr><td id = 'heure0' class='large' >"+intlhmn.format(date0)+"</td> <td><input type='text' id = 'twasimul1' size =2 value =-135 ><input type='radio' id ='twa1' name='s1' value='twa' ></td>"
@@ -348,15 +286,140 @@
                         
             +"</table>"            
             +" <div id='ok'><input type=button id = 'valid' name='valid' value='Ok'  ></div>";
+
+
+
+           var texteboite3= "<canvas id = 'myCanvas1' width='400' height= '400' >  Browser incompatible</canvas>"
+            +"<canvas id = 'myCanvas3' width='400' height= '400' >  Browser incompatible</canvas>"
+            +"<canvas id = 'myCanvas2' width='400' height= '400' >  Browser incompatible</canvas>"
+            +"<div id= 'textecanvas'>"
+            +"    <div id= 'titre1'>Bateau</div>"
+            +"       <div id='titre2' > TWS<br> "
+            +"            <input type='button' id='bouton1' onclick='moins();' style ='position: relative;left:0px;margin:0px;' value= '<<'> </button>"
+            +"            <input type='button' id='bouton2' onclick='petitmoins();' style  ='position: relative;left:0px;margin:0px;' value= '<'></button>"
+            +"            <input type ='text'  id='tws'  size ='1'  style ='position: relative; left:0px; top:0px;   margin:0px;'>"
+            +"            <input type='button' id='bouton3' onclick='petitplus();'style ='position: relative;left:0px;margin:0px;' value= '>'></button>"
+            +"            <input type='button' id='bouton4' onclick='plus();' style ='position: relative;left:0px;margin:0px;'value= '>>'></button>"
+            +"       </div>"
+            +"         <div class='titre3' > TWA :   <span id='twapol'   class='text1'> XXX </span> </div>"
+            +"         <div class='titre3' > Speed : <span id='speed1' class='text1'> YYY </span> </div>"
+            +"         <div class='titre3' > Près    <span id='twamax' class='text1'> YYY </span>  <span id='vmgmax'>twamin</span> </div>"
+            +"         <div class='titre3' > V Arr   <span id='twamax2' class='text1'> YYY </span>  <span id='vmvamax'>twamax</div>"
+            +"         <div class='titre3' > Speed   <span id='twaopti' class='text1'> YYY </span>  <span id='speedmax'>twamin</span></div>"
+            +"    </div>"
+            +"</div>"
+
+           
+
+
+
+        // tous ces elements sont traites quoiqu'il arrive
+        //console.log(polylineblue)
+
+        L.polyline(polylineblack).setStyle({ color: 'black', weight:1, opacity:0.3, }).addTo(map);          // Isochrones noirs
+        L.polyline(polylinered)  .setStyle({ color: 'red'  , weight:1, opacity:0.3, }).addTo(map);          // Isochrones rouges
+        L.polyline(polylineblue) .setStyle({ color: 'blue' , weight:2,              }).addTo(map);          // Route 
+        L.marker([latdep, lngdep],  {icon: blackIcon}).bindTooltip(tooltip[0]).addTo(map);                  // Depart
+        L.marker([latar, lngar],    {icon: redIcon}).addTo(map);                                            // Arrivee
+        L.polygon(barriere) .setStyle({ color: 'red' , weight:1,    opacity:0.5          }).addTo(map);     // Barriere 
+        L.polyline(polylinered[isogrib])  .setStyle({ color: 'red'  , weight:3, opacity:0.3, }).addTo(map); // Prochain grib
+      
+      
+        // rectangle de chargement des vents decompose en 2 parties
+        if (lngini>180) {lngini2=-360+lngini} else {lngini2=lngini}
+        if (lngfin>180) {lngfin2=-360+lngfin}else {lngfin2=lngfin}
+
+        console.log ('lngini  ,lngfin ' +lngini +' ' +lngfin)
+        console.log ('lngini2 ,lngfin2 ' +lngini2 +' ' +lngfin2)
+
+        if (lngfin2>lngini2)
+        {latlngpoly=[[latini, lngini2],[latini, lngfin2],[latfin, lngfin2],[latfin, lngini2],[latini, lngini2]]
+         console.log('latlngpoly '+ latlngpoly)   
+        L.polyline(latlngpoly).setStyle({ color: 'green', weight:2, opacity:0.3, }).addTo(map);}
+        else
+        {
+        latlngpoly1=[[latini, -0.01],[latini, lngini2-360],[latfin, lngini2-360],[latfin,-0.01]]
+        L.polyline(latlngpoly1).setStyle({ color: 'black', weight:2, opacity:0.3, }).addTo(map);
+        latlngpoly2=[[latini, +0.01],[latini, lngfin2],[latfin, lngfin2],[latfin,+0.01]]
+        L.polyline(latlngpoly2).setStyle({ color: 'blue', weight:2, opacity:0.3, }).addTo(map);
+        }
+      
+        // Creation des trois boites
+        let elt = document.getElementById("windy");
+
+        const newElt1 = document.createElement("div");  
+        newElt1.classList.add("boite1");
+        newElt1.innerHTML=texteboite1          
+        elt.appendChild(newElt1);
+
+        const newElt2 = document.createElement("div");
+        elt.appendChild(newElt2);
+        newElt2.classList.add("boite2"); 
+        newElt2.innerHTML=texteboite2
+    
+        const newElt3 = document.createElement("div");
+        elt.appendChild(newElt3);
+        newElt3.classList.add("boite3"); 
+        newElt3.innerHTML=texteboite3
        
-       
-            const newElt3 = document.createElement("div");
-            elt.appendChild(newElt3);
-            newElt3.classList.add("boite3"); 
-            newElt3.innerHTML=texteboite3
-       
-       
-        // afffiche ou non le cap et la twa        
+        // initialisation des canvas    
+        var isdrawing = false;
+        ctx1=document.getElementById("myCanvas1").getContext("2d");
+        ctx2=document.getElementById("myCanvas2").getContext("2d");
+        ctx3=document.getElementById("myCanvas3").getContext("2d");
+        ctx2.translate(10,200)
+        var myCanvas1=document.getElementById("myCanvas1");
+        var myCanvas2=document.getElementById("myCanvas2");
+        var myCanvas3=document.getElementById("myCanvas3");
+
+    // fonction quand deplacement de la souris   
+            //  Initialisation des valeurs de la boite polaires
+             var twsinitial=twsini      
+             var twainitial=twaini 
+             speed=polinterpol2d(polairesjs,twaini,twsini)
+
+             document.getElementById('tws').value=twsini
+             document.getElementById('twapol').innerHTML=twaini
+             document.getElementById('speed1').innerHTML=speed.toFixed(2)
+
+    // fonction pour animer la polaire    
+            myCanvas2.addEventListener("mousedown", function(e)
+            { isdrawing=true        });
+            myCanvas2.addEventListener("mouseup", function(e)
+            { isdrawing=false       });
+            myCanvas2.addEventListener("mousemove", function depl(evt)
+            {
+                if ( isdrawing==true)
+                    {
+
+                        document.getElementById('tws').value=twsinitial
+                        angleini=twainitial
+                        x=(evt.offsetX)-10
+                        y =(evt.offsetY)-200
+                        angle=Math.round(Math.atan(y/x)*180/Math.PI +90) ;
+                        longueur=185/Math.sqrt(x*x+y*y)
+                        if (angleini != angle) 
+                            {ctx2.clearRect(-10,-200, 400, 400); // vider le canevas
+                            line0('ctx2',0,0,x*longueur,y*longueur,'blue',1);
+                            cercle2(x*longueur,y*longueur,4,-3.14,3.14,'blue',1)   // petite boule
+                            write2(angle+'°','red','12px Calibri','start',x*longueur+15,y*longueur)
+                            angleini=angle;
+                        //    console.log('Angle :'+angle)
+                        // ecrire2 ('TWA : '+angle)
+                            document.getElementById('twapol').innerHTML=angle
+                            tws=twsinitial
+                            res=polinterpol2d(polairesjs,angle,tws)
+                            document.getElementById('speed1').innerHTML=res.toFixed(2)
+                            //console.log('resultat'+res)
+                        // ecrire3 ('Vitesse : '+res.toFixed(2)    )
+                            }   
+                    }
+            });
+
+
+
+
+        // affiche ou non les lignes de cap et de twa  constants 
         affichecap=1
         lignecap.addEventListener("click", function (evt)   
              {   if (document.getElementById('lignecap').checked==true ) {affichecap=1}  else  {affichecap=0}      } );
@@ -403,10 +466,7 @@
             console.log(' ecart en sec '+sec+'point'+ numero_point(sec))
             var circlew = L.circle([1,1],{color: 'white',fillColor: '#f03',opacity:0.9,fillOpacity: 0.3,radius: 200,}).addTo(map);
             console.log ('Polyline  '+polylineblue[ numero  ])
-            const newElt2 = document.createElement("div");  
-            newElt2.classList.add("boite1");
-            newElt2.innerHTML=texteboite1          //remplissage de la boite 
-            elt.appendChild(newElt2);
+            
             document.getElementById('bateau2').innerHTML=bateau
             document.getElementById('course2').innerHTML=nomcourse
             document.getElementById('date2').innerHTML=intlhmn.format(date0)
@@ -566,9 +626,7 @@
 
 
 
-        ctx1=document.getElementById("myCanvas1").getContext("2d");
-        ctx2=document.getElementById("myCanvas2").getContext("2d");
-        ctx3=document.getElementById("myCanvas3").getContext("2d");
+        
 
     dessiner()   
 
@@ -585,5 +643,7 @@
             <div id="windy"> </div>
         </div>
     <script  type="text/javascript" src="{{ url_for('static', filename='js/windleaf2.js') }}"></script>  
+
+    
     </body>
 </html>

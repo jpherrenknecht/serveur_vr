@@ -1,6 +1,11 @@
 window.addEventListener('load',function()
 {
  
+
+    
+   
+
+
 });
       
 
@@ -33,7 +38,7 @@ function cercle0(ctx,x,y,r,a1,a2,color,thickness)
 
 
 
-function trace()    // trace le canevas sur ctx1
+function tracefond()    // trace le canevas sur ctx1
     {
         var x=10,y=200,r=30,a1=-Math.PI/2 ,a2=Math.PI/2 ,color='green'
         r=[60,90,120,150,180]
@@ -71,36 +76,159 @@ function trace()    // trace le canevas sur ctx1
     ctx1.stroke()
     }
 
+    function cercle2(x,y,r,a1,a2,color,thickness)
+    {
+    ctx2.beginPath();
+    ctx2.lineWidth=thickness;
+    ctx2.fillStyle=color;
+    ctx2.arc(x,y,r,a1,a2)
+    ctx2.fill();
+    }
 
-    myCanvas2.addEventListener("mousemove", function depl(evt)
-    {        
-    if ( isdrawing==true)
-        {
-            angleini=0
-            x=(evt.offsetX)-10
-            y =(evt.offsetY)-200
-            angle=Math.round(Math.atan(y/x)*180/Math.PI +90) ;
-            longueur=185/Math.sqrt(x*x+y*y)
-            if (angleini != angle) 
-                {ctx2.clearRect(-10,-200, 400, 400); // vider le canevas
-                line0('ctx2',0,0,x*longueur,y*longueur,'blue',1);
-                cercle2(x*longueur,y*longueur,4,-3.14,3.14,'blue',1)   // petite boule
-                write2(angle+'°','red','12px Calibri','start',x*longueur+15,y*longueur)
-                angleini=angle;
-               // ecrire2 ('TWA : '+angle)
-                document.getElementById('twa1').innerHTML=angle
-                tws=document.getElementById('tws').value
-                res=polinterpol2d(polaires,angle,tws)
-                document.getElementById('speed1').innerHTML=res.toFixed(2)
-                //console.log('resultat'+res)
-               // ecrire3 ('Vitesse : '+res.toFixed(2)    )
-                }   
-        }
-    });
+    function cercle3(x,y,r,a1,a2,color,thickness)
+    {
+    ctx3.beginPath();
+    ctx3.lineWidth=0;
+    ctx3.fillStyle=color;
+    ctx3.arc(x,y,r,a1,a2)
+    ctx3.fill();
+    }
+
+    function triangle(x,y,r,a1,a2,color,thickness)
+    {
+    x1=x+r*Math.cos(a1)
+    y1=y+r*Math.sin(a1)
+    x2=x+r*Math.cos(a2)
+    y2=y+r*Math.sin(a2)
+    ctx3.beginPath();
+    ctx3.moveTo(x,y);
+    ctx3.lineTo(x1,y1);
+    ctx3.lineTo(x2,y2);
+    ctx3.lineTo(x,y);
+    ctx3.lineWidth=0;
+    ctx3.fillStyle=color;
+    ctx3.strokeStyle=color
+    ctx3.fill();
+    ctx3.stroke()
+    }
+
+
+
+
+
+    function write2 (texte,style,police,align,x,y)
+    {
+    //ctx1.save()
+    ctx2.fillStyle=style;
+    ctx2.font=police;
+    ctx2.textAlign=align     // start,end,right,center
+    ctx2.fillText(texte,x,y,200)
+    ctx2.stroke()
+    //ctx1.restore()
+    }
+
+    function write3 (texte,style,police,align,x,y)
+    {
+    //ctx1.save()
+    ctx3.fillStyle=style;
+    ctx3.font=police;
+    ctx3.textAlign=align     // start,end,right,center
+    ctx3.fillText(texte,x,y,200)
+    ctx3.stroke()
+    //ctx1.restore()
+    }
+
+    function tracepol(polaires,tws)
+    {
+        // On commence par reinitialiser le canvas
+        ctx3.clearRect(0,0, 400, 400); // vider le canevas
+        xtwai=10
+        ytwai=200
+                for (var twa=0; twa<=180;twa++)  // trace de la courbe
+                 { 
+                valeur2= 8*polinterpol2d(polaires,twa,tws)  
+                twa2=twa*Math.PI/180    
+                xtwa=10+Math.sin(twa2)*valeur2 
+                ytwa=200-Math.cos(twa2)*valeur2
+                line0('ctx3',xtwai,ytwai,xtwa,ytwa,'red',1)
+                xtwai=xtwa;
+                ytwai=ytwa
+                 }
+
+    }
+
+    function cherchevmg(polaires,tws)
+    {
+        // On commence par reinitialiser le canvas
+                vmgmax=0;vmvamax=0 ;speedmax=0;twamax=45;twamax2=145;twaopti=0;
+                for (var twa=300; twa<=600;twa++)  
+                 { 
+                vmg=polinterpol2d(polaires,twa/10,tws)*Math.cos(twa/10*Math.PI/180)
+                if (vmg>vmgmax){vmgmax=vmg;twamax=twa/10}
+                //if (-vmg>vmvamax){vmvamax=vmg;twaarmax=twa/10}
+                 }
+                 for (var twa=80; twa<=140;twa++)  // recherche vitesse max 
+                 { 
+                speed=polinterpol2d(polaires,twa,tws)
+                if (speed>speedmax){speedmax=speed;twaopti=twa}
+                 }
+                 for (var twa=1400; twa<=1700;twa++)  // recherche sur vent arriere 
+                 { 
+                vmg=polinterpol2d(polaires,twa/10,tws)*Math.cos(twa/10*Math.PI/180)
+                if (vmg<vmvamax){vmvamax=vmg;twamax2=twa/10}
+                 }
+
+                 document.getElementById('twamax').innerHTML=twamax.toFixed(1)+'°  '
+                 document.getElementById('vmgmax').innerHTML=vmgmax.toFixed(2)+'knts'
+
+                 document.getElementById('vmvamax').innerHTML=vmvamax.toFixed(2)+'knts'
+                 document.getElementById('twamax2').innerHTML=twamax2.toFixed(1)+'°  '
+
+                 document.getElementById('speedmax').innerHTML=speedmax.toFixed(2)+'knts'
+                 document.getElementById('twaopti').innerHTML=twaopti.toFixed(1)+'°  '
+
+               var a1=twamax*Math.PI/180-Math.PI/2
+               var a2=0-Math.PI/2
+               thickness=0
+               color='rgba(200, 200, 255, 0.5)'
+               cercle3(10,200,180,a2,a1,color,thickness)
+               triangle(10,200,180,a1,a2,color,thickness)               
+               x5=10+200*Math.cos(a1)
+               y5=200+200*Math.sin(a1) 
+               line0 ('ctx3',10,200,x5,y5,'black',1)
+               write3 (twamax+'°','black','12px Calibri','start',x5,y5)
+               a3=(twamax2-90)*Math.PI/180
+               a4=Math.PI/2
+               x6=10+200*Math.cos(a3)
+               y6=200+200*Math.sin(a3) 
+               cercle3(10,200,180,a3,a4,color,thickness)
+               triangle(10,200,180,a3,a4,color,thickness)
+               line0 ('ctx3',10,200,x6,y6,'black',1)
+               //line3 (10,200,x6,y6,'black')
+               write3 (twamax2+'°','black','12px Calibri','start',x6,y6)
+
+    }
+
+// on dessine la barre avec les valeurs initiales    
+ 
+function traceinitial(twaini){
+    angle=twaini*Math.PI/180 ;
+    longueur=185
+    x1=longueur*Math.sin(angle)
+    y1=-longueur*Math.cos(angle)
+    line0('ctx2',0,0,x1,y1,'blue',1);
+    cercle2(x1,y1,4,-3.14,3.14,'blue',1) 
+    write2(twaini+'°','green','12px Calibri','start',x1+15,y1)
+    //tracepol(polairesjs,twso)
+    //cherchevmg(polairesjs,tws)
+}
 
 
 function dessiner()
 {
-    trace()
-
+    tracefond()
+    tracepol(polairesjs,twsini)
+    cherchevmg(polairesjs,twsini)
+    traceinitial(twaini)
 }
+

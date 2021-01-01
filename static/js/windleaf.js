@@ -2,9 +2,11 @@
 var intl=new Intl.DateTimeFormat("fr-EU",{month:"2-digit",day:"2-digit", year:"2-digit",hour12: false,hour:"2-digit", minute:"2-digit" });
 var intlhmn=new Intl.DateTimeFormat("fr-FR",{day:"2-digit",month:"2-digit", hour12: false,hour:"2-digit", minute:"2-digit" });
 
+
+// fonction servant a relancer le calcul avec nouveau departs et arrivee
 function itineraire(latdep,lngdep,latar,lngar){
 	document.location.href="http://127.0.0.1:8080/windleaf?latdep="+latdep+"&lngdep="+lngdep+"&latar="+latar+"&lngar="+lngar+"&o=244&twa=-123.43469&userid=59c2706db395b292ed622d84&type=me&race=440.1";
- 
+
 }
 
 

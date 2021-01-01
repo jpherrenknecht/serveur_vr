@@ -275,5 +275,5 @@ canvas {position : absolute ; }
 #textecanvas{position : relative ;top: 20px; left :220px ;height:300px ;width:170px ;font-size: 12px; border:  1px solid red; z-index:5; border-radius: 10px;}
 #titre1     {position : relative ;top: 10px; text-align: center; font-size: 15px; font-weight :800;margin:5px; border:  1px solid rgb(47, 0, 255);  }
 #titre2     {position : relative ;top: 10px; text-align: center; font-size: 1.0em;margin:5px; border:  1px solid rgb(0, 255, 0);}
-#titre3     {position : relative ;top: 10px; text-align: center;font-size: 1.0em; margin:5px; border:  1px solid rgb(255, 0, 212); z-index:5; }
+.titre3     {position : relative ;top: 10px; text-align: center;font-size: 1.0em; margin:5px; border:  1px solid rgb(255, 0, 212); z-index:5; }
 #titre4     {position : relative ;top: 10px; text-align: center;font-size: 1.0em; margin:5px; border:  1px solid rgb(255, 51, 0); z-index:5; }

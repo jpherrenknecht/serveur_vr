@@ -593,8 +593,8 @@ def windleaf():
     global x0,y0,x1,y1,nb_points_ini,nb_points_sec ,tig,GR,barriere
     tig, GR,filename        = chargement_grib()
     #**********************************************************************************
-    nb_points_ini=50
-    nb_points_sec=30 
+    nb_points_ini=150
+    nb_points_sec=50 
     #**********************************************************************************
     # valeurs par defaut si pas de retour de dashboard
     course="440.1"
