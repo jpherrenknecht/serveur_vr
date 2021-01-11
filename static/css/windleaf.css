@@ -12,6 +12,10 @@ form {margin:0px;}
 .cell {display: table-cell}
 .red {font-weight:800;color:red;}
 .green {font-weight:800;color:green;}
+.purple {color: purple;}
+#twsvr  {color: purple;}
+#twdvr {color: purple;}
+
 #twasimul{margin-left: 20px;font-weight:800;color:green;}
 
 .noir {color:black; padding:1px; margin:1px;}
@@ -170,7 +174,7 @@ H3{font-size:15;font-family:Lucida Grande,Lucida Sans,Arial,sans-serif;color:rgb
   width:400px; 
   height:190px;
   position :absolute ;
-  top:210px;
+  top:200px;
   background: rgba(255,255,255, 0.7);
   padding:0px;
   margin:5px;
@@ -194,7 +198,7 @@ H3{font-size:15;font-family:Lucida Grande,Lucida Sans,Arial,sans-serif;color:rgb
  float:left;
  border:0px solid #FF6600;
  margin:0px;
- padding:3px;
+ padding:2px;
 
 }
 .Tableau p {
@@ -206,6 +210,7 @@ H3{font-size:15;font-family:Lucida Grande,Lucida Sans,Arial,sans-serif;color:rgb
 }
 .Tableau p.legende {font-weight:bold}
 .Tableau span.col1 {width:80px; text-align:center;}
+.Tableau span.col10 {width:65px; text-align:center;}
 .Tableau span.col2 {width:145px; text-align:center;}
 .Tableau span.col2b {width:145px; text-align:center; color :blue;}
 
@@ -219,9 +224,9 @@ H3{font-size:15;font-family:Lucida Grande,Lucida Sans,Arial,sans-serif;color:rgb
 .Tableau span.col4r {width:58px; text-align:center; color:red;}
 .Tableau span.col4g {width:58px; text-align:center; color:#f0b30b;}
 
-.col01 {float:left;width:130px; text-align:center;border:1px solid #ff000000;border-radius:3px;padding:5px;margin:0px 5px 10px 5px;font-size:17px;}
-.col02 {float:left;width:120px; text-align:center;border:1px solid #ff000000;border-radius:3px;padding:5px;margin:0px 5px 10px 5px;font-size:17px;}
-.col03 {float:left;width:110px;text-align:center;border:1px solid #ff000000;border-radius:3px;padding:5px;margin:0px 5px 10px 5px;font-size:17px;}
+.col01 {float:left;width:130px; text-align:center;border:1px solid #ff000000;border-radius:3px;padding:0px;margin:0px 5px 5px 5px;font-size:17px;}
+.col02 {float:left;width:120px; text-align:center;border:1px solid #ff000000;border-radius:3px;padding:0px;margin:0px 5px 5px 5px;font-size:17px;}
+.col03 {float:left;width:110px;text-align:center;border:1px solid #ff000000;border-radius:3px;padding:0px;margin:0px 5px 5px 5px;font-size:17px;}
 
 
 
@@ -245,7 +250,7 @@ H3{font-size:15;font-family:Lucida Grande,Lucida Sans,Arial,sans-serif;color:rgb
   width:400px; 
   height:400px;
   position :absolute ;
-  top:400px;
+  top:390px;
   background: rgba(255,255,255, 0.7);
   padding:0px;
   margin:5px;
@@ -258,8 +263,8 @@ H3{font-size:15;font-family:Lucida Grande,Lucida Sans,Arial,sans-serif;color:rgb
 }
 
 .boite3 span{
-  border:1px solid grey;
-  margin:10px;
+  border:0px solid grey;
+  margin:2px;
 }
 .boite3 p{
   //border:1px solid grey;
@@ -272,8 +277,14 @@ H3{font-size:15;font-family:Lucida Grande,Lucida Sans,Arial,sans-serif;color:rgb
 canvas {position : absolute ; }
 
 
-#textecanvas{position : relative ;top: 20px; left :220px ;height:300px ;width:170px ;font-size: 12px; border:  1px solid red; z-index:5; border-radius: 10px;}
-#titre1     {position : relative ;top: 10px; text-align: center; font-size: 15px; font-weight :800;margin:5px; border:  1px solid rgb(47, 0, 255);  }
-#titre2     {position : relative ;top: 10px; text-align: center; font-size: 1.0em;margin:5px; border:  1px solid rgb(0, 255, 0);}
-.titre3     {position : relative ;top: 10px; text-align: center;font-size: 1.0em; margin:5px; border:  1px solid rgb(255, 0, 212); z-index:5; }
-#titre4     {position : relative ;top: 10px; text-align: center;font-size: 1.0em; margin:5px; border:  1px solid rgb(255, 51, 0); z-index:5; }
+#textecanvas{position : relative ;top: 20px; left :210px ;height:300px ;width:180px ;font-size: 12px; border:  0px solid red; z-index:5; border-radius: 10px;}
+#bateau     {position : relative ;top: 10px; text-align: center; font-size: 15px; font-weight :800;margin:15px; border:  0px solid rgb(47, 0, 255);  }
+#titre2     {position : relative ;top: 10px; text-align: center; font-size: 12px;font-weight :800;margin:5px; border:  0px solid rgb(0, 255, 0);}
+#optimums   {position : relative ;top: 40px;left:10px ;height:75px ;width:170px ; text-align: center; margin:5px;padding:5px; border:  1px solid rgb(161, 157, 157); border-radius: 10px;z-index:5; }
+#titre4     {position : relative ;top: 10px; text-align: center;font-size: 1.0em;font-weight :800; margin:5px; border:  1px solid rgb(255, 51, 0); z-index:5; }
+#titretwa     {position : relative ;top: 10px; text-align: center;font-size: 1.0em;font-weight :800; margin:5px; border:  0px solid rgb(255, 51, 0); z-index:5; }
+#titrevitesse     {position : relative ;top: 10px; text-align: center;font-size: 1.0em;font-weight :800; margin:5px; border:  0px solid rgb(255, 51, 0); z-index:5; }
+
+.titre3     {position : relative ;top: 0px; text-align: center;font-size: 12px; font-weight :800;margin:5px; border:  0px solid rgb(255, 0, 212); z-index:5; }
+.text1      {position : relative ;top: 0px; text-align: center;font-size: 12px;font-weight :800;margin:5px;  border:  0px solid rgb(255, 51, 0); z-index:5; }
+#lien     {position : relative ;top: 50px; left:10px ;text-align: center;font-size: 1.0em;font-weight :800; margin:5px; border: 0px solid rgb(255, 51, 0); z-index:5; }

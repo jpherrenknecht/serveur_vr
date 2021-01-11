@@ -32,7 +32,50 @@
 			var intl=new Intl.DateTimeFormat("fr-EU",{month:"2-digit",day:"2-digit", hour12: false,hour:"2-digit", minute:"2-digit" });
 		   
 			// chargement du fichier des polaires	
-			
+			text1="<button title='Previous  wind' class='nnav' style='margin-left: 0px'; onmousedown='prev_wind();' >&lt;</button>"
+				+"<select id='hours' class='nnav' title='Wind time' onchange='show_wind(this.selectedIndex );'>"
+                +"<option selected>Now</option>"
+                +"<option >+1 h</option>"
+                +"<option >+2 h</option>"
+                +"<option >+3 h</option>"
+                +"<option >+4 h</option>"
+                +"<option >+5 h</option>"
+                +"<option >+6 h</option>"
+                +"<option >+7 h</option>"
+                +"<option >+8 h</option>"
+                +"<option >+9 h</option>"
+                +"<option >+10 h</option>"
+                +"<option >+11 h</option>"
+                +"<option >+12 h</option>"
+                +"<option >+13 h</option>"
+                +"<option >+14 h</option>"
+                +"<option >+15 h</option>"
+                +"<option >+16 h</option>"
+                +"<option >+17 h</option>"
+                +"<option >+18 h</option>"
+                +"<option >+19 h</option>"
+                +"<option >+20 h</option>"
+                +"<option >+21 h</option>"
+                +"<option >+22 h</option>"
+                +"<option >+23 h</option>"
+                +"<option >+24 h</option>"	
+                +"</select>"
+                +"<button class='nnav' title='next wind' style='margin-right: 0px;' onmousedown='next_wind();'>&gt;</button>"
+                +" </span>"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 			nombateau='imoca60vg'           
             var requestURL2= " {{ url_for('static', filename='js/polars.json') }}"
             var request2 = new XMLHttpRequest();
@@ -257,6 +300,37 @@
 
 			
 
+			function id(i)
+			{ 
+				return document.getElementById(i); 
+			}
+
+			function show_wind(h)
+			{
+				var wind_time=h
+				
+				document.getElementById("hours")[h].selected=true;
+				// recuperation de la valeur souhaitee 	
+				document.getElementById('valeurtemps').innerHTML=wind_time
+			}
+
+
+			function next_wind()
+			{
+			var wind_time=document.getElementById('hours').selectedIndex;
+			if (wind_time<24){
+			show_wind(+wind_time+1)
+			}
+			}
+
+			function prev_wind()
+			{
+			var wind_time=document.getElementById('hours').selectedIndex;	
+			if (wind_time>0)
+			{
+			show_wind(+wind_time-1)
+			}
+			}
 
 
 
@@ -396,6 +470,16 @@
 			//document.getElementById('test2').style.color='blue'
 			//document.getElementById('test2').innerhtml='taratata'
 
+			function initialise()
+			{
+				
+				a=document.getElementById('vent')
+				a.innerHTML=text1
+
+
+
+			}
+
 		</script>	
 
 <script>
@@ -462,6 +546,7 @@
 	labeltwa.innerHTML=$("#spinner_twa").spinner("value")
 
 
+	
 
 
 } );
@@ -470,7 +555,7 @@
 
 
 </head>
-<body>
+<body onload="initialise()">
 		<h5> javascript.html </h5><br>
 		<h3> Test de fonctions js </h3>
 		
@@ -480,7 +565,7 @@
 						<div id ='test'>Test </div> 
 						<div id ="test2">Test2 </div> 
 						<div id ="test2" class='essai'>Test2 </div> 
-
+							
 						Variable <input id="variable" type="text" value = "champ texte"> 
 						<p>
 							<span id="labeltwa"  >TWA:</span>
@@ -489,7 +574,12 @@
 							<input id="spinner_hdg" name="hdg">
 						</p>
 						<button id="valeur">Valeur ?</button> 
-						</div>
+					<div></div><br><br>
+					<div id='vent'>Vent</div>
+					<br><br>
+					<div id='valeurtemps'>Temps</div>
+					
+					</div>
 
 			</form>
 		</body>

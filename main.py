@@ -533,6 +533,10 @@ def jsoni():
 def coursesjson():
   return render_template("courses.json")
 
+
+@app.route('/fullpolarsvg.json')
+def fullpolarsvgjson():
+  return render_template("fullpolarsvg.json")
 # @app.route('/outils.json')
 # def outils():
 #   return render_template("outils.json")
@@ -593,13 +597,13 @@ def windleaf():
     global x0,y0,x1,y1,nb_points_ini,nb_points_sec ,tig,GR,barriere
     tig, GR,filename        = chargement_grib()
     #**********************************************************************************
-    nb_points_ini=150
+    nb_points_ini=200
     nb_points_sec=50 
     #**********************************************************************************
     # valeurs par defaut si pas de retour de dashboard
     course="440.1"
     depart="depart"
-    arrivee="bouee1"
+    arrivee="bouee99"
     nomcourse="Vendee Globe"
     bateau="imoca60vg"
 
@@ -613,6 +617,9 @@ def windleaf():
         (request.args['latdep'])
         latdep = -float(request.args['latdep'])
         lngdep = float(request.args['lngdep'])
+        twavr = float(request.args['twa'])
+        twsvr = float(request.args['tws'])
+        twdvr = float(request.args['twd'])
         course = request.args['race']
         nomcourse=data1[course]['nom']
         bateau=data1[course]['bateau']
@@ -628,6 +635,10 @@ def windleaf():
         lngdep,latdep=chaine_to_dec(lat1, lng1)
         nomcourse=data1[course]["nom"]
         bateau=data1[course]['bateau']
+        twavr=45
+        twsvr=15
+        twdvr=0
+
         # print('on est dans except')
         # print ('latdep lngdep ',latdep,lngdep )  
 
@@ -701,7 +712,7 @@ def windleaf():
     print ('Nom de la course: ',nomcourse)
     print ('Bateau',bateau)
     print ('latdep lngdep ',latdep,lngdep )  
-    return render_template("windleaf.html", nomgrib=nomgrib, multipolyred=red,multipolyblack=black,course=course,nomcourse=nomcourse,bateau=bateau,route=route,comment=comment,l1=l1,l2=l2,polairesjs=polairesjs2,lngdep=lngdep,latdep=latdep,lngar=lngar,latar=latar, t0=tsimul,tig=tig,latini=latini,lngini=lngini,latfin=latfin,lngfin=lngfin,U10=u10, V10=v10 ,result=request.form)
+    return render_template("windleaf.html", nomgrib=nomgrib, multipolyred=red,multipolyblack=black,course=course,nomcourse=nomcourse,bateau=bateau,route=route,comment=comment,l1=l1,l2=l2,polairesjs=polairesjs2,lngdep=lngdep,latdep=latdep,lngar=lngar,latar=latar,twavr=twavr, twdvr=twdvr,twsvr=twsvr,t0=tsimul,tig=tig,latini=latini,lngini=lngini,latfin=latfin,lngfin=lngfin,U10=u10, V10=v10 ,result=request.form)
 
 
 

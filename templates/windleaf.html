@@ -30,6 +30,10 @@
             lngdep        =   {{ lngdep }}
             latar         = - {{  latar }}
             lngar         =   {{  lngar }}
+            twavr        =   {{  twavr }}
+            twsvr        =   {{  twsvr }}
+            twdvr        =   {{  twdvr }}
+
             nomgrib   =  '{{ nomgrib }}'
 
             polylinered   =   {{  multipolyred }}
@@ -62,7 +66,7 @@
             console.log('lngfin : '+ lngfin)
             console.log('course : '+ course)
             console.log('nomgrib: '+nomgrib )
-
+            console.log('twavr: '+twavr )
             var date0=new Date(tsimation*1000) 
           
          // Recuperation de donnees du json des courses
@@ -181,6 +185,17 @@
     +"<div class='Tableau'>"
         
         +" <p >"
+            +"<span class='col1' >  VR :</span>"
+            +"<span class='col10' >  </span>"
+            +" <span class='col6'>TWA:</span>"
+            +" <span class='col6' id='twavr'  ' >000</span>"
+            +" <span class='col6'>TWS:</span>"
+            +" <span class='col6' id='twsvr'  ' >000</span>"
+            +" <span class='col6'>TWD:</span>"
+            +" <span class='col6'id ='twdvr'>000</span>"
+            +" </p >"
+
+        +" <p >"
             +"<span class='col1' > Grib :</span>"
             +"<span class='col2b' id ='idnomgrib'  ><font color='blue'>gfs 20111115-06-384</font></span>"
             +" <span class='col6'>TWS:</span>"
@@ -188,16 +203,22 @@
         +" <span class='col6'>TWD:</span>"
         +" <span class='col6'id ='twdini'>000</span>"
         +" </p >"
-
+        
         +" <p >"
-
         +" <span class='col1'>Depart</span>"
         +" <span class='col2'><input type='text' name='latdep3' id ='latdep2' value='test'  size=16></span>"
         +" <span class='col2'><input type='text' name='lngdep3' size=16></span>"
         +" </p>"
         +" <p>"
-        +" <span class='col6'></span>"
-        +" <span class='col6'></span>"
+        +"<p>"
+        +"<span class='col1'>Arrivee</span>"
+        +"<span class='col2'><input type='text' name='latar3' size=16></span>"
+        +"<span class='col2'><input type='text' name='lngar3' size=16></span>"
+        +" </p>"
+
+      
+       
+        +" <span class='col1'>Proposé :</span>"
         +" <span class='col6'>HDG :</span>"
         +" <span class='col6'id ='hdgini'><font color='red'>000</font></span>"
         +" <span class='col6'>TWA:</span>"
@@ -205,11 +226,7 @@
         +" <span class='col7'>Vit:</span>"
         +" <span class='col6' id ='vitini'><font color='blue'>0</font></span>"
         +" </p>"
-        +"<p>"
-        +"<span class='col1'>Arrivee</span>"
-        +"<span class='col2'><input type='text' name='latar3' size=16></span>"
-        +"<span class='col2'><input type='text' name='lngar3' size=16></span>"
-        +" </p>"
+        
         +"<p>"
         +"<span class='col1'>Curseur</span>"
         +"<span class='col2'><input type='text' name='latcurseur3' size=16></span>"
@@ -217,7 +234,7 @@
         +"</p> "  
         +"</p>"
         +"<span class='col3'>"
-            +"<button title='Previous  wind' class='nnav' style='margin-left: 0px';onmousedown='prev_wind();'>&lt;</button><select id='hours' class='nnav' title='Wind time' onchange='show_wind(this.selectedIndex * 3);'>"
+            +"<button title='Previous  wind' class='nnav' style='margin-left: 0px';onmousedown='prev_wind();' >&lt;</button><select id='hours' class='nnav' title='Wind time' onchange='show_wind(this.selectedIndex);'>"
                 +"<option selected>Now</option>"
                 +"<option >+1 h</option>"
                 +"<option >+2 h</option>"
@@ -245,7 +262,7 @@
                 +"<option >+24 h</option>"	
                 +"</select>"
                 +"<button class='nnav' title='next wind' style='margin-right: 0px;' onmousedown='next_wind();'>&gt;</button>"
-                +" </span>"
+            +" </span>"
                 +" <span class='col5'>TWS</span>"
                 +" <span class='col4' ><input type='text' name='tws3'size=3 ></span>"
                 +"    <span class='col5'>TWD</span>"
@@ -293,7 +310,9 @@
             +"<canvas id = 'myCanvas3' width='400' height= '400' >  Browser incompatible</canvas>"
             +"<canvas id = 'myCanvas2' width='400' height= '400' >  Browser incompatible</canvas>"
             +"<div id= 'textecanvas'>"
-            +"    <div id= 'titre1'>Bateau</div>"
+           
+            
+            +"    <div id= 'bateau'>Bateau</div>"
             +"       <div id='titre2' > TWS<br> "
             +"            <input type='button' id='bouton1' onclick='moins();' style ='position: relative;left:0px;margin:0px;' value= '<<'> </button>"
             +"            <input type='button' id='bouton2' onclick='petitmoins();' style  ='position: relative;left:0px;margin:0px;' value= '<'></button>"
@@ -301,11 +320,20 @@
             +"            <input type='button' id='bouton3' onclick='petitplus();'style ='position: relative;left:0px;margin:0px;' value= '>'></button>"
             +"            <input type='button' id='bouton4' onclick='plus();' style ='position: relative;left:0px;margin:0px;'value= '>>'></button>"
             +"       </div>"
-            +"         <div class='titre3' > TWA :   <span id='twapol'   class='text1'> XXX </span> </div>"
-            +"         <div class='titre3' > Speed : <span id='speed1' class='text1'> YYY </span> </div>"
-            +"         <div class='titre3' > Près    <span id='twamax' class='text1'> YYY </span>  <span id='vmgmax'>twamin</span> </div>"
-            +"         <div class='titre3' > V Arr   <span id='twamax2' class='text1'> YYY </span>  <span id='vmvamax'>twamax</div>"
-            +"         <div class='titre3' > Speed   <span id='twaopti' class='text1'> YYY </span>  <span id='speedmax'>twamin</span></div>"
+            +"       <div id='titretwa'>"
+            +"          <input type='button' id='bouton5' onclick='twamoins();' style ='position: relative;left:0px;margin:0px;'value= '-'></button>"
+            +"         <span class='titre3' > TWA : </span>  <span id='twapol'   class='text1'> XXX </span>° "
+            +"          <input type='button' id='bouton5' onclick='twaplus();' style ='position: relative;left:0px;margin:0px;'value= '+'></button>"
+
+            +"       </div>"
+            +"         <div id='titrevitesse' >  <span id='speed1' class='text1'> 00 </span>Knts </div>"
+            +"         <div id='titrevitesse' > Vmg <span id='speedvmg' class='text1'> 10 </span>Knts </div>"
+            +"         <div id='optimums' >  "
+            +"             <div class='titre3' > Près :   <span id='twamax' class='text1'> YYY </span>  <span id='vmgmax'>twamin</span> </div>"
+            +"             <div class='titre3' > Arr :  <span id='twamax2' class='text1'> YYY </span>  <span id='vmvamax'>twamax</div>"
+            +"             <div class='titre3' > Vit :   <span id='twaopti' class='text1'> YYY </span>  <span id='speedmax'>twamin</span></div>"
+            +"         </div>"
+            +"<div id= 'lien'><a href='http://toxcct.free.fr/polars/?race_id=440.1&tws="+twsvr+"&twa="+twavr+"&foil=true&hull=true&reach=true&heavy=true&light=true'>Toxcct</a> </div>"
             +"    </div>"
             +"</div>"
 
@@ -374,13 +402,14 @@
 
     // fonction quand deplacement de la souris   
             //  Initialisation des valeurs de la boite polaires
-             var twsinitial=twsini      
-             var twainitial=twaini 
-             speed=polinterpol2d(polairesjs,twaini,twsini)
-
-             document.getElementById('tws').value=twsini
-             document.getElementById('twapol').innerHTML=twaini
+             var twsinitial=twsvr      
+             var twainitial=twavr 
+             speed=polinterpol2d(polairesjs,twavr,twsvr)
+             vmg=speed*Math.cos(twainitial*Math.PI/180)   
+             document.getElementById('tws').value=twsvr
+             document.getElementById('twapol').innerHTML=twavr.toFixed(1)
              document.getElementById('speed1').innerHTML=speed.toFixed(2)
+             document.getElementById('speedvmg').innerHTML=vmg.toFixed(2)
 
     // fonction pour animer la polaire    
             myCanvas2.addEventListener("mousedown", function(e)
@@ -410,8 +439,9 @@
                             tws=twsinitial
                             res=polinterpol2d(polairesjs,angle,tws)
                             document.getElementById('speed1').innerHTML=res.toFixed(2)
-                            //console.log('resultat'+res)
-                        // ecrire3 ('Vitesse : '+res.toFixed(2)    )
+                            vmg=res*Math.cos(angle*Math.PI/180) 
+                            document.getElementById('speedvmg').innerHTML=vmg.toFixed(2)
+                          
                             }   
                     }
             });
@@ -471,6 +501,9 @@
             document.getElementById('course2').innerHTML=nomcourse
             document.getElementById('date2').innerHTML=intlhmn.format(date0)
             document.getElementById('idnomgrib').innerHTML=nomgrib
+            document.getElementById('twavr').innerHTML=twavr.toFixed(0)
+            document.getElementById('twdvr').innerHTML=twdvr.toFixed(1)
+            document.getElementById('twsvr').innerHTML=twsvr.toFixed(2)
             //document.getElementById('latdep2').innerHTML=latdep.toFixed(3)+'N '+pos_dec_mn(latdep)
             document.formu3.latdep3.value= pos_dec_mn_lat(latdep)+' '+latdep.toFixed(3)
             document.formu3.lngdep3.value= pos_dec_mn_lng(lngdep)+' '+lngdep.toFixed(3)
@@ -564,7 +597,7 @@
           document.getElementById('vitini').innerHTML="<font color='blue'>"+comment[0][7].toFixed(2)+"</font>"
           vit_pol_sim=polinterpol2d(polairesjs,twac,meteodepart[0]).toFixed(2) //vitesse polaire suivantsimulation 
           document.getElementById('infosimul3').innerHTML="<b><font color='red'> Cap : " +valcal +"</font>&nbsp;&nbsp;<font color='green' > TWA : "+twac +"<font color='blue'>&nbsp;&nbsp; Vit : "+ vit_pol_sim
-       
+          
             });
 
 

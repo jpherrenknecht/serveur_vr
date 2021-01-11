@@ -21,9 +21,6 @@ with open('static/js/barriere.json', 'r') as fichier:                      # cha
         poly_json={'barrieretest': polyline}
 
 
-# on le sauvegarde sous forme de json
-with open("static/js/barriereglaces.json","w") as f :
-     json.dump(poly_json,f)
 
 # on peut 
 

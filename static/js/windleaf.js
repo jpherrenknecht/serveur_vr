@@ -779,4 +779,29 @@ function arrondi(a,n)
 		
 		}
 
-		
+		function show_wind(h)
+			{
+				var wind_time=h
+				
+				document.getElementById("hours")[h].selected=true;
+				// recuperation de la valeur souhaitee 	
+				//document.getElementById('valeurtemps').innerHTML=wind_time
+			}
+
+
+			function next_wind()
+			{
+			var wind_time=document.getElementById('hours').selectedIndex;
+			if (wind_time<24){
+			show_wind(+wind_time+1)
+			}
+			}
+
+			function prev_wind()
+			{
+			var wind_time=document.getElementById('hours').selectedIndex;	
+			if (wind_time>0)
+			{
+			show_wind(+wind_time-1)
+			}
+			}
