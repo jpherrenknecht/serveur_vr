@@ -43,7 +43,7 @@
             l1            =   {{ l1 }}           // cles pour lire les tableaux de polaire
             l2            =   {{ l2 }}
             polairesjs    =   {{ polairesjs }} 
-            course= {{ course }}
+            course= '{{ course }}'
             
             U10 = {{ U10 }}
 			V10 = {{ V10 }}
@@ -78,8 +78,11 @@
             request.onload = function()
             {
             var courses= request.response;
+
+            console.log ('course '+ course)
+            console.log (courses)    
             nomcoursetest=courses[course]['nom']
-            barriere=courses[course]['barriere']
+            //barriere=courses[course]['barriere']
         
             //console.log('Barriere : '+barriere)
             }
@@ -178,13 +181,16 @@
         const { map,picker, utils, broadcast,store } = windyAPI
         
 
-    var texteboite1="  <span id='course2' class='col01'> Course vg </span>"
+    var texteboite1="<div id = 'titreboite1'>"
+    +"  <span id='course2' class='col01'> Course vg </span>"
     +" <span id='date2' class='col02'>Date</span>"
     +" <span id='bateau2' class='col03'>Bateau</span>  "
+    +"</div>"    
+
     +"<form name='formu3'>"
     +"<div class='Tableau'>"
         
-        +" <p >"
+        +" <p > </p>"
             +"<span class='col1' >  VR :</span>"
             +"<span class='col10' >  </span>"
             +" <span class='col6'>TWA:</span>"
@@ -193,31 +199,31 @@
             +" <span class='col6' id='twsvr'  ' >000</span>"
             +" <span class='col6'>TWD:</span>"
             +" <span class='col6'id ='twdvr'>000</span>"
-            +" </p >"
+        +" <p ></p >"
 
-        +" <p >"
+       
             +"<span class='col1' > Grib :</span>"
             +"<span class='col2b' id ='idnomgrib'  ><font color='blue'>gfs 20111115-06-384</font></span>"
             +" <span class='col6'>TWS:</span>"
         +" <span class='col6' id='twsini'  ' >000</span>"
         +" <span class='col6'>TWD:</span>"
         +" <span class='col6'id ='twdini'>000</span>"
-        +" </p >"
-        
-        +" <p >"
+       
+        +" <p ></p >"
+
+
         +" <span class='col1'>Depart</span>"
         +" <span class='col2'><input type='text' name='latdep3' id ='latdep2' value='test'  size=16></span>"
         +" <span class='col2'><input type='text' name='lngdep3' size=16></span>"
-        +" </p>"
-        +" <p>"
-        +"<p>"
+       
+        +" <p ></p >"
+
         +"<span class='col1'>Arrivee</span>"
         +"<span class='col2'><input type='text' name='latar3' size=16></span>"
         +"<span class='col2'><input type='text' name='lngar3' size=16></span>"
-        +" </p>"
+        
+        +" <p ></p >"
 
-      
-       
         +" <span class='col1'>Proposé :</span>"
         +" <span class='col6'>HDG :</span>"
         +" <span class='col6'id ='hdgini'><font color='red'>000</font></span>"
@@ -225,16 +231,26 @@
         +" <span class='col6'id ='twaini'><font color='green'>30</font></span>"
         +" <span class='col7'>Vit:</span>"
         +" <span class='col6' id ='vitini'><font color='blue'>0</font></span>"
-        +" </p>"
         
-        +"<p>"
+
+        +" <p ></p >"
+
         +"<span class='col1'>Curseur</span>"
         +"<span class='col2'><input type='text' name='latcurseur3' size=16></span>"
         +"<span class='col2'><input type='text' name='lngcurseur3' size=16></span>"
         +"</p> "  
-        +"</p>"
-        +"<span class='col3'>"
-            +"<button title='Previous  wind' class='nnav' style='margin-left: 0px';onmousedown='prev_wind();' >&lt;</button><select id='hours' class='nnav' title='Wind time' onchange='show_wind(this.selectedIndex);'>"
+        +"<input type='hidden' id='capm3'><input type='hidden' id='twam3'><input type='hidden' id='npt'>"
+
+    +"</div>"
+    +"</form>"
+
+
+        +"<div class='vent' >"
+            +"<span class='espace20'> </span>"
+             +"<span class='col3'>"
+                +"<button title='Previous  wind'  id='bouton8'  onmousedown='prev_wind();' > &lt; </button>"
+                +"<select title='Wind time' id='hours'   onchange='show_wind(this.selectedIndex);'>"
+            
                 +"<option selected>Now</option>"
                 +"<option >+1 h</option>"
                 +"<option >+2 h</option>"
@@ -261,22 +277,29 @@
                 +"<option >+23 h</option>"
                 +"<option >+24 h</option>"	
                 +"</select>"
-                +"<button class='nnav' title='next wind' style='margin-right: 0px;' onmousedown='next_wind();'>&gt;</button>"
+                +"<button  title='next wind' id ='bouton9'  style='margin-right: 0px;' onmousedown='next_wind();'>&gt;</button>"
             +" </span>"
-                +" <span class='col5'>TWS</span>"
-                +" <span class='col4' ><input type='text' name='tws3'size=3 ></span>"
+                
+            +" <span class='col5'>TWS</span>"
+                +" <span class='col4' ><input type='text' name='tws3' id = 'tws3' size=3 ></span>"
                 +"    <span class='col5'>TWD</span>"
-                +"    <span class='col4'><input type='text' name='twd3' size=3 ></span>"
-            +"     <span class='col5'>DIST</span>"
-            +"    <span class='col4'><input type='text' name='dist3' size=3  ></span>"
-            +"  </p>"
-            +"  </p>"
+                +"    <span class='col4'><input type='text' name='twd3'  id = 'twd3' size=3 ></span>"
+                +"    <span class='col5'>DIST</span>"
+                +"    <span class='col4'><input type='text' name='dist3' id='dist3'  size=3  ></span>"
+            +"</div>" 
+
+            +"<div id = 'captwa' >"
             +"      <span class='col8'></span>"
             +"      <span id='infosimul3'  >Cap et TWA: </span>"
             +"    <span class='col8'></span>"
-            +" </p>"
-            +"<input type='hidden' id='capm3'><input type='hidden' id='twam3'><input type='hidden' id='npt'>"
-            +"</form>"
+            +"</div>"
+
+        +"</div>"    
+            
+           
+            
+
+
 
             var texteboite2="<div class=simulation>Simulation :   Cap <input type='checkbox'  id= 'lignecap' checked> TWA <input type='checkbox' id='lignetwa' checked><br> "
             +"<table>"
@@ -349,7 +372,7 @@
         L.polyline(polylineblue) .setStyle({ color: 'blue' , weight:2,              }).addTo(map);          // Route 
         L.marker([latdep, lngdep],  {icon: blackIcon}).bindTooltip(tooltip[0]).addTo(map);                  // Depart
         L.marker([latar, lngar],    {icon: redIcon}).addTo(map);                                            // Arrivee
-        L.polygon(barriere) .setStyle({ color: 'red' , weight:1,    opacity:0.5          }).addTo(map);     // Barriere 
+     //   L.polygon(barriere) .setStyle({ color: 'red' , weight:1,    opacity:0.5          }).addTo(map);     // Barriere 
         L.polyline(polylinered[isogrib])  .setStyle({ color: 'red'  , weight:3, opacity:0.3, }).addTo(map); // Prochain grib
       
       
@@ -501,7 +524,7 @@
             document.getElementById('course2').innerHTML=nomcourse
             document.getElementById('date2').innerHTML=intlhmn.format(date0)
             document.getElementById('idnomgrib').innerHTML=nomgrib
-            document.getElementById('twavr').innerHTML=twavr.toFixed(0)
+            document.getElementById('twavr').innerHTML=twavr.toFixed(1)
             document.getElementById('twdvr').innerHTML=twdvr.toFixed(1)
             document.getElementById('twsvr').innerHTML=twsvr.toFixed(2)
             //document.getElementById('latdep2').innerHTML=latdep.toFixed(3)+'N '+pos_dec_mn(latdep)
@@ -536,6 +559,8 @@
            // twainit=document.getElementById('stocka1').innerHTML  //recuperation de la valeur
             twainit=document.formu3.twam3.value
             meteodepart=vit_angle_vent (latdep,lngdep ,tsimation)  //meteo au point de depart 
+
+           
             try{meteocurseur=vit_angle_vent (e.latlng.lat,e.latlng.lng ,tsimation) }
             catch(err){console.log ('erreur sur la meteo');meteocurseur=meteodepart} //meteo au curseur 
             direction=dist_cap_ortho(latdep,lngdep,e.latlng.lat,e.latlng.lng) //direction distance vers le curseur
@@ -543,9 +568,15 @@
             
             document.formu3.latcurseur3.value=pos_dec_mn_lat(e.latlng.lat)+' '+e.latlng.lat.toFixed(3)
             document.formu3.lngcurseur3.value=pos_dec_mn_lng(e.latlng.lng)+' '+e.latlng.lng.toFixed(3)
-            document.formu3.tws3.value=meteocurseur[0].toFixed(2)
-            document.formu3.twd3.value=meteocurseur[1].toFixed(2)
-            document.formu3.dist3.value=direction[0].toFixed(0) 
+
+           
+           
+            document.getElementById('tws3').value=meteocurseur[0].toFixed(2)
+            document.getElementById('twd3').value=meteocurseur[1].toFixed(2)
+            document.getElementById('dist3').value=direction[0].toFixed(0)
+            
+
+
             valcal=direction[1].toFixed(0)
             
             cap0= Math.floor(direction[1])

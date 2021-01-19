@@ -229,12 +229,12 @@ def f_isochrone2(l, temps_initial_iso):
         
         if (points_calcul[i][0] <180):
             is_on_land = globe.is_land(-points_calcul[i][1], points_calcul[i][0])   # point de latitude -y et longitude x
-            is_in_ice  = inbarriere(-points_calcul[i][1], points_calcul[i][0])
+        #    is_in_ice  = inbarriere(-points_calcul[i][1], points_calcul[i][0])
         else :
             is_on_land = globe.is_land(-points_calcul[i][1], points_calcul[i][0]-360)   # point de latitude -y et longitude x
-            is_in_ice  = inbarriere(-points_calcul[i][1], points_calcul[i][0]-360)
+        #    is_in_ice  = inbarriere(-points_calcul[i][1], points_calcul[i][0]-360)
         
-        if (is_on_land==True)or(is_in_ice==True) :
+        if (is_on_land==True) :
             points_calcul = np.delete(points_calcul, i, 0)
     points_calcul[:,6]= np.floor(points_calcul[:,6]/coeff)       # on retablit le cap en valeur a rechanger en around 0 decimale
     points_calcul     = points_calcul[points_calcul[:,6].argsort(kind='mergesort')] #on trie sur les caps a voir si necessaire !
@@ -594,24 +594,24 @@ def leaflet():
 def windleaf():
 
     tsimul=time.time()
-    global x0,y0,x1,y1,nb_points_ini,nb_points_sec ,tig,GR,barriere
+    global x0,y0,x1,y1,nb_points_ini,nb_points_sec ,tig,GR
     tig, GR,filename        = chargement_grib()
     #**********************************************************************************
     nb_points_ini=200
-    nb_points_sec=50 
+    nb_points_sec=30 
     #**********************************************************************************
     # valeurs par defaut si pas de retour de dashboard
-    course="440.1"
+    course="442.1"
     depart="depart"
-    arrivee="bouee99"
-    nomcourse="Vendee Globe"
-    bateau="imoca60vg"
+    arrivee="arrivee"
+    nomcourse="RORC TRANSAT"
+    bateau="imoca40"
 
     with open('static/js/courses.json', 'r') as fichier:                      # change dans fichier courants
         data1  = json.load(fichier)
         latar  = (data1[course][arrivee]["lat"])
         lngar  = (data1[course][arrivee]["lng"])
-        barriere= np.array(data1[course]['barriere'])    #extraction de la barriere et transformation en np.array
+    #    barriere= np.array(data1[course]['barriere'])    #extraction de la barriere et transformation en np.array
     
     try:
         (request.args['latdep'])

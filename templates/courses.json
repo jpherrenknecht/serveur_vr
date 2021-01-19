@@ -172,6 +172,26 @@
         }   ,
 
 
+
+        "442.1":   
+        {"numero"  : "442.1" ,
+        "nom":"RORC Transat ",
+        "bateau":"Class40",
+        "nomcomplet": "Classe 40",
+        "polaires":"polaires_class40.py",
+        "depart":{"lat":"051-01-30-N" ,"lng":"002-10-20-E"},
+        "ile1":{"lat":"049-29-36-N" ,"lng":"001-09-13-W"}, 
+        "wight":{"lat":"050-41-13-N" ,"lng":"001-04-11-W"},
+        "pointe":{"lat":"050-02-00-N" ,"lng":"005-40-55-W"},
+        "bouee3":{"lat":"052-14-28-N" ,"lng":"006-17-23-W"},
+        "fastnet":{"lat":"051-24-00-N" ,"lng":"009-26-00-W"},
+        "scilly":{"lat":"049-52-10-N" ,"lng":"006-26-33-W"},
+        "guernesey":{"lat":"049-24-09-N" ,"lng":"002-22-03-W"},
+        "pt_cotentin":{"lat":"049-43-54-N" ,"lng":"001-57-20-W"},
+        "arrivee":{"lat":"012-00-00-N" ,"lng":"061-00-43-W"}
+
+       } ,  
+
             "9999":   
         {"numero"  : "9999" ,
         "nom":"Course test",

@@ -781,11 +781,27 @@ function arrondi(a,n)
 
 		function show_wind(h)
 			{
-				var wind_time=h
+				wind_time=h
 				
 				document.getElementById("hours")[h].selected=true;
 				// recuperation de la valeur souhaitee 	
 				//document.getElementById('valeurtemps').innerHTML=wind_time
+				tempsmeteo=+tsimation+(h*3600)
+				try{meteocurseur=vit_angle_vent (e.latlng.lat,e.latlng.lng ,tempsmeteo) }
+				catch(err){console.log ('erreur sur la meteo');meteocurseur=meteodepart} //meteo au curseur 
+						   
+			   
+				document.getElementById('tws3').value=meteocurseur[0].toFixed(2)
+				document.getElementById('twd3').value=meteocurseur[1].toFixed(2)
+				document.getElementById('dist3').value=direction[0].toFixed(0)
+				// console.log ('wind_time : '+wind_time)
+				// document.getElementById('dist3').value=wind_time
+
+
+
+
+
+
 			}
 
 
@@ -794,6 +810,7 @@ function arrondi(a,n)
 			var wind_time=document.getElementById('hours').selectedIndex;
 			if (wind_time<24){
 			show_wind(+wind_time+1)
+			console.log ('wind_time'+wind_time)
 			}
 			}
 

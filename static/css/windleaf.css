@@ -1,41 +1,42 @@
 body{padding:0;margin:0;background:#fff;behavior:url(csshover.htc)}
-form {margin:0px;}
-#container{width:1920px; margin:0 auto;}
 
-#header {padding:10px}
+H1{font-size:30pt;font-family:Lucida Grande,Lucida Sans,Arial,sans-serif;color:rgb(43, 199, 82);font-weight:800;text-align:left}
+H2{font-size:20pt;font-family:Lucida Grande,Lucida Sans,Arial,sans-serif;color:#000;font-weight:800;text-align:left}
+H3{font-size:15;font-family:Lucida Grande,Lucida Sans,Arial,sans-serif;color:rgb(20, 12, 94);font-weight:800;text-align:left}
+canvas {position : absolute ; }
+form { margin:0px 0px 0px 0px;}
+
+a:hover {background:rgba(131, 131, 202, 0.973); }
+
 .texte1  {width: 100px ; height :20px;background:rgb(39, 228, 241);padding: 2px; margin: 2px;}
 .texte2  {width: 100px ; height :20px;background:white;padding: 2px; margin: 2px;}
-
-
-#table {display :table;}
 .row {display:table-row;}
 .cell {display: table-cell}
 .red {font-weight:800;color:red;}
 .green {font-weight:800;color:green;}
 .purple {color: purple;}
+.noir {color:black; padding:1px; margin:1px;}
+.twa {width: 50px ; height :20px;background:red;padding: 4px; margin: 0px;}
+.ui-widget {font-size :0.8em ; color:white;}
+.titre3     {position : relative ;top: 0px; text-align: center;font-size: 12px; font-weight :800;margin:5px; border:  0px solid rgb(255, 0, 212); z-index:5; }
+.text1      {position : relative ;top: 0px; text-align: center;font-size: 12px;font-weight :800;margin:5px;  border:  0px solid rgb(255, 51, 0); z-index:5; }
+
+
+#container{width:1920px; margin:0 auto;}
+#header {padding:10px}
+#table {display :table;}
 #twsvr  {color: purple;}
 #twdvr {color: purple;}
-
 #twasimul{margin-left: 20px;font-weight:800;color:green;}
-
-.noir {color:black; padding:1px; margin:1px;}
- a:hover {background:rgba(131, 131, 202, 0.973); }
-
-.twa {width: 50px ; height :20px;background:red;padding: 4px; margin: 0px;}
-
 #main { margin-top: 25px;  text-align: center;   font-size: 10px;    }
-
 #windy {  width: 100%; height: 100%;            }
 #infosimul{margin-left: 30px;}
 #infosimul3{margin-left: 30px;font-size:15pt}
 #ok{margin:-5px 0px 2px 10px;}
 
-H1{font-size:30pt;font-family:Lucida Grande,Lucida Sans,Arial,sans-serif;color:rgb(43, 199, 82);font-weight:800;text-align:left}
-H2{font-size:20pt;font-family:Lucida Grande,Lucida Sans,Arial,sans-serif;color:#000;font-weight:800;text-align:left}
-H3{font-size:15;font-family:Lucida Grande,Lucida Sans,Arial,sans-serif;color:rgb(20, 12, 94);font-weight:800;text-align:left}
 
-.ui-widget {font-size :0.8em ; color:white;}
-/* .ui-widget-content { background: red;} */
+
+
 #spinner_twa  {width: 50px ; height :20px;background:red;padding: 4px; margin: 0px;}
 #spinner_hdg  {width: 50px ; height :20px;background:green;padding: 4px; margin: 0px;}
 
@@ -57,57 +58,9 @@ H3{font-size:15;font-family:Lucida Grande,Lucida Sans,Arial,sans-serif;color:rgb
 }
 
 
-/* 
-.boite2 {
-  display: flex;
-  flex-wrap: wrap;
-     width:400px; 
-        
-    background: rgba(255,255,255, 0.7);
-    position: absolute;
-    top:260px;
-    left:0%;
-    padding:0px;
-    margin:5px;
-    border:1px solid grey;
-    z-index:10;
-    border-radius:10px;
-    font-size:10pt;
-    color:black;
-  
-}
-
-
-
-.boite2 span {
-  margin:5px;
-  font-family:Lucida Grande,Lucida Sans,Arial,sans-serif;
-  font-size:15px;
-  font-weight: bold;
-}
- */
  .simulation {margin:0px 5px 0px 10px;font-size:15;font-family:Lucida Grande,Lucida Sans,Arial,sans-serif;color:rgb(20, 12, 94);font-weight:800;text-align:left}
 
- .tableau span {
-  display:inline;
-  float:left;
-  border:1px solid #FF6600; */
-  margin:0px;
-  padding:3px;
- }
-.tableau p {
-  clear:left;
-  margin:0px;
-  padding:0px;
-  height:100% !important; height:1em;
- }
-.tableau p.legende {font-weight:bold}
-.tableau span.col1 {width:70px}
-.tableau span.col2 {width:140px}
-.tableau span.col3 {width:140px}
-.tableau span.col4 {width:50px}
-.tableau span.col5 {width:60px}
-
+ 
 
 .titre {
     margin: 0px;
@@ -115,7 +68,7 @@ H3{font-size:15;font-family:Lucida Grande,Lucida Sans,Arial,sans-serif;color:rgb
     width: 80px;
     height: 20px;
     background-color: lightblue;
-    border: 1px solid blue;
+    border: 0px solid blue;
     display: inline-block;
     text-align:center;
     border-radius:3px;
@@ -168,6 +121,10 @@ H3{font-size:15;font-family:Lucida Grande,Lucida Sans,Arial,sans-serif;color:rgb
     /* display:none; */
 }
 
+
+#titreboite1
+  {position : relative ;top: 0px; left :0px ;height:20px ;width:400px ;font-size: 12px; border:  0px solid red; z-index:5; border-radius: 10px;}
+
   
 .boite2 {
   
@@ -188,9 +145,11 @@ H3{font-size:15;font-family:Lucida Grande,Lucida Sans,Arial,sans-serif;color:rgb
 
 .Tableau
 {
+  position :relative ;
   width:400px; 
-  
+  /* height:200px; */
   margin:0;
+  border:0px solid blue;
 }
 
 .Tableau span {
@@ -213,10 +172,8 @@ H3{font-size:15;font-family:Lucida Grande,Lucida Sans,Arial,sans-serif;color:rgb
 .Tableau span.col10 {width:65px; text-align:center;}
 .Tableau span.col2 {width:145px; text-align:center;}
 .Tableau span.col2b {width:145px; text-align:center; color :blue;}
-
 .Tableau span.col3 {width:120px; text-align:center;padding:4px;}
 .Tableau span.col4 {width:50px; text-align:center;border:0px solid #070707;}
-
 .Tableau span.col5 {width:40px; text-align:center;border:0px solid #58d410c9; margin-top:5px;}
 .Tableau span.col6 {width:40px; text-align:center;border:0px solid #070707;}
 .Tableau span.col7 {width:35px; text-align:center;border:0px solid #070707;}
@@ -229,21 +186,6 @@ H3{font-size:15;font-family:Lucida Grande,Lucida Sans,Arial,sans-serif;color:rgb
 .col03 {float:left;width:110px;text-align:center;border:1px solid #ff000000;border-radius:3px;padding:0px;margin:0px 5px 5px 5px;font-size:17px;}
 
 
-
-/* 
-.boite3 {
-  width: 400px; 
-  /* height:200px;  
-  background: rgba(255, 255, 255, 0.7);
-  padding:5px;
-  margin:5px;
-  border:1px solid grey;
-  z-index:10;
-  border-radius:10px;
-  font-size:10pt;
-  color:black;
- 
-} */
 
 .boite3 {
   
@@ -266,15 +208,16 @@ H3{font-size:15;font-family:Lucida Grande,Lucida Sans,Arial,sans-serif;color:rgb
   border:0px solid grey;
   margin:2px;
 }
+
 .boite3 p{
-  //border:1px solid grey;
+  border:1px solid grey;
   margin:5px;
 }
 
 
 #myCanvas1 {border: 0px solid black}
 #myCanvas2 {border: 0px solid red}
-canvas {position : absolute ; }
+
 
 
 #textecanvas{position : relative ;top: 20px; left :210px ;height:300px ;width:180px ;font-size: 12px; border:  0px solid red; z-index:5; border-radius: 10px;}
@@ -285,6 +228,28 @@ canvas {position : absolute ; }
 #titretwa     {position : relative ;top: 10px; text-align: center;font-size: 1.0em;font-weight :800; margin:5px; border:  0px solid rgb(255, 51, 0); z-index:5; }
 #titrevitesse     {position : relative ;top: 10px; text-align: center;font-size: 1.0em;font-weight :800; margin:5px; border:  0px solid rgb(255, 51, 0); z-index:5; }
 
-.titre3     {position : relative ;top: 0px; text-align: center;font-size: 12px; font-weight :800;margin:5px; border:  0px solid rgb(255, 0, 212); z-index:5; }
-.text1      {position : relative ;top: 0px; text-align: center;font-size: 12px;font-weight :800;margin:5px;  border:  0px solid rgb(255, 51, 0); z-index:5; }
+
 #lien     {position : relative ;top: 50px; left:10px ;text-align: center;font-size: 1.0em;font-weight :800; margin:5px; border: 0px solid rgb(255, 51, 0); z-index:5; }
+#bouton8  {position : relative ;top: 0px; left:0px ;text-align: center;font-size: 1.0em;font-weight :800; margin:0px; border: 1px solid rgb(255, 51, 0); z-index:5; }
+#bouton9 {position : relative ;top: 0px; left:0px ;text-align: center;font-size: 1.0em;font-weight :800; margin:0px; border: 1px solid rgb(255, 51, 0); z-index:5; }
+
+
+.vent
+{
+  position :relative ;
+  width:400px; 
+  /* height:200px; */
+  margin:0;
+  border:0px solid blue;
+}
+
+.vent span {
+ display:inline;
+ float:left;
+ border:0px solid #FF6600;
+ margin:0px;
+ padding:2px;
+
+}
+
+.vent span.espace20 {width:20px; text-align:center;}
