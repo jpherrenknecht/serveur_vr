@@ -197,7 +197,7 @@ def f_isochrone2(l, temps_initial_iso):
         Ca        = Ca1.reshape(-1,1)
         # maintenant on forme le tableau correspondant à n_pts_x
         n_pts_x2       = np.concatenate((X,Y,niso,npointsm,npoints,Da,Ca), axis = 1)    # tableau des points pour un point de base
-        points_calcul = np.concatenate((points_calcul,n_pts_x2), axis         = 0)           # tableau du brouillard pour tous les points de base 
+        points_calcul = np.concatenate((points_calcul,n_pts_x2), axis         = 0)      # tableau du brouillard pour tous les points de base 
 
 
 #VERSION MODIFIEE
@@ -307,7 +307,7 @@ def fonction_routeur(course,latdep,lngdep,latar,lngar,t0=time.time()):
     # lngar  = (data1[course][arrivee]["lng"])
     # print ('\nCourse  :',course)
     # print   ('Bateau  :',bateau)
-    # print   ('Depart  :',latdep, lngdep,' ')
+    # print   ('Depart  :',latdep, lngdep,' ')f
     # print   ('Arrivee :',latar, lngar,' ')
     # print()
 
@@ -544,7 +544,6 @@ def fullpolarsvgjson():
 
 @app.route('/javascript')
 def javascript(): 
-   
     return render_template("javascript.html")
 
 

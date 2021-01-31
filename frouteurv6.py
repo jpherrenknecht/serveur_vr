@@ -7,7 +7,7 @@ import xarray as xr
 import json
 import folium
 import webbrowser
-from uploadgrib import *
+from uploadgrib3 import *
 from fonctions_vr import *
 from global_land_mask import globe
 from flask import Flask, redirect, url_for,render_template, request , session , flash
@@ -54,7 +54,7 @@ def f_isochrone2(l, temps_initial_iso):
     
     for i in range(l):
 
-      #VARIANTE
+
      # twa precedente
         twap=twa[i]
         # ici c'est nouveau
@@ -86,7 +86,7 @@ def f_isochrone2(l, temps_initial_iso):
 
 
 
-#VERSION MODIFIEE
+
 
     points_calcul = np.delete(points_calcul,0,0)                                    # on retire le premier terme de points_calcul
     points_calcul = points_calcul[points_calcul[: ,6].argsort(kind = 'mergesort')]   # tri stable sur 6eme colonne (caps vers arrivee)
@@ -100,7 +100,7 @@ def f_isochrone2(l, temps_initial_iso):
     coeff   = nb_points/ (capmaxi-capmini)  # coefficient pour ecremer et garder 50 points
 
 
-#VERSION MODIFIEE
+
 #ecremage arrondi et tri
     points_calcul[:,6]=np.around(points_calcul[:,6]*coeff,0)                   # La colonne 6 est arrondie  
     points_calcul     = points_calcul[points_calcul[:,5].argsort(kind='mergesort')] # On trie sur les distances 
@@ -178,9 +178,10 @@ def fonction_routeur(course,depart,arrivee,t0=time.time()):
 
 
     global isochrone,intervalles,TWS,TWD,tig,GR,angle_objectif,angle_twa_pres,angle_twa_ar,temps_mini,A,polaires,tab_twa,tab_tws
-    tig, GR        = chargement_grib()
-
-    with open('courses.json', 'r') as fichier:
+   
+    tig, GR,filename        = chargement_grib()
+  
+    with open('static/js/courses.json', 'r') as fichier:     
         data1 = json.load(fichier)
     print ('course',course)
     bateau=  (data1[course]["bateau"])
@@ -194,7 +195,7 @@ def fonction_routeur(course,depart,arrivee,t0=time.time()):
     print ('Arrivee :',latar, lngar,' ')
     print()
 
-    with open('polars.json', 'r') as fichier:
+    with open('static/js/polars.json', 'r') as fichier:
         data2 = json.load(fichier)
     
     angle_twa_pres=data2[bateau]["pres_mini"]
@@ -260,8 +261,6 @@ def fonction_routeur(course,depart,arrivee,t0=time.time()):
 
 
 
-#VARIANTE
-
 
     a = int(indice)                 # indice du point de la route la plus courte
     n = int(isochrone[-1][2])       # nombre d'isochrones
@@ -315,14 +314,7 @@ def fonction_routeur(course,depart,arrivee,t0=time.time()):
     chem = np.concatenate((chx.T, chy.T, temps_pts.T, vitesse.T, TWDR.T, cap.T, twat.T, pol.T), axis=1)
 
     temps_cum += tig
-#VERIFICATION
-    # print('430 chem version base', chem[-1])
-    # print('431 chem version variante', chem2[-1])
 
-
-
-
-#VARIANTE
     route3=[]
     comment=[]
     for i in range (0,len(chem),1):
@@ -369,23 +361,13 @@ def fonction_routeur(course,depart,arrivee,t0=time.time()):
 
 
 
-
-
-
-
-
-
-
-
-
-
 if __name__ == '__main__':
   
 
 #*******************************************************************************************
 #*******************************************************************************************
 # Fonction_routeur  elle retourne les isochrones (multipolyline) et la route ,
-    multipolyline,route,comment,x0,y0,x1,y1,tab_tws,tab_twa,polaires=fonction_routeur("438","depart","bouee1")
+    multipolyline,route,comment,x0,y0,x1,y1,tab_tws,tab_twa,polaires=fonction_routeur("440.1","depart","bouee11")
 #*******************************************************************************************
 #*******************************************************************************************
 
@@ -412,11 +394,6 @@ if __name__ == '__main__':
     #trace des isochrones           
     folium.PolyLine(green,color='black',weight=1 , popup='Isochrone %6 ').add_to(m) 
     folium.PolyLine(orange,color='red',weight=1 , popup='Isochrone ').add_to(m)   
-
-
-
-
-
 
 
     
